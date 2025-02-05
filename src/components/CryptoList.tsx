@@ -1,6 +1,7 @@
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 interface BinanceTickerData {
   symbol: string;
@@ -12,10 +13,10 @@ interface BinanceTickerData {
 
 const fetchCryptoData = async () => {
   try {
-    // Fix: Remove the array syntax from the URL as Binance expects a different format
-    const symbols = encodeURIComponent('["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","SOLUSDT"]');
+    // Fix: Format symbols as a proper JSON array without string quotes
+    const symbols = ["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","SOLUSDT"];
     const response = await fetch(
-      `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`,
+      `https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(symbols)}`,
       {
         headers: {
           'Accept': 'application/json',
@@ -70,15 +71,23 @@ const getCryptoImage = (symbol: string): string => {
 const CryptoList = () => {
   const { toast } = useToast();
   
-  const { data: cryptos, isLoading, isError } = useQuery({
+  const { data: cryptos, isLoading, isError, error } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptoData,
     refetchInterval: 30000, // Refetch every 30 seconds
     retry: 3, // Retry failed requests 3 times
-    meta: {
-      errorMessage: 'Failed to fetch crypto data'
-    },
   });
+
+  // Move toast to useEffect to prevent infinite renders
+  useEffect(() => {
+    if (isError) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Unable to load crypto data. Please try again later.",
+      });
+    }
+  }, [isError, toast]);
 
   if (isLoading) {
     return (
@@ -100,12 +109,6 @@ const CryptoList = () => {
   }
 
   if (isError) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Unable to load crypto data. Please try again later.",
-    });
-    
     return (
       <div className="glass-card rounded-lg p-6">
         <div className="text-center text-warning">
