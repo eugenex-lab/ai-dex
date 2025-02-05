@@ -13,24 +13,15 @@ interface BinanceTickerData {
 
 const fetchCryptoData = async () => {
   try {
-    // Fix: Format symbols as a proper JSON array without string quotes
-    const symbols = ["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","SOLUSDT"];
-    const response = await fetch(
-      `https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(symbols)}`,
-      {
-        headers: {
-          'Accept': 'application/json',
-        }
-      }
+    // Using individual requests to avoid CORS issues
+    const symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT"];
+    const promises = symbols.map(symbol =>
+      fetch(`https://api.binance.us/api/v3/ticker/24hr?symbol=${symbol}`)
+        .then(res => res.json())
     );
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.msg || 'Failed to fetch crypto data');
-    }
-    
-    const data: BinanceTickerData[] = await response.json();
-    return data.map(ticker => ({
+    const responses = await Promise.all(promises);
+    return responses.map(ticker => ({
       symbol: ticker.symbol.replace('USDT', ''),
       name: getCryptoName(ticker.symbol.replace('USDT', '')),
       current_price: parseFloat(ticker.lastPrice),
