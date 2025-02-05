@@ -30,7 +30,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl h-[600px] relative overflow-hidden">
+      <div className="w-full max-w-7xl h-[600px] relative overflow-hidden">
         <div 
           className="absolute inset-0 blur-3xl opacity-50 transition-all duration-1000"
           style={{
@@ -39,8 +39,8 @@ const Index = () => {
           }}
         />
         
-        <div className="flex h-full flex-col md:flex-row relative z-10">
-          <div className="flex-1 p-8 relative z-10 flex flex-col justify-center">
+        <div className="flex h-full flex-col-reverse md:flex-row relative z-10">
+          <div className="flex-1 p-8 relative z-10 flex flex-col justify-center text-center md:text-left">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ const Index = () => {
                 <br />
                 Reimagined
               </h1>
-              <p className="mt-4 text-neutral-300 max-w-lg text-lg">
+              <p className="mt-4 text-neutral-300 max-w-lg mx-auto md:mx-0 text-lg">
                 Experience the future of cryptocurrency trading with our advanced platform.
                 Real-time data, AI-powered insights, and seamless transactions.
               </p>
@@ -64,7 +64,7 @@ const Index = () => {
             </motion.div>
           </div>
 
-          <div className="flex-1 relative">
+          <div className="flex-1 relative h-[400px] md:h-full">
             <SplineScene 
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"

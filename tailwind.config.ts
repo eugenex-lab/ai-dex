@@ -25,7 +25,7 @@ export default {
         background: "#141413",
         foreground: "#FAFAF8",
         primary: {
-          DEFAULT: "#8989DE",
+          DEFAULT: "#3B82F6", // Changed to match the blue from the logo
           foreground: "#FAFAF8",
         },
         secondary: {
@@ -45,7 +45,7 @@ export default {
           foreground: "#E6E4DD",
         },
         accent: {
-          DEFAULT: "#8989DE",
+          DEFAULT: "#3B82F6", // Changed to match primary
           foreground: "#FAFAF8",
         },
       },
