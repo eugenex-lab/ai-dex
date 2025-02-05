@@ -6,7 +6,7 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-secondary/80 backdrop-blur-lg border-t border-white/10 py-12">
+    <footer className="bg-background py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* About Column */}
@@ -96,7 +96,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-white/10 text-center text-sm text-foreground/60">
+        <div className="mt-12 pt-8 text-center text-sm text-foreground/60">
           <p>© {new Date().getFullYear()} Tradenly AI DEX. All rights reserved.</p>
         </div>
       </div>

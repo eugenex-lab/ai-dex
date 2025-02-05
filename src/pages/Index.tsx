@@ -1,5 +1,4 @@
 import { SplineScene } from "@/components/ui/spline";
-import { Card } from "@/components/ui/card";
 import { Spotlight } from "@/components/ui/spotlight";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -31,7 +30,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-6xl h-[600px] bg-black/[0.96] relative overflow-hidden">
+      <div className="w-full max-w-6xl h-[600px] relative overflow-hidden">
         <div 
           className="absolute inset-0 blur-3xl opacity-50 transition-all duration-1000"
           style={{
@@ -72,7 +71,7 @@ const Index = () => {
             />
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
