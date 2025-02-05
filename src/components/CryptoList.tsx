@@ -12,8 +12,10 @@ interface BinanceTickerData {
 
 const fetchCryptoData = async () => {
   try {
+    // Fix: Remove the array syntax from the URL as Binance expects a different format
+    const symbols = encodeURIComponent('["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","SOLUSDT"]');
     const response = await fetch(
-      'https://api.binance.com/api/v3/ticker/24hr?symbols=["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","SOLUSDT"]',
+      `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbols}`,
       {
         headers: {
           'Accept': 'application/json',
@@ -22,7 +24,8 @@ const fetchCryptoData = async () => {
     );
     
     if (!response.ok) {
-      throw new Error('Failed to fetch crypto data');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.msg || 'Failed to fetch crypto data');
     }
     
     const data: BinanceTickerData[] = await response.json();
@@ -97,6 +100,12 @@ const CryptoList = () => {
   }
 
   if (isError) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Unable to load crypto data. Please try again later.",
+    });
+    
     return (
       <div className="glass-card rounded-lg p-6">
         <div className="text-center text-warning">
