@@ -1,48 +1,79 @@
 import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+
+interface BinanceTickerData {
+  symbol: string;
+  lastPrice: string;
+  priceChangePercent: string;
+  volume: string;
+  quoteVolume: string;
+}
 
 const fetchCryptoData = async () => {
   try {
     const response = await fetch(
-      'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=5&page=1&sparkline=false',
+      'https://api.binance.com/api/v3/ticker/24hr?symbols=["BTCUSDT","ETHUSDT","BNBUSDT","XRPUSDT","SOLUSDT"]',
       {
         headers: {
           'Accept': 'application/json',
-          // Add a proper user agent to identify our app
-          'User-Agent': 'TradingDEX/1.0',
         }
       }
     );
     
     if (!response.ok) {
-      if (response.status === 429) {
-        throw new Error('Rate limit exceeded. Please try again later.');
-      }
       throw new Error('Failed to fetch crypto data');
     }
     
-    return response.json();
+    const data: BinanceTickerData[] = await response.json();
+    return data.map(ticker => ({
+      symbol: ticker.symbol.replace('USDT', ''),
+      name: getCryptoName(ticker.symbol.replace('USDT', '')),
+      current_price: parseFloat(ticker.lastPrice),
+      price_change_percentage_24h: parseFloat(ticker.priceChangePercent),
+      total_volume: parseFloat(ticker.quoteVolume),
+      image: getCryptoImage(ticker.symbol.replace('USDT', '')),
+    }));
   } catch (error) {
     console.error('Error fetching crypto data:', error);
     throw error;
   }
 };
 
+// Helper function to get crypto names
+const getCryptoName = (symbol: string): string => {
+  const names: Record<string, string> = {
+    'BTC': 'Bitcoin',
+    'ETH': 'Ethereum',
+    'BNB': 'Binance Coin',
+    'XRP': 'Ripple',
+    'SOL': 'Solana',
+  };
+  return names[symbol] || symbol;
+};
+
+// Helper function to get crypto images
+const getCryptoImage = (symbol: string): string => {
+  const images: Record<string, string> = {
+    'BTC': 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
+    'ETH': 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
+    'BNB': 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
+    'XRP': 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
+    'SOL': 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
+  };
+  return images[symbol] || '';
+};
+
 const CryptoList = () => {
   const { toast } = useToast();
   
-  const { data: cryptos, isLoading, isError, error } = useQuery({
+  const { data: cryptos, isLoading, isError } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptoData,
     refetchInterval: 30000, // Refetch every 30 seconds
     retry: 3, // Retry failed requests 3 times
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error fetching crypto data",
-        description: error instanceof Error ? error.message : "Please try again later",
-      });
+    meta: {
+      errorMessage: 'Failed to fetch crypto data'
     },
   });
 
