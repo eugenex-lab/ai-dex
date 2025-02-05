@@ -1,75 +1,20 @@
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-
-interface BinanceTickerData {
-  symbol: string;
-  lastPrice: string;
-  priceChangePercent: string;
-  volume: string;
-  quoteVolume: string;
-}
-
-const fetchCryptoData = async () => {
-  try {
-    // Using individual requests to avoid CORS issues
-    const symbols = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "XRPUSDT", "SOLUSDT"];
-    const promises = symbols.map(symbol =>
-      fetch(`https://api.binance.us/api/v3/ticker/24hr?symbol=${symbol}`)
-        .then(res => res.json())
-    );
-    
-    const responses = await Promise.all(promises);
-    return responses.map(ticker => ({
-      symbol: ticker.symbol.replace('USDT', ''),
-      name: getCryptoName(ticker.symbol.replace('USDT', '')),
-      current_price: parseFloat(ticker.lastPrice),
-      price_change_percentage_24h: parseFloat(ticker.priceChangePercent),
-      total_volume: parseFloat(ticker.quoteVolume),
-      image: getCryptoImage(ticker.symbol.replace('USDT', '')),
-    }));
-  } catch (error) {
-    console.error('Error fetching crypto data:', error);
-    throw error;
-  }
-};
-
-// Helper function to get crypto names
-const getCryptoName = (symbol: string): string => {
-  const names: Record<string, string> = {
-    'BTC': 'Bitcoin',
-    'ETH': 'Ethereum',
-    'BNB': 'Binance Coin',
-    'XRP': 'Ripple',
-    'SOL': 'Solana',
-  };
-  return names[symbol] || symbol;
-};
-
-// Helper function to get crypto images
-const getCryptoImage = (symbol: string): string => {
-  const images: Record<string, string> = {
-    'BTC': 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png',
-    'ETH': 'https://assets.coingecko.com/coins/images/279/small/ethereum.png',
-    'BNB': 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png',
-    'XRP': 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png',
-    'SOL': 'https://assets.coingecko.com/coins/images/4128/small/solana.png',
-  };
-  return images[symbol] || '';
-};
+import { fetchCryptoData } from "@/utils/cryptoUtils";
+import CryptoListSkeleton from "./CryptoListSkeleton";
+import CryptoListRow from "./CryptoListRow";
 
 const CryptoList = () => {
   const { toast } = useToast();
   
-  const { data: cryptos, isLoading, isError, error } = useQuery({
+  const { data: cryptos, isLoading, isError } = useQuery({
     queryKey: ['cryptos'],
     queryFn: fetchCryptoData,
     refetchInterval: 30000, // Refetch every 30 seconds
     retry: 3, // Retry failed requests 3 times
   });
 
-  // Move toast to useEffect to prevent infinite renders
   useEffect(() => {
     if (isError) {
       toast({
@@ -81,22 +26,7 @@ const CryptoList = () => {
   }, [isError, toast]);
 
   if (isLoading) {
-    return (
-      <div className="glass-card rounded-lg p-6 animate-pulse">
-        <div className="h-6 w-48 bg-secondary rounded mb-6"></div>
-        <div className="space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center space-x-4">
-              <div className="h-8 w-8 bg-secondary rounded-full"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 w-24 bg-secondary rounded"></div>
-                <div className="h-3 w-16 bg-secondary rounded"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <CryptoListSkeleton />;
   }
 
   if (isError) {
@@ -125,33 +55,7 @@ const CryptoList = () => {
           </thead>
           <tbody>
             {cryptos?.map((crypto) => (
-              <tr key={crypto.symbol} className="border-t border-secondary">
-                <td className="py-4">
-                  <div className="flex items-center gap-2">
-                    <img src={crypto.image} alt={crypto.name} className="w-8 h-8 rounded-full" />
-                    <div>
-                      <p className="font-medium">{crypto.name}</p>
-                      <p className="text-sm text-muted-foreground">{crypto.symbol.toUpperCase()}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="py-4">${crypto.current_price.toLocaleString()}</td>
-                <td className="py-4">
-                  <span
-                    className={`flex items-center gap-1 ${
-                      crypto.price_change_percentage_24h >= 0 ? "text-success" : "text-warning"
-                    }`}
-                  >
-                    {crypto.price_change_percentage_24h >= 0 ? (
-                      <ArrowUpIcon className="w-3 h-3" />
-                    ) : (
-                      <ArrowDownIcon className="w-3 h-3" />
-                    )}
-                    {Math.abs(crypto.price_change_percentage_24h).toFixed(2)}%
-                  </span>
-                </td>
-                <td className="py-4">${(crypto.total_volume / 1e9).toFixed(1)}B</td>
-              </tr>
+              <CryptoListRow key={crypto.symbol} crypto={crypto} />
             ))}
           </tbody>
         </table>
