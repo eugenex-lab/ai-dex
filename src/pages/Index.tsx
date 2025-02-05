@@ -6,33 +6,41 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const colors = [
-  "white",
-  "rgb(59, 130, 246)", // blue
-  "rgb(147, 51, 234)", // purple
-  "rgb(239, 68, 68)",  // red
-  "rgb(234, 179, 8)",  // yellow
+  "rgba(255, 255, 255, 0.8)",  // warm white
+  "rgba(59, 130, 246, 0.8)",   // blue
+  "rgba(147, 51, 234, 0.8)",   // purple
+  "rgba(239, 68, 68, 0.8)",    // red
+  "rgba(234, 179, 8, 0.8)",    // yellow
 ];
 
 const Index = () => {
   const [colorIndex, setColorIndex] = useState(0);
+  const [currentColor, setCurrentColor] = useState(colors[0]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setColorIndex((prev) => (prev + 1) % colors.length);
-    }, 3000); // Change color every 3 seconds
+    }, 3000);
 
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    setCurrentColor(colors[colorIndex]);
+  }, [colorIndex]);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-6xl h-[600px] bg-black/[0.96] relative overflow-hidden">
-        <Spotlight
-          className="-top-40 left-0 md:left-60 md:-top-20"
-          fill={colors[colorIndex]}
+        <div 
+          className="absolute inset-0 blur-3xl opacity-50 transition-all duration-1000"
+          style={{
+            background: `radial-gradient(circle at center, ${currentColor} 0%, transparent 70%)`,
+            transform: 'scale(1.2)',
+          }}
         />
         
-        <div className="flex h-full flex-col md:flex-row">
+        <div className="flex h-full flex-col md:flex-row relative z-10">
           <div className="flex-1 p-8 relative z-10 flex flex-col justify-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
