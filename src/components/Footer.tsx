@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { 
-  Info, User, Roadmap, MessageSquare, HelpCircle, BookOpen,
+  Info, User, Map, MessageSquare, HelpCircle, BookOpen,
   Code, Github, Shield, FileText, Cookie, ExternalLink
 } from "lucide-react";
 
@@ -22,7 +22,7 @@ const Footer = () => {
                 <span>Careers</span>
               </Link>
               <Link to="/roadmap" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
-                <Roadmap className="h-4 w-4" />
+                <Map className="h-4 w-4" />
                 <span>Roadmap</span>
               </Link>
             </div>
