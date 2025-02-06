@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 
@@ -6,23 +7,21 @@ interface CryptoChartProps {
   currentPair?: string;
 }
 
-const CryptoChart = ({ onPairChange, currentPair = 'BINANCE:BTCUSDT' }: CryptoChartProps) => {
+const CryptoChart = ({ onPairChange, currentPair = 'BTCUSDT' }: CryptoChartProps) => {
   const [localPair, setLocalPair] = useState(currentPair);
 
   const handleSymbolChange = (symbol: string) => {
-    setLocalPair(symbol);
-    // Extract the trading pair from the symbol (e.g., "BINANCE:BTCUSDT" -> "BTCUSDT")
-    const pair = symbol.includes(':') ? symbol.split(':')[1] : symbol;
+    // Clean the symbol by removing 'BINANCE:' prefix if present
+    const cleanSymbol = symbol.replace('BINANCE:', '');
+    setLocalPair(cleanSymbol);
     if (onPairChange) {
-      console.log('Chart: Updating pair to:', pair);
-      onPairChange(pair);
+      console.log('Chart: Updating pair to:', cleanSymbol);
+      onPairChange(cleanSymbol);
     }
   };
 
-  // Update local state when prop changes
-  if (currentPair !== localPair && currentPair.includes('BINANCE:')) {
-    setLocalPair(currentPair);
-  }
+  // Format pair for TradingView (needs BINANCE: prefix)
+  const formattedPair = `BINANCE:${localPair}`;
 
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in">
@@ -31,7 +30,7 @@ const CryptoChart = ({ onPairChange, currentPair = 'BINANCE:BTCUSDT' }: CryptoCh
       </div>
       <div className="h-[400px] w-full">
         <TradingViewWidget
-          symbol={localPair}
+          symbol={formattedPair}
           theme="dark"
           locale="en"
           autosize

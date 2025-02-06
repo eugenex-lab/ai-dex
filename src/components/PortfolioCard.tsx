@@ -32,6 +32,7 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
 
   useEffect(() => {
     if (currentPair !== selectedPair) {
+      console.log('PortfolioCard: Updating selected pair from prop:', currentPair);
       setSelectedPair(currentPair);
     }
   }, [currentPair]);
@@ -40,7 +41,7 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
     setSelectedPair(pair);
     if (onPairSelect) {
       console.log('PortfolioCard: Selected pair:', pair);
-      onPairSelect(`BINANCE:${pair}`);
+      onPairSelect(pair); // Remove BINANCE: prefix, pass clean symbol
     }
   };
 
