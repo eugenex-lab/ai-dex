@@ -21,14 +21,14 @@ const CopyTradeForm = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields"
       });
       return;
     }
 
     toast({
       title: "Copy Trade Created",
-      description: "Your copy trade has been set up successfully",
+      description: "Your copy trade has been set up successfully"
     });
   };
 
