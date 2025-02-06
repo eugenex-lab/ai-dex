@@ -8,15 +8,13 @@ import TokenStats from "./portfolio/TokenStats";
 import WalletConnection from "./portfolio/WalletConnection";
 
 interface PortfolioCardProps {
-  currentPair?: string;
-  onPairSelect?: (pair: string) => void;
+  currentPair: string;
   isSearchOpen: boolean;
   onSearchVisibilityChange: (isOpen: boolean) => void;
 }
 
 const PortfolioCard = ({ 
-  currentPair = 'BTCUSDT', 
-  onPairSelect,
+  currentPair,
   isSearchOpen,
   onSearchVisibilityChange
 }: PortfolioCardProps) => {
@@ -24,11 +22,6 @@ const PortfolioCard = ({
   const [receiveAmount, setReceiveAmount] = useState("");
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
-
-  const handlePairChange = (value: string) => {
-    console.log('PortfolioCard: Handling pair change:', value);
-    onPairSelect?.(value);
-  };
 
   // Mock data - In a real app, this would be fetched based on the selected pair
   const tokenStats = {
@@ -57,7 +50,6 @@ const PortfolioCard = ({
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
       <PairSearch 
         searchPair={currentPair}
-        onPairChange={handlePairChange}
         isSearchOpen={isSearchOpen}
         onSearchVisibilityChange={onSearchVisibilityChange}
       />

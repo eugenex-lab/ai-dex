@@ -54,7 +54,6 @@ const Dashboard = () => {
     setIsSearchOpen(isOpen);
   }, []);
 
-  // Log state changes for debugging
   useEffect(() => {
     console.log('Dashboard: Current pair updated to:', currentPair);
   }, [currentPair]);
@@ -80,8 +79,7 @@ const Dashboard = () => {
           </div>
           <div>
             <PortfolioCard 
-              currentPair={currentPair} 
-              onPairSelect={handlePairChange}
+              currentPair={currentPair}
               isSearchOpen={isSearchOpen}
               onSearchVisibilityChange={handleSearchVisibilityChange}
             />

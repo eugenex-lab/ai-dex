@@ -1,24 +1,21 @@
 
-import SearchableDropdown from "../common/SearchableDropdown";
-
 interface PairSearchProps {
   searchPair: string;
-  onPairChange: (value: string) => void;
   isSearchOpen: boolean;
   onSearchVisibilityChange: (isOpen: boolean) => void;
 }
 
 const PairSearch = ({ 
-  searchPair, 
-  onPairChange,
+  searchPair,
   isSearchOpen,
   onSearchVisibilityChange
 }: PairSearchProps) => {
   return (
     <div className="mb-4">
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Trading Pair:</span>
-        <span className="font-semibold">{searchPair}</span>
+      <div className="flex items-center gap-2 p-3 rounded-md bg-background/50 border border-border">
+        <span className="text-sm text-muted-foreground">Selected Trading Pair:</span>
+        <span className="font-semibold text-lg">{searchPair}</span>
+        <span className="text-xs text-muted-foreground ml-auto">(Change pair in chart)</span>
       </div>
     </div>
   );
