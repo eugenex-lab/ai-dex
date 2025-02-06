@@ -32,15 +32,15 @@
 /* Add new animation for the border light effect */
 @keyframes border-light {
   0% {
-    box-shadow: 0 0 10px #3B82F6;
+    box-shadow: 0 0 30px #3B82F6;
     opacity: 1;
   }
   50% {
-    box-shadow: 0 0 20px #3B82F6;
+    box-shadow: 0 0 60px #3B82F6;
     opacity: 0.5;
   }
   100% {
-    box-shadow: 0 0 10px #3B82F6;
+    box-shadow: 0 0 30px #3B82F6;
     opacity: 1;
   }
 }
@@ -76,12 +76,12 @@
 .traveling-light::before {
   content: '';
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 24px; /* Increased from 8px to 24px */
+  height: 24px; /* Increased from 8px to 24px */
   background: #3B82F6;
   border-radius: 50%;
-  filter: blur(4px);
-  box-shadow: 0 0 15px 5px #3B82F6;
+  filter: blur(12px); /* Increased blur effect */
+  box-shadow: 0 0 45px 15px #3B82F6; /* Increased shadow size and spread */
   animation: travel-light 8s linear infinite;
   z-index: 1;
 }
