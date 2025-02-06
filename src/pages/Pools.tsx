@@ -7,7 +7,6 @@ import PoolList from '@/components/pools/PoolList';
 import CreatePoolDialog from '@/components/pools/CreatePoolDialog';
 import StakeLPDialog from '@/components/pools/StakeLPDialog';
 import { Pool, Token } from '@/components/pools/types';
-import { useNavigate } from 'react-router-dom';
 
 const tokens: Token[] = [
   {
@@ -119,28 +118,12 @@ const Pools = () => {
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
   const [currentPool, setCurrentPool] = useState<Pool | null>(null);
   const [session, setSession] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        if (!session) {
-          navigate('/auth');
-        }
-      } catch (error) {
-        console.error('Error checking session:', error);
-        toast({
-          title: "Error",
-          description: "Failed to check authentication status",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
     };
 
     checkSession();
@@ -149,19 +132,16 @@ const Pools = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
-        navigate('/auth');
-      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, []);
 
   const handleCreatePool = async () => {
     if (!selectedToken1 || !selectedToken2 || !session?.user?.email) {
       toast({
         title: "Error",
-        description: "Please select both tokens and ensure you're logged in",
+        description: "Please connect your wallet to create a pool",
         variant: "destructive"
       });
       return;
@@ -197,6 +177,14 @@ const Pools = () => {
   };
 
   const handleStakeLP = (pool: Pool) => {
+    if (!session) {
+      toast({
+        title: "Error",
+        description: "Please connect your wallet to stake LP tokens",
+        variant: "destructive"
+      });
+      return;
+    }
     setCurrentPool(pool);
     setIsStakeLPOpen(true);
   };
@@ -206,25 +194,23 @@ const Pools = () => {
     pool.token2.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
-
   return (
     <div className="min-h-screen pt-20 pb-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold">Pools</h1>
           <Button 
-            onClick={() => setIsCreatePoolOpen(true)}
+            onClick={() => {
+              if (!session) {
+                toast({
+                  title: "Error",
+                  description: "Please connect your wallet to create a pool",
+                  variant: "destructive"
+                });
+                return;
+              }
+              setIsCreatePoolOpen(true);
+            }}
             className="bg-primary hover:bg-primary/90"
           >
             <Plus className="mr-2 h-4 w-4" />
