@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 
 interface CryptoChartProps {
@@ -9,7 +9,6 @@ interface CryptoChartProps {
 
 const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
   const [localPair, setLocalPair] = useState(currentPair);
-  const widgetRef = useRef<any>(null);
 
   // Ensure consistent format for TradingView symbol
   const formatTradingViewSymbol = useCallback((symbol: string) => {
@@ -22,14 +21,8 @@ const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
     if (currentPair !== localPair) {
       console.log('Chart: Updating local pair to:', currentPair);
       setLocalPair(currentPair);
-      
-      // Force widget refresh when pair changes
-      if (widgetRef.current) {
-        const formattedSymbol = formatTradingViewSymbol(currentPair);
-        widgetRef.current.postMessage({ name: 'changeSymbol', data: { symbol: formattedSymbol } });
-      }
     }
-  }, [currentPair, localPair, formatTradingViewSymbol]);
+  }, [currentPair, localPair]);
 
   const handleSymbolChange = (symbol: string) => {
     // Remove BINANCE: prefix if present for consistent format
@@ -62,7 +55,6 @@ const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
           save_image={false}
           container_id="tradingview_chart"
           onSymbolChange={handleSymbolChange}
-          ref={widgetRef}
         />
       </div>
     </div>
@@ -70,3 +62,4 @@ const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
 };
 
 export default CryptoChart;
+
