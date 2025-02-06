@@ -1,6 +1,4 @@
 
-import talosImage from "/lovable-uploads/3fba76e3-54af-4dc2-ba9e-4d6ca67ac92c.png";
-
 const AIAnalysisHeader = () => {
   return (
     <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
@@ -12,9 +10,9 @@ const AIAnalysisHeader = () => {
       </div>
       <div className="flex-shrink-0">
         <img 
-          src={talosImage} 
+          src="/lovable-uploads/84389485-798e-4805-a990-82685d9a50b6.png"
           alt="Talos AI Agent" 
-          className="w-32 h-32 rounded-full border-4 border-primary/20"
+          className="w-32 h-32 rounded-full border-4 border-primary/20 object-cover"
         />
       </div>
     </div>
