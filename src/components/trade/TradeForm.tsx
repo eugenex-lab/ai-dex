@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Switch } from "../ui/switch";
 
 interface TradeFormProps {
@@ -100,21 +99,75 @@ const TradeForm = ({
         </div>
 
         <div className="flex gap-2">
-          <Button className="flex-1">
+          <Button 
+            variant={activeTab === 'buy' ? 'default' : 'outline'}
+            className="flex-1"
+          >
             Buy Order
           </Button>
-          <Button variant="outline" className="flex-1">
+          <Button 
+            variant={activeTab === 'sell' ? 'default' : 'outline'}
+            className="flex-1"
+          >
             Sell Order
           </Button>
         </div>
 
         <Button className="w-full" size="lg">
-          Place Order
+          Place {activeTab === 'buy' ? 'Buy' : 'Sell'} Order
         </Button>
+      </div>
+    );
+  }
 
-        <p className="text-xs text-muted-foreground text-center">
-          Once you click on Quick {activeTab === 'buy' ? 'Buy' : 'Sell'}, your transaction is sent immediately.
-        </p>
+  if (activeTrade === 'dip') {
+    return (
+      <div className="space-y-4">
+        <div className="flex gap-2 mb-4">
+          <Button 
+            variant="default"
+            className="flex-1"
+          >
+            {activeTab === 'buy' ? 'Buy Now' : 'Sell Now'}
+          </Button>
+          <Button 
+            variant="outline"
+            className="flex-1"
+          >
+            {activeTab === 'buy' ? 'Auto Buy' : 'Auto Sell'}
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          <span className="text-sm">If Market Cap Reaches</span>
+          <Input
+            type="number"
+            defaultValue="25000000"
+            className="bg-background"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <span className="text-sm">If Market Cap Falls Below</span>
+          <Input
+            type="number"
+            defaultValue="15000000"
+            className="bg-background"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <span className="text-sm">Amount To Trade Under Conditions Set</span>
+          <Input
+            type="number"
+            defaultValue="1000"
+            className="bg-background"
+          />
+        </div>
+
+        <Button className="w-full" size="lg">
+          Place {activeTab === 'buy' ? 'Buy' : 'Sell'} Order
+        </Button>
       </div>
     );
   }
