@@ -53,13 +53,24 @@ const SearchableDropdown = ({
   }, [handleClickOutside]);
 
   const selectPair = (pair: string) => {
-    setSearchTerm(pair);
-    onSelect(pair);
-    setIsOpen(false);
-    setSelectedIndex(-1);
+    try {
+      setSearchTerm(pair);
+      onSelect(pair);
+      setIsOpen(false);
+      setSelectedIndex(-1);
+    } catch (error) {
+      console.error('Error selecting pair:', error);
+      toast({
+        title: "Error selecting pair",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleInputChange = (inputValue: string) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const inputValue = e.target.value;
     setSearchTerm(inputValue);
     setIsOpen(true);
     setSelectedIndex(-1);
@@ -72,11 +83,11 @@ const SearchableDropdown = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Prevent event from bubbling up to any parent forms
     e.stopPropagation();
 
-    // Prevent form submission
     if (e.key === 'Enter') {
-      e.preventDefault();
+      e.preventDefault(); // Prevent form submission
       
       if (selectedIndex >= 0 && selectedIndex < filteredPairs.length) {
         selectPair(filteredPairs[selectedIndex]);
@@ -92,14 +103,13 @@ const SearchableDropdown = ({
       return;
     }
 
-    // Handle escape key
     if (e.key === 'Escape') {
+      e.preventDefault();
       setIsOpen(false);
       setSelectedIndex(-1);
       return;
     }
 
-    // Handle arrow keys
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setIsOpen(true);
@@ -112,8 +122,13 @@ const SearchableDropdown = ({
     }
   };
 
+  const handleWrapperClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative ${className}`} ref={dropdownRef} onClick={handleWrapperClick}>
       <div className="relative">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
@@ -121,7 +136,7 @@ const SearchableDropdown = ({
           type="text"
           placeholder={placeholder}
           value={searchTerm}
-          onChange={(e) => handleInputChange(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={() => setIsOpen(true)}
           className="pl-9 mb-2 bg-background"
@@ -148,7 +163,11 @@ const SearchableDropdown = ({
                   ? 'bg-accent text-accent-foreground' 
                   : 'hover:bg-accent hover:text-accent-foreground'
               }`}
-              onClick={() => selectPair(pair)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                selectPair(pair);
+              }}
             >
               {pair}
             </div>
@@ -160,4 +179,3 @@ const SearchableDropdown = ({
 };
 
 export default SearchableDropdown;
-
