@@ -7,6 +7,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "../ui/command";
 import {
   Popover,
@@ -31,7 +32,7 @@ interface SourceSelectorProps {
 
 const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProps) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(""); // Add this to track command value
+  const [value, setValue] = useState("");
 
   const toggleSource = (sourceValue: string) => {
     const newSelection = selectedSources.includes(sourceValue)
@@ -60,29 +61,31 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
         <PopoverContent className="w-full p-0">
           <Command value={value} onValueChange={setValue}>
             <CommandInput placeholder="Search sources..." />
-            <CommandEmpty>No source found.</CommandEmpty>
-            <CommandGroup heading="Available Sources">
-              {sources.map((source) => (
-                <CommandItem
-                  key={source.value}
-                  value={source.value}
-                  onSelect={() => {
-                    toggleSource(source.value);
-                    setValue(source.value);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedSources.includes(source.value)
-                        ? "opacity-100"
-                        : "opacity-0"
-                    )}
-                  />
-                  {source.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            <CommandList>
+              <CommandEmpty>No source found.</CommandEmpty>
+              <CommandGroup>
+                {sources.map((source) => (
+                  <CommandItem
+                    key={source.value}
+                    value={source.value}
+                    onSelect={() => {
+                      toggleSource(source.value);
+                      setValue("");
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedSources.includes(source.value)
+                          ? "opacity-100"
+                          : "opacity-0"
+                      )}
+                    />
+                    {source.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
