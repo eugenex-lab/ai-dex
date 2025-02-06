@@ -132,12 +132,14 @@ const Pools = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      console.log("Auth state changed:", session);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const handleCreatePool = async () => {
+    console.log("Creating pool...");
     if (!selectedToken1 || !selectedToken2 || !session?.user?.email) {
       toast({
         title: "Error",
@@ -177,6 +179,7 @@ const Pools = () => {
   };
 
   const handleStakeLP = (pool: Pool) => {
+    console.log("Staking LP for pool:", pool);
     if (!session) {
       toast({
         title: "Error",
@@ -201,6 +204,7 @@ const Pools = () => {
           <h1 className="text-4xl font-bold">Pools</h1>
           <Button 
             onClick={() => {
+              console.log("Create pool button clicked");
               if (!session) {
                 toast({
                   title: "Error",

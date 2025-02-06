@@ -47,14 +47,20 @@ const PoolList = ({ pools, onStakeLP }: PoolListProps) => {
               <div className="flex space-x-2">
                 <Button 
                   className="bg-primary hover:bg-primary/90"
-                  onClick={() => onStakeLP(pool)}
+                  onClick={() => {
+                    console.log("Add Liquidity clicked for pool:", pool);
+                    onStakeLP(pool);
+                  }}
                 >
                   Add Liquidity
                 </Button>
                 <Button 
                   variant="destructive"
                   className="bg-red-500 hover:bg-red-600 text-white"
-                  onClick={() => onStakeLP(pool)}
+                  onClick={() => {
+                    console.log("Remove clicked for pool:", pool);
+                    onStakeLP(pool);
+                  }}
                 >
                   Remove
                 </Button>

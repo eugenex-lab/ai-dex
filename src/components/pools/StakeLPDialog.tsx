@@ -10,6 +10,8 @@ interface StakeLPDialogProps {
 }
 
 const StakeLPDialog = ({ isOpen, onOpenChange, pool }: StakeLPDialogProps) => {
+  console.log("StakeLPDialog rendered with isOpen:", isOpen, "pool:", pool);
+  
   if (!pool) return null;
   
   return (
