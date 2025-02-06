@@ -8,8 +8,26 @@ interface TokenStatsProps {
   symbol: string;
 }
 
+interface TokenData {
+  priceUSD: number;
+  supply: string;
+  liquidity: string;
+  marketCap: string;
+  changes: {
+    [key: string]: string;
+  };
+  transactions: {
+    buys: number;
+    sells: number;
+    buyVolume: string;
+    sellVolume: string;
+    buyers: number;
+    sellers: number;
+  };
+}
+
 const TokenStats = ({ symbol }: TokenStatsProps) => {
-  const [tokenData, setTokenData] = useState<any>(null);
+  const [tokenData, setTokenData] = useState<TokenData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
