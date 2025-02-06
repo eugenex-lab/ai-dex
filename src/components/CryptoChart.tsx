@@ -1,28 +1,29 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 
 interface CryptoChartProps {
   onPairChange?: (pair: string) => void;
-  currentPair?: string;
+  currentPair: string;
 }
 
-const CryptoChart = ({ onPairChange, currentPair = 'BINANCE:BTCUSDT' }: CryptoChartProps) => {
+const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
   const [localPair, setLocalPair] = useState(currentPair);
+
+  useEffect(() => {
+    if (currentPair !== localPair) {
+      console.log('Chart: Updating local pair to:', currentPair);
+      setLocalPair(currentPair);
+    }
+  }, [currentPair]);
 
   const handleSymbolChange = (symbol: string) => {
     setLocalPair(symbol);
-    // Extract the trading pair from the symbol (e.g., "BINANCE:BTCUSDT" -> "BTCUSDT")
-    const pair = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     if (onPairChange) {
-      console.log('Chart: Updating pair to:', pair);
-      onPairChange(pair);
+      console.log('Chart: Pair changed to:', symbol);
+      onPairChange(symbol);
     }
   };
-
-  // Update local state when prop changes
-  if (currentPair !== localPair && currentPair.includes('BINANCE:')) {
-    setLocalPair(currentPair);
-  }
 
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in">

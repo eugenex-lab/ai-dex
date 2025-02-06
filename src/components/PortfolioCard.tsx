@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
 import TradeForm from "./trade/TradeForm";
@@ -26,15 +25,27 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
   const [receiveAmount, setReceiveAmount] = useState("");
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
-  const [searchPair, setSearchPair] = useState("");
-  const [selectedPair, setSelectedPair] = useState(currentPair);
+  const [searchPair, setSearchPair] = useState(currentPair);
 
   // Update local state when prop changes
   useEffect(() => {
-    if (currentPair !== selectedPair) {
-      setSelectedPair(currentPair);
+    if (currentPair !== searchPair) {
+      console.log('PortfolioCard: Updating search pair to:', currentPair);
+      setSearchPair(currentPair);
     }
   }, [currentPair]);
+
+  const handlePairChange = (value: string) => {
+    setSearchPair(value);
+    // Only update if the input is a valid pair format
+    const upperValue = value.toUpperCase();
+    if (upperValue.endsWith('USDT') && upperValue.length > 4) {
+      if (onPairSelect) {
+        console.log('PortfolioCard: Selected pair:', upperValue);
+        onPairSelect(upperValue);
+      }
+    }
+  };
 
   // Mock data - In a real app, this would be fetched based on the selected pair
   const tokenStats = {
@@ -59,31 +70,9 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
     }
   };
 
-  const formattedPair = selectedPair.includes('USDT') 
-    ? selectedPair.replace('USDT', '/USDT')
-    : `${selectedPair}/USDT`;
-
-  const handlePairSelect = (pair: string) => {
-    setSelectedPair(pair);
-    if (onPairSelect) {
-      console.log('PortfolioCard: Selected pair:', pair);
-      onPairSelect(`BINANCE:${pair}`);
-    }
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchPair(value);
-    // If the input matches a valid pair format, update the chart
-    const upperValue = value.toUpperCase();
-    if (upperValue.endsWith('USDT') && upperValue.length > 4) {
-      handlePairSelect(upperValue);
-    }
-  };
-
-  const filteredPairs = COMMON_PAIRS.filter(pair => 
-    pair.toLowerCase().includes(searchPair.toLowerCase())
-  );
+  const formattedPair = searchPair.includes('USDT') 
+    ? searchPair.replace('USDT', '/USDT')
+    : `${searchPair}/USDT`;
 
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
@@ -94,22 +83,10 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
             type="text"
             placeholder="Search trading pairs..."
             value={searchPair}
-            onChange={handleSearchChange}
-            className="pl-9 mb-2"
+            onChange={(e) => handlePairChange(e.target.value)}
+            className="pl-9 mb-2 bg-background"
           />
         </div>
-        <Select onValueChange={handlePairSelect} value={selectedPair}>
-          <SelectTrigger className="w-full bg-background">
-            <SelectValue placeholder={formattedPair} />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredPairs.map((pair) => (
-              <SelectItem key={pair} value={pair}>
-                {pair.replace('USDT', '/USDT')}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Token Statistics Panel */}

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MarketStats from "@/components/MarketStats";
 import CryptoChart from "@/components/CryptoChart";
@@ -8,9 +9,12 @@ const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState('BTCUSDT');
 
   const handlePairChange = (pair: string) => {
-    console.log('Dashboard: Setting current pair to:', pair); // Debug log
+    console.log('Dashboard: Setting current pair to:', pair);
+    // Clean up the pair format (remove BINANCE: prefix if present)
     const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
-    setCurrentPair(cleanPair);
+    // Convert to uppercase and ensure proper format
+    const formattedPair = cleanPair.toUpperCase();
+    setCurrentPair(formattedPair);
   };
 
   return (
@@ -25,7 +29,10 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <CryptoChart onPairChange={handlePairChange} />
+            <CryptoChart 
+              currentPair={`BINANCE:${currentPair}`} 
+              onPairChange={handlePairChange} 
+            />
           </div>
           <div>
             <PortfolioCard 
