@@ -16,16 +16,12 @@ const PairSearch = ({
 }: PairSearchProps) => {
   return (
     <div className="mb-4">
-      <SearchableDropdown
-        value={searchPair}
-        onSelect={onPairChange}
-        placeholder="Search trading pairs..."
-        isOpen={isSearchOpen}
-        onVisibilityChange={onSearchVisibilityChange}
-      />
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Trading Pair:</span>
+        <span className="font-semibold">{searchPair}</span>
+      </div>
     </div>
   );
 };
 
 export default PairSearch;
-
