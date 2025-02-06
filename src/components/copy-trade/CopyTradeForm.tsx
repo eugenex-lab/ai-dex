@@ -176,22 +176,6 @@ const CopyTradeForm = () => {
             />
           </div>
 
-          <div className="flex gap-4 items-center">
-            <Button 
-              className={`flex-1 ${isPaused ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
-              onClick={() => setIsPaused(!isPaused)}
-            >
-              {isPaused ? "Copy Trade Off" : "Copy Trade On"}
-            </Button>
-            <Button 
-              variant="destructive"
-              className="flex-1"
-              onClick={handleDeleteCopyTrade}
-            >
-              Delete Copy Trade
-            </Button>
-          </div>
-
           <Select 
             value={selectedChain} 
             onValueChange={setSelectedChain}
@@ -224,6 +208,21 @@ const CopyTradeForm = () => {
             <p><span className="font-medium">Slippage:</span> {slippage}% <span className="font-medium">Wallet Tag:</span> {walletTag || "Not set"}</p>
             <p><span className="font-medium">Chain:</span> {selectedChain} <span className="font-medium">Max Buy Amount:</span> {maxBuyAmount || "0"} {selectedChain === "cardano" ? "ADA" : selectedChain === "ethereum" ? "ETH" : "SOL"}</p>
             <p><span className="font-medium">Copy Sell:</span> {copySellEnabled ? "ON" : "OFF"}</p>
+            <div className="flex gap-4 items-center pt-4">
+              <Button 
+                className={`flex-1 ${isPaused ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
+                onClick={() => setIsPaused(!isPaused)}
+              >
+                {isPaused ? "Copy Trade Off" : "Copy Trade On"}
+              </Button>
+              <Button 
+                variant="destructive"
+                className="flex-1 hover:bg-red-700 transition-colors"
+                onClick={handleDeleteCopyTrade}
+              >
+                Delete Copy Trade
+              </Button>
+            </div>
           </div>
         )}
       </div>
