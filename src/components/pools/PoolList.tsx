@@ -53,6 +53,7 @@ const PoolList = ({ pools, onStakeLP }: PoolListProps) => {
                 </Button>
                 <Button 
                   variant="destructive"
+                  className="bg-red-500 hover:bg-red-600 text-white"
                   onClick={() => onStakeLP(pool)}
                 >
                   Remove
