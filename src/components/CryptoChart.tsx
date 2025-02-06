@@ -51,7 +51,7 @@ const CryptoChart = ({
     }
   }, [localPair, onPairChange]);
 
-  // Setup widget options
+  // Setup widget options with improved event handling
   const widgetOptions = {
     symbol: formatTradingViewSymbol(localPair),
     theme: "dark",

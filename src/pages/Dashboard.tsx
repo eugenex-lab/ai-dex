@@ -62,6 +62,7 @@ const Dashboard = () => {
     setIsSearchOpen(isOpen);
   }, []);
 
+  // Monitor pair changes
   useEffect(() => {
     console.log('Dashboard: Current pair updated to:', currentPair);
   }, [currentPair]);

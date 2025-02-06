@@ -20,7 +20,7 @@ const PairSearch = ({
     }
     
     // Common quote assets in order of checking (longer ones first to avoid partial matches)
-    const quoteAssets = ['USDT', 'BUSD', 'ETH', 'BTC', 'BNB'];
+    const quoteAssets = ['USDT', 'BUSD', 'ETH', 'BTC', 'BNB', 'ADA'];
     
     try {
       // Clean up the pair first
@@ -50,8 +50,8 @@ const PairSearch = ({
   return (
     <div className="mb-4">
       <div className="flex items-center gap-2 p-3 rounded-md bg-background/50 border border-border">
-        <span className="text-sm text-muted-foreground">Trading Pair:</span>
-        <span className="font-semibold text-lg">{formatTradingPair(searchPair)}</span>
+        <span className="text-sm text-muted-foreground">Selected Pair:</span>
+        <span className="font-semibold text-lg" key={searchPair}>{formatTradingPair(searchPair)}</span>
         <span className="text-xs text-muted-foreground ml-auto cursor-help">Click chart to change pair</span>
       </div>
     </div>
