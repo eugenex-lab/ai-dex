@@ -112,7 +112,7 @@ const Alerts = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-16">
       <div className="mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Bell className="h-8 w-8" />
@@ -186,6 +186,7 @@ const Alerts = () => {
                 id="socialSentiment"
                 checked={formData.socialSentimentEnabled}
                 onCheckedChange={(checked) => setFormData(prev => ({ ...prev, socialSentimentEnabled: checked }))}
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white"
               />
               <Label htmlFor="socialSentiment">Enable Social Sentiment Tracking</Label>
             </div>
@@ -221,6 +222,7 @@ const Alerts = () => {
               <Switch
                 checked={alert.enabled}
                 onCheckedChange={() => toggleAlert(alert.id, alert.enabled)}
+                className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white"
               />
               <Button
                 variant="ghost"
@@ -238,3 +240,4 @@ const Alerts = () => {
 };
 
 export default Alerts;
+
