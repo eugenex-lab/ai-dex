@@ -26,10 +26,8 @@ const PortfolioCard = ({
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
 
   const handlePairChange = (value: string) => {
-    if (onPairSelect && value) {
-      console.log('PortfolioCard: Notifying parent of pair change:', value);
-      onPairSelect(value);
-    }
+    console.log('PortfolioCard: Handling pair change:', value);
+    onPairSelect?.(value);
   };
 
   // Mock data - In a real app, this would be fetched based on the selected pair

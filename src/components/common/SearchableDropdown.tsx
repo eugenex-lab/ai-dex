@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search } from "lucide-react";
 import { Input } from "../ui/input";
+import { debounce } from 'lodash';
 
 interface SearchableDropdownProps {
   value: string;
@@ -26,13 +27,13 @@ const SearchableDropdown = ({
   onSelect, 
   placeholder = "Search trading pairs...",
   className = "",
-  isOpen,
+  isOpen: externalIsOpen,
   onVisibilityChange
 }: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState(value);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const blurTimeoutRef = useRef<NodeJS.Timeout>();
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   // Sync with external value
@@ -40,12 +41,19 @@ const SearchableDropdown = ({
     setSearchTerm(value);
   }, [value]);
 
+  // Sync with external isOpen state
+  useEffect(() => {
+    if (externalIsOpen !== undefined) {
+      setIsDropdownOpen(externalIsOpen);
+    }
+  }, [externalIsOpen]);
+
   const filteredPairs = COMMON_PAIRS.filter(pair =>
     pair.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleVisibilityChange = useCallback((newIsOpen: boolean) => {
-    console.log('SearchableDropdown: Changing visibility to:', newIsOpen);
+    setIsDropdownOpen(newIsOpen);
     onVisibilityChange?.(newIsOpen);
   }, [onVisibilityChange]);
 
@@ -60,9 +68,6 @@ const SearchableDropdown = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      if (blurTimeoutRef.current) {
-        clearTimeout(blurTimeoutRef.current);
-      }
     };
   }, [handleClickOutside]);
 
@@ -74,16 +79,21 @@ const SearchableDropdown = ({
     setSelectedIndex(-1);
   }, [onSelect, handleVisibilityChange]);
 
+  const debouncedInputChange = useCallback(
+    debounce((value: string) => {
+      setSearchTerm(value.toUpperCase());
+      handleVisibilityChange(true);
+    }, 300),
+    [handleVisibilityChange]
+  );
+
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value.toUpperCase();
-    console.log('SearchableDropdown: Input changed to:', inputValue);
-    setSearchTerm(inputValue);
-    handleVisibilityChange(true);
-    onSelect(inputValue);
-  }, [handleVisibilityChange, onSelect]);
+    const inputValue = e.target.value;
+    debouncedInputChange(inputValue);
+  }, [debouncedInputChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isOpen) {
+    if (!isDropdownOpen) {
       handleVisibilityChange(true);
       return;
     }
@@ -109,24 +119,10 @@ const SearchableDropdown = ({
         setSelectedIndex(prev => Math.max(prev - 1, 0));
         break;
     }
-  }, [isOpen, selectedIndex, filteredPairs, selectPair, handleVisibilityChange]);
+  }, [isDropdownOpen, selectedIndex, filteredPairs, selectPair, handleVisibilityChange]);
 
   const handleFocus = useCallback(() => {
-    console.log('SearchableDropdown: Input focused');
-    if (blurTimeoutRef.current) {
-      clearTimeout(blurTimeoutRef.current);
-    }
     handleVisibilityChange(true);
-  }, [handleVisibilityChange]);
-
-  const handleBlur = useCallback(() => {
-    console.log('SearchableDropdown: Input blurred');
-    // Add delay before closing to allow for clicks on suggestions
-    blurTimeoutRef.current = setTimeout(() => {
-      if (!dropdownRef.current?.contains(document.activeElement)) {
-        handleVisibilityChange(false);
-      }
-    }, 200);
   }, [handleVisibilityChange]);
 
   return (
@@ -141,16 +137,15 @@ const SearchableDropdown = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
-          onBlur={handleBlur}
           className="pl-9 mb-2 bg-background"
           role="combobox"
-          aria-expanded={isOpen}
+          aria-expanded={isDropdownOpen}
           aria-controls="pair-listbox"
           aria-autocomplete="list"
         />
       </div>
       
-      {isOpen && (
+      {isDropdownOpen && (
         <div 
           id="pair-listbox"
           role="listbox"
