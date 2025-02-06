@@ -1,5 +1,6 @@
+
 import { Link } from "react-router-dom";
-import { Info, User, Map } from "lucide-react";
+import { Info, User, Map, Copy } from "lucide-react";
 
 const AboutLinks = () => {
   return (
@@ -17,6 +18,10 @@ const AboutLinks = () => {
         <Link to="/roadmap" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
           <Map className="h-4 w-4" />
           <span>Roadmap</span>
+        </Link>
+        <Link to="/copy-trade" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
+          <Copy className="h-4 w-4" />
+          <span>Copy Trade</span>
         </Link>
       </div>
     </div>
