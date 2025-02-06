@@ -125,11 +125,21 @@ const Pools = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setIsLoading(false);
-      if (!session) {
-        navigate('/auth');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        if (!session) {
+          navigate('/auth');
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        toast({
+          title: "Error",
+          description: "Failed to check authentication status",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -145,7 +155,7 @@ const Pools = () => {
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const handleCreatePool = async () => {
     if (!selectedToken1 || !selectedToken2 || !session?.user?.email) {
@@ -197,9 +207,15 @@ const Pools = () => {
   );
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-    </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
   }
 
   return (
