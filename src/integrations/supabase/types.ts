@@ -228,6 +228,42 @@ export type Database = {
         }
         Relationships: []
       }
+      price_alerts: {
+        Row: {
+          contract_address: string
+          created_at: string
+          enabled: boolean | null
+          id: string
+          market_cap_threshold: number | null
+          price_change_percentage: number | null
+          social_sentiment_enabled: boolean | null
+          token_name: string
+          volume_threshold: number | null
+        }
+        Insert: {
+          contract_address: string
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          market_cap_threshold?: number | null
+          price_change_percentage?: number | null
+          social_sentiment_enabled?: boolean | null
+          token_name: string
+          volume_threshold?: number | null
+        }
+        Update: {
+          contract_address?: string
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          market_cap_threshold?: number | null
+          price_change_percentage?: number | null
+          social_sentiment_enabled?: boolean | null
+          token_name?: string
+          volume_threshold?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
