@@ -48,14 +48,14 @@ const ArbitrageForm = () => {
             value={percentageGain}
             onValueChange={setPercentageGain}
           >
-            <SelectTrigger>
+            <SelectTrigger className="bg-background">
               <SelectValue placeholder="Select percentage" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="25">25%</SelectItem>
-              <SelectItem value="50">50%</SelectItem>
-              <SelectItem value="75">75%</SelectItem>
-              <SelectItem value="100">MAX</SelectItem>
+            <SelectContent className="bg-background border border-input">
+              <SelectItem value="25" className="bg-background">25%</SelectItem>
+              <SelectItem value="50" className="bg-background">50%</SelectItem>
+              <SelectItem value="75" className="bg-background">75%</SelectItem>
+              <SelectItem value="100" className="bg-background">MAX</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -31,12 +31,12 @@ const TokenInput = ({
           }}
           value={selectedToken?.symbol}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[180px] bg-background">
             <SelectValue placeholder="Select token" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background border border-input">
             {tokens.map((token) => (
-              <SelectItem key={token.symbol} value={token.symbol}>
+              <SelectItem key={token.symbol} value={token.symbol} className="bg-background">
                 <div className="flex items-center gap-2">
                   <img src={token.icon} alt={token.symbol} className="w-6 h-6" />
                   <span>{token.symbol}</span>
