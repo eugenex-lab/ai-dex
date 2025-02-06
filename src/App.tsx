@@ -14,6 +14,7 @@ import Dashboard from "./pages/Dashboard";
 import API from "./pages/API";
 import Orders from "./pages/Orders";
 import Staking from "./pages/Staking";
+import Pools from "./pages/Pools";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/api" element={<API />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/staking" element={<Staking />} />
+            <Route path="/pools" element={<Pools />} />
           </Routes>
         </main>
         <Footer />
