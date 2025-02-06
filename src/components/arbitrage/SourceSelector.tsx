@@ -60,10 +60,11 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
           <Command>
             <CommandInput placeholder="Search sources..." />
             <CommandEmpty>No source found.</CommandEmpty>
-            <CommandGroup>
+            <CommandGroup heading="Available Sources">
               {sources.map((source) => (
                 <CommandItem
                   key={source.value}
+                  value={source.value}
                   onSelect={() => toggleSource(source.value)}
                 >
                   <Check
@@ -99,3 +100,4 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
 };
 
 export default SourceSelector;
+
