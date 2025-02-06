@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Search, Plus } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-
-interface Token {
-  symbol: string;
-  name: string;
-  icon: string;
-}
+import PoolList from '@/components/pools/PoolList';
+import CreatePoolDialog from '@/components/pools/CreatePoolDialog';
+import StakeLPDialog from '@/components/pools/StakeLPDialog';
+import { Pool, Token } from '@/components/pools/types';
 
 const tokens: Token[] = [
   {
@@ -21,48 +17,39 @@ const tokens: Token[] = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    icon: "/lovable-uploads/74469a41-8023-4a58-b0fe-ef976ffa9f27.png"
+    icon: "/lovable-uploads/acacd1d1-9e57-4771-9e4a-45f3cc99c720.png"
   },
   {
     symbol: "SNEK",
     name: "Snek",
-    icon: "/lovable-uploads/5b6f7541-b862-4d1c-9739-4422042ed31b.png"
+    icon: "/lovable-uploads/38866b43-44ae-4485-b09f-97c52d6a5f21.png"
   },
   {
     symbol: "MIN",
     name: "Minswap",
-    icon: "/lovable-uploads/a2facdd0-1e74-48b0-9ff3-1cb90d3c2a54.png"
+    icon: "/lovable-uploads/be78fce4-ed1f-491d-9e59-89917542a63b.png"
   },
   {
     symbol: "IAG",
     name: "IAG",
-    icon: "/lovable-uploads/3e5a23f1-0e01-49cb-86b5-d06452933afc.png"
+    icon: "/lovable-uploads/3e78721f-7e8a-4185-b9da-ff54e655812e.png"
   },
   {
     symbol: "BOTLY",
     name: "Botly",
-    icon: "/lovable-uploads/43fe01dc-2b1d-4115-a80b-5aac15c4c525.png"
+    icon: "/lovable-uploads/b456713a-10a5-422e-a93d-fabca1529852.png"
   },
   {
     symbol: "WMTX",
     name: "WMTX",
-    icon: "/lovable-uploads/76d13a0a-84e4-4648-a383-ae586be0e16b.png"
+    icon: "/lovable-uploads/af391f10-ea94-45ec-8f33-2dec322e6650.png"
   },
   {
     symbol: "USDM",
     name: "USDM",
-    icon: "/lovable-uploads/8ed67d82-31cd-4c3d-bbcf-986392a08e1c.png"
+    icon: "/lovable-uploads/67dedc02-a390-44df-a419-7193fc9674c9.png"
   }
 ];
-
-interface Pool {
-  id: string;
-  token1: Token;
-  token2: Token;
-  volume24h: string;
-  tvl: string;
-  apr: number;
-}
 
 const pools: Pool[] = [
   {
@@ -126,7 +113,6 @@ const pools: Pool[] = [
 const Pools = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatePoolOpen, setIsCreatePoolOpen] = useState(false);
-  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [selectedToken1, setSelectedToken1] = useState<Token | null>(null);
   const [selectedToken2, setSelectedToken2] = useState<Token | null>(null);
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
@@ -165,6 +151,11 @@ const Pools = () => {
     }
   };
 
+  const handleStakeLP = (pool: Pool) => {
+    setCurrentPool(pool);
+    setIsStakeLPOpen(true);
+  };
+
   const filteredPools = pools.filter(pool => 
     pool.token1.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
     pool.token2.symbol.toLowerCase().includes(searchQuery.toLowerCase())
@@ -195,152 +186,28 @@ const Pools = () => {
           />
         </div>
 
-        <div className="space-y-4">
-          {filteredPools.map((pool) => (
-            <div key={pool.id} className="bg-secondary/20 backdrop-blur-lg rounded-lg p-6 animate-fade-in">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <img src={pool.token1.icon} alt={pool.token1.symbol} className="w-10 h-10 rounded-full" />
-                    <img 
-                      src={pool.token2.icon} 
-                      alt={pool.token2.symbol} 
-                      className="w-10 h-10 rounded-full absolute -right-4 -bottom-2"
-                    />
-                  </div>
-                  <div className="ml-6">
-                    <h3 className="text-lg font-medium">{pool.token1.symbol}-{pool.token2.symbol}</h3>
-                    <p className="text-sm text-muted-foreground">Pool</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-8">
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Volume 24H</div>
-                    <div className="font-medium">{pool.volume24h}</div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">TVL</div>
-                    <div className="font-medium">{pool.tvl}</div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">APR</div>
-                    <div className="font-medium text-success">{pool.apr}%</div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button 
-                      className="bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        setCurrentPool(pool);
-                        setIsStakeLPOpen(true);
-                      }}
-                    >
-                      Add Liquidity
-                    </Button>
-                    <Button 
-                      variant="destructive"
-                      onClick={() => {
-                        setCurrentPool(pool);
-                        setIsStakeLPOpen(true);
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <PoolList 
+          pools={filteredPools}
+          onStakeLP={handleStakeLP}
+        />
       </div>
 
-      {/* Create Pool Dialog */}
-      <Dialog open={isCreatePoolOpen} onOpenChange={setIsCreatePoolOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create a new pool</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">First Token</label>
-              <Select onValueChange={(value) => {
-                const token = tokens.find(t => t.symbol === value);
-                if (token) setSelectedToken1(token);
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select token" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tokens.map((token) => (
-                    <SelectItem key={token.symbol} value={token.symbol}>
-                      <div className="flex items-center">
-                        <img src={token.icon} alt={token.symbol} className="w-6 h-6 mr-2" />
-                        {token.symbol}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <CreatePoolDialog
+        isOpen={isCreatePoolOpen}
+        onOpenChange={setIsCreatePoolOpen}
+        tokens={tokens}
+        selectedToken1={selectedToken1}
+        selectedToken2={selectedToken2}
+        onToken1Select={setSelectedToken1}
+        onToken2Select={setSelectedToken2}
+        onCreatePool={handleCreatePool}
+      />
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Second Token</label>
-              <Select onValueChange={(value) => {
-                const token = tokens.find(t => t.symbol === value);
-                if (token) setSelectedToken2(token);
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select token" />
-                </SelectTrigger>
-                <SelectContent>
-                  {tokens.map((token) => (
-                    <SelectItem key={token.symbol} value={token.symbol}>
-                      <div className="flex items-center">
-                        <img src={token.icon} alt={token.symbol} className="w-6 h-6 mr-2" />
-                        {token.symbol}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button 
-              className="w-full"
-              onClick={handleCreatePool}
-              disabled={!selectedToken1 || !selectedToken2}
-            >
-              Create Pool
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Stake LP Dialog */}
-      <Dialog open={isStakeLPOpen} onOpenChange={setIsStakeLPOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Stake LP tokens</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {currentPool && (
-              <div className="flex items-center space-x-2">
-                <img src={currentPool.token1.icon} alt={currentPool.token1.symbol} className="w-8 h-8" />
-                <img src={currentPool.token2.icon} alt={currentPool.token2.symbol} className="w-8 h-8" />
-                <span className="ml-2">{currentPool.token1.symbol}-{currentPool.token2.symbol} LP</span>
-              </div>
-            )}
-            <p className="text-muted-foreground">You have no liquidity</p>
-            <p className="text-sm">Add liquidity to stake</p>
-            <Button className="w-full" onClick={() => setIsStakeLPOpen(false)}>
-              Connect Wallet
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <StakeLPDialog
+        isOpen={isStakeLPOpen}
+        onOpenChange={setIsStakeLPOpen}
+        pool={currentPool}
+      />
     </div>
   );
 };
