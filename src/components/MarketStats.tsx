@@ -1,43 +1,41 @@
-import { ArrowUpIcon, ArrowDownIcon, TrendingUpIcon } from "lucide-react";
+
+import { Copy, Coins, Brain } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const MarketStats = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in">
-      <div className="glass-card p-6 rounded-lg">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in mt-8">
+      <Link to="/copy-trade" className="glass-card p-6 rounded-lg hover:bg-secondary/10 transition-colors">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground">Market Cap</h3>
-          <TrendingUpIcon className="w-4 h-4 text-success" />
+          <h3 className="text-lg font-medium text-foreground">Copy Trading</h3>
+          <div className="flex gap-2">
+            <Copy className="w-5 h-5 text-primary" />
+          </div>
         </div>
-        <p className="text-2xl font-semibold mt-2">$2.1T</p>
-        <span className="text-sm text-success flex items-center gap-1">
-          <ArrowUpIcon className="w-3 h-3" />
-          2.4%
-        </span>
-      </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          Copy successful traders automatically and earn profits effortlessly
+        </p>
+      </Link>
       
-      <div className="glass-card p-6 rounded-lg">
+      <Link to="/arbitrage" className="glass-card p-6 rounded-lg hover:bg-secondary/10 transition-colors">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground">24h Volume</h3>
-          <TrendingUpIcon className="w-4 h-4 text-success" />
+          <h3 className="text-lg font-medium text-foreground">Arbitrage Trading</h3>
+          <Coins className="w-5 h-5 text-primary" />
         </div>
-        <p className="text-2xl font-semibold mt-2">$84.2B</p>
-        <span className="text-sm text-success flex items-center gap-1">
-          <ArrowUpIcon className="w-3 h-3" />
-          5.1%
-        </span>
-      </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          Take advantage of price differences across exchanges
+        </p>
+      </Link>
       
-      <div className="glass-card p-6 rounded-lg">
+      <Link to="/ai-analysis" className="glass-card p-6 rounded-lg hover:bg-secondary/10 transition-colors">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-muted-foreground">BTC Dominance</h3>
-          <TrendingUpIcon className="w-4 h-4 text-warning" />
+          <h3 className="text-lg font-medium text-foreground">AI Analysis</h3>
+          <Brain className="w-5 h-5 text-primary" />
         </div>
-        <p className="text-2xl font-semibold mt-2">42.1%</p>
-        <span className="text-sm text-warning flex items-center gap-1">
-          <ArrowDownIcon className="w-3 h-3" />
-          0.8%
-        </span>
-      </div>
+        <p className="text-sm text-muted-foreground mt-2">
+          Get smart insights with on-chain analysis and social sentiment tracking
+        </p>
+      </Link>
     </div>
   );
 };
