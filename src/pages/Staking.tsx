@@ -115,12 +115,16 @@ const StakingCard = ({ option }: { option: StakingOption }) => {
         </div>
 
         <Select value={selectedDays} onValueChange={setSelectedDays}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-32 bg-background border-input">
             <SelectValue placeholder="Lock period" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background border-2 border-input">
             {option.lockPeriods.map((period) => (
-              <SelectItem key={period.days} value={period.days.toString()}>
+              <SelectItem 
+                key={period.days} 
+                value={period.days.toString()}
+                className="hover:bg-accent focus:bg-accent"
+              >
                 {period.days} days
               </SelectItem>
             ))}
@@ -131,7 +135,7 @@ const StakingCard = ({ option }: { option: StakingOption }) => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-background">
           <DialogHeader>
             <DialogTitle>Stake {option.stake}</DialogTitle>
           </DialogHeader>
