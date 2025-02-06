@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
 import TradeForm from "./trade/TradeForm";
-import { Input } from "./ui/input";
-import { Search } from "lucide-react";
-import { Badge } from "./ui/badge";
+import PairSearch from "./portfolio/PairSearch";
+import TokenStats from "./portfolio/TokenStats";
+import WalletConnection from "./portfolio/WalletConnection";
 
 interface PortfolioCardProps {
   currentPair?: string;
@@ -72,128 +72,20 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
     }
   };
 
-  const formattedPair = searchPair.includes('USDT') 
-    ? searchPair.replace('USDT', '/USDT')
-    : `${searchPair}/USDT`;
-
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
-      <div className="mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search trading pairs..."
-            value={searchPair}
-            onChange={(e) => handlePairChange(e.target.value)}
-            className="pl-9 mb-2 bg-background"
-          />
-        </div>
-      </div>
-
-      {/* Token Statistics Panel */}
-      <div className="mb-6 p-4 bg-background/40 rounded-lg">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">UWU</h3>
-            <span className="text-sm text-muted-foreground">Raydium CPMM</span>
-            <Badge variant="outline" className="text-xs">
-              Verify Profile
-            </Badge>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div>
-            <div className="text-sm text-muted-foreground">PRICE USD</div>
-            <div className="text-base font-medium">${tokenStats.priceUSD}</div>
-          </div>
-          <div>
-            <div className="text-sm text-muted-foreground">PRICE SOL</div>
-            <div className="text-base font-medium">{tokenStats.priceSOL}</div>
-          </div>
-          <div>
-            <div className="text-sm text-muted-foreground">SUPPLY</div>
-            <div className="text-base font-medium">{tokenStats.supply}</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <div className="text-sm text-muted-foreground">LIQUIDITY</div>
-            <div className="text-base font-medium">{tokenStats.liquidity}</div>
-          </div>
-          <div>
-            <div className="text-sm text-muted-foreground">MKT CAP</div>
-            <div className="text-base font-medium">{tokenStats.marketCap}</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          {Object.entries(tokenStats.changes).map(([period, change]) => (
-            <div key={period}>
-              <div className="text-xs text-muted-foreground">{period}</div>
-              <div className={`text-sm font-medium ${
-                change.startsWith('+') ? 'text-green-400' : 
-                change === '0.00%' ? 'text-muted-foreground' : 'text-red-400'
-              }`}>
-                {change}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">TXNS</span>
-              <span>{tokenStats.transactions.buys}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">BUY VOL</span>
-              <span>{tokenStats.transactions.buyVolume}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">MAKERS</span>
-              <span>{tokenStats.transactions.buyers}</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">SELLS</span>
-              <span>{tokenStats.transactions.sells}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">SELL VOL</span>
-              <span>{tokenStats.transactions.sellVolume}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">SELLERS</span>
-              <span>{tokenStats.transactions.sellers}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
+      <PairSearch searchPair={searchPair} onPairChange={handlePairChange} />
+      <TokenStats tokenStats={tokenStats} />
       <TabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
-      
       <TradeTypeSelector 
         activeTrade={activeTrade} 
         setActiveTrade={setActiveTrade} 
         activeTab={activeTab} 
       />
-
-      <div className="relative mb-4">
-        <Input
-          type="text"
-          placeholder="Connect Wallet"
-          readOnly
-          onClick={() => setWalletConnected(!walletConnected)}
-          value={walletConnected ? "Wallet Connected" : ""}
-          className="w-full bg-background cursor-pointer"
-        />
-      </div>
-
+      <WalletConnection 
+        walletConnected={walletConnected}
+        onWalletConnect={() => setWalletConnected(!walletConnected)}
+      />
       <TradeForm
         activeTrade={activeTrade}
         activeTab={activeTab}
@@ -211,4 +103,3 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
 };
 
 export default PortfolioCard;
-
