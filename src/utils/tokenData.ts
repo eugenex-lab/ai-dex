@@ -19,7 +19,7 @@ export const tokens: Token[] = [
   {
     symbol: "SNEK",
     name: "Snek",
-    icon: "/lovable-uploads/3961fa01-8280-4576-b632-09f2126c4f70.png" // Updated SNEK icon
+    icon: "/lovable-uploads/3961fa01-8280-4576-b632-09f2126c4f70.png"
   },
   {
     symbol: "MIN",
@@ -29,7 +29,7 @@ export const tokens: Token[] = [
   {
     symbol: "IAG",
     name: "IAG",
-    icon: "/lovable-uploads/08b4ae11-0bba-4903-b6f7-66302fe739fc.png" // Updated IAG icon
+    icon: "/lovable-uploads/08b4ae11-0bba-4903-b6f7-66302fe739fc.png"
   },
   {
     symbol: "BOTLY",
@@ -39,11 +39,79 @@ export const tokens: Token[] = [
   {
     symbol: "WMTX",
     name: "WMTX",
-    icon: "/lovable-uploads/cc3d1b7f-2872-484b-a08f-40ddbcb228a0.png" // Updated WMTX icon
+    icon: "/lovable-uploads/cc3d1b7f-2872-484b-a08f-40ddbcb228a0.png"
   },
   {
     symbol: "USDM",
     name: "USDM",
-    icon: "/lovable-uploads/4a55c30c-fdf5-42da-8056-7077f13e6f1f.png" // Updated USDM icon
+    icon: "/lovable-uploads/4a55c30c-fdf5-42da-8056-7077f13e6f1f.png"
+  }
+];
+
+export interface Pool {
+  id: string;
+  token1: Token;
+  token2: Token;
+  volume24h: string;
+  tvl: string;
+  apr: number;
+}
+
+export const defaultPools: Pool[] = [
+  {
+    id: "ada-eth",
+    token1: tokens[0], // ADA
+    token2: tokens[1], // ETH
+    volume24h: "$1.2M",
+    tvl: "$5.2M",
+    apr: 8.5
+  },
+  {
+    id: "ada-snek",
+    token1: tokens[0], // ADA
+    token2: tokens[2], // SNEK
+    volume24h: "$2.1M",
+    tvl: "$8.4M",
+    apr: 6.2
+  },
+  {
+    id: "ada-min",
+    token1: tokens[0], // ADA
+    token2: tokens[3], // MIN
+    volume24h: "$890K",
+    tvl: "$3.1M",
+    apr: 9.8
+  },
+  {
+    id: "ada-iag",
+    token1: tokens[0], // ADA
+    token2: tokens[4], // IAG
+    volume24h: "$750K",
+    tvl: "$2.8M",
+    apr: 7.5
+  },
+  {
+    id: "ada-botly",
+    token1: tokens[0], // ADA
+    token2: tokens[5], // BOTLY
+    volume24h: "$1.5M",
+    tvl: "$4.7M",
+    apr: 8.9
+  },
+  {
+    id: "ada-wmtx",
+    token1: tokens[0], // ADA
+    token2: tokens[6], // WMTX
+    volume24h: "$980K",
+    tvl: "$3.5M",
+    apr: 7.8
+  },
+  {
+    id: "ada-usdm",
+    token1: tokens[0], // ADA
+    token2: tokens[7], // USDM
+    volume24h: "$670K",
+    tvl: "$2.4M",
+    apr: 6.9
   }
 ];
