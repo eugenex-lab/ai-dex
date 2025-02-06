@@ -12,6 +12,7 @@ import FAQ from "./pages/FAQ";
 import Roadmap from "./pages/Roadmap";
 import Dashboard from "./pages/Dashboard";
 import API from "./pages/API";
+import Orders from "./pages/Orders";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/api" element={<API />} />
+            <Route path="/orders" element={<Orders />} />
           </Routes>
         </main>
         <Footer />
