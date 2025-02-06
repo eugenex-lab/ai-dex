@@ -38,10 +38,12 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
   }, [currentPair]);
 
   const handlePairSelect = (pair: string) => {
-    setSelectedPair(pair);
+    // Remove any BINANCE: prefix if present
+    const cleanPair = pair.replace('BINANCE:', '');
+    setSelectedPair(cleanPair);
     if (onPairSelect) {
-      console.log('PortfolioCard: Selected pair:', pair);
-      onPairSelect(pair); // Remove BINANCE: prefix, pass clean symbol
+      console.log('PortfolioCard: Selected pair:', cleanPair);
+      onPairSelect(cleanPair);
     }
   };
 
