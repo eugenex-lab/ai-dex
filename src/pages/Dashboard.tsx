@@ -9,7 +9,6 @@ const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState('BTCUSDT');
 
   const handlePairChange = (pair: string) => {
-    // Clean the pair by removing 'BINANCE:' prefix if present
     const cleanPair = pair.replace('BINANCE:', '');
     console.log('Dashboard: Setting current pair to:', cleanPair);
     setCurrentPair(cleanPair);
@@ -30,10 +29,7 @@ const Dashboard = () => {
             <CryptoChart onPairChange={handlePairChange} currentPair={currentPair} />
           </div>
           <div>
-            <PortfolioCard 
-              currentPair={currentPair} 
-              onPairSelect={handlePairChange}
-            />
+            <PortfolioCard currentPair={currentPair} />
           </div>
         </div>
         
