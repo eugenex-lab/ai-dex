@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { TokenSelect } from "./TokenSelect";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { TokenSelectionSection } from "./dialog/TokenSelectionSection";
+import { DialogActions } from "./dialog/DialogActions";
 
 interface Token {
   symbol: string;
@@ -78,23 +78,15 @@ export const CreatePoolDialog = ({ isOpen, onClose, tokens, user }: CreatePoolDi
           <DialogTitle>Create a new pool</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 py-4">
-          <TokenSelect
-            label="First Token"
+          <TokenSelectionSection
             tokens={tokens}
-            onSelect={setSelectedToken1}
+            onSelectToken1={setSelectedToken1}
+            onSelectToken2={setSelectedToken2}
           />
-          <TokenSelect
-            label="Second Token"
-            tokens={tokens}
-            onSelect={setSelectedToken2}
+          <DialogActions
+            onCreatePool={handleCreatePool}
+            isDisabled={!selectedToken1 || !selectedToken2}
           />
-          <Button 
-            className="w-full"
-            onClick={handleCreatePool}
-            disabled={!selectedToken1 || !selectedToken2}
-          >
-            Create Pool
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
