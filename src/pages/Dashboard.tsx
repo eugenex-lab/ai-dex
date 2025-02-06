@@ -11,6 +11,8 @@ const Dashboard = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handlePairChange = useCallback((pair: string) => {
+    if (!pair) return;
+    
     try {
       console.log('Dashboard: Handling pair change:', pair);
       // Clean up the pair format (remove BINANCE: prefix if present)
@@ -79,3 +81,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

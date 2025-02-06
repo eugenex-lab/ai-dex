@@ -1,12 +1,11 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
 import TradeForm from "./trade/TradeForm";
 import PairSearch from "./portfolio/PairSearch";
 import TokenStats from "./portfolio/TokenStats";
 import WalletConnection from "./portfolio/WalletConnection";
-import { toast } from "@/hooks/use-toast";
 
 interface PortfolioCardProps {
   currentPair?: string;
@@ -26,14 +25,13 @@ const PortfolioCard = ({
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
 
-  const handlePairChange = useCallback((value: string) => {
+  const handlePairChange = (value: string) => {
     console.log('PortfolioCard: Handling pair change:', value);
-    
-    if (onPairSelect) {
+    if (onPairSelect && value) {
       console.log('PortfolioCard: Notifying parent of pair change:', value);
       onPairSelect(value);
     }
-  }, [onPairSelect]);
+  };
 
   // Mock data - In a real app, this would be fetched based on the selected pair
   const tokenStats = {
@@ -94,3 +92,4 @@ const PortfolioCard = ({
 };
 
 export default PortfolioCard;
+

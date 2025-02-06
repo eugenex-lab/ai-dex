@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search } from "lucide-react";
 import { Input } from "../ui/input";
-import { toast } from "@/hooks/use-toast";
 
 interface SearchableDropdownProps {
   value: string;
@@ -27,14 +26,14 @@ const SearchableDropdown = ({
   onSelect, 
   placeholder = "Search trading pairs...",
   className = "",
+  isOpen,
   onVisibilityChange
 }: SearchableDropdownProps) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const closeTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Sync with external value
   useEffect(() => {
@@ -55,7 +54,6 @@ const SearchableDropdown = ({
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-      console.log('SearchableDropdown: Closing dropdown due to outside click');
       handleVisibilityChange(false);
       setSelectedIndex(-1);
     }
@@ -65,9 +63,6 @@ const SearchableDropdown = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
     };
   }, [handleClickOutside]);
 
@@ -118,16 +113,7 @@ const SearchableDropdown = ({
 
   const handleFocus = useCallback(() => {
     console.log('SearchableDropdown: Input focused');
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-    }
     handleVisibilityChange(true);
-  }, [handleVisibilityChange]);
-
-  const handleBlur = useCallback(() => {
-    closeTimeoutRef.current = setTimeout(() => {
-      handleVisibilityChange(false);
-    }, 200);
   }, [handleVisibilityChange]);
 
   return (
@@ -142,7 +128,6 @@ const SearchableDropdown = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
-          onBlur={handleBlur}
           className="pl-9 mb-2 bg-background"
           role="combobox"
           aria-expanded={isDropdownOpen}
@@ -179,3 +164,4 @@ const SearchableDropdown = ({
 };
 
 export default SearchableDropdown;
+
