@@ -12,6 +12,7 @@ import {
 const PortfolioCard = () => {
   const [amount, setAmount] = useState("");
   const [receiveAmount, setReceiveAmount] = useState("");
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
 
   const presetAmounts = [10, 100, 500, 1000, 5000, 10000];
 
@@ -19,14 +20,24 @@ const PortfolioCard = () => {
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
       <div className="flex w-full mb-4">
         <Button 
-          variant="default" 
-          className="flex-1 rounded-r-none bg-primary hover:bg-primary/90"
+          variant={activeTab === 'buy' ? 'default' : 'outline'} 
+          className={`flex-1 rounded-r-none ${
+            activeTab === 'buy' 
+              ? 'bg-primary hover:bg-primary/90' 
+              : 'border-muted bg-background hover:bg-muted/10'
+          }`}
+          onClick={() => setActiveTab('buy')}
         >
           Buy
         </Button>
         <Button 
-          variant="outline" 
-          className="flex-1 rounded-l-none border-muted bg-background hover:bg-muted/10"
+          variant={activeTab === 'sell' ? 'default' : 'outline'} 
+          className={`flex-1 rounded-l-none ${
+            activeTab === 'sell' 
+              ? 'bg-primary hover:bg-primary/90' 
+              : 'border-muted bg-background hover:bg-muted/10'
+          }`}
+          onClick={() => setActiveTab('sell')}
         >
           Sell
         </Button>
@@ -34,10 +45,10 @@ const PortfolioCard = () => {
 
       <div className="flex gap-2 mb-4">
         <Button variant="default" size="sm" className="flex-1">
-          Buy Now
+          {activeTab === 'buy' ? 'Buy Now' : 'Sell Now'}
         </Button>
         <Button variant="default" size="sm" className="flex-1">
-          Buy Dip
+          {activeTab === 'buy' ? 'Buy Dip' : 'Auto Sell'}
         </Button>
         <Button variant="default" size="sm" className="flex-1">
           Limit Orders
@@ -69,7 +80,7 @@ const PortfolioCard = () => {
       </div>
 
       <p className="text-sm text-muted-foreground mb-2 text-left">
-        Amount To Buy In ADA
+        Amount To {activeTab === 'buy' ? 'Buy' : 'Sell'} In ADA
       </p>
       <Input
         type="number"
@@ -91,11 +102,11 @@ const PortfolioCard = () => {
       />
 
       <Button className="w-full mb-2" size="lg">
-        Quick Buy
+        Quick {activeTab === 'buy' ? 'Buy' : 'Sell'}
       </Button>
       
       <p className="text-xs text-muted-foreground text-center">
-        Once you click on Quick Buy, your transaction is sent immediately.
+        Once you click on Quick {activeTab === 'buy' ? 'Buy' : 'Sell'}, your transaction is sent immediately.
       </p>
     </div>
   );
