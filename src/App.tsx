@@ -15,6 +15,7 @@ import API from "./pages/API";
 import Orders from "./pages/Orders";
 import Staking from "./pages/Staking";
 import Pools from "./pages/Pools";
+import Auth from "./pages/Auth";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/staking" element={<Staking />} />
             <Route path="/pools" element={<Pools />} />
+            <Route path="/auth" element={<Auth />} />
           </Routes>
         </main>
         <Footer />
