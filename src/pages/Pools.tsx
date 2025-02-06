@@ -22,7 +22,7 @@ const tokens: Token[] = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    icon: "/lovable-uploads/74469a41-8023-4a58-b0fe-ef976ffa9f27.png"
+    icon: "/lovable-uploads/daa42020-48b4-4117-b910-c60ac49a087e.png" // Updated ETH icon
   },
   {
     symbol: "SNEK",
@@ -69,7 +69,7 @@ const pools: Pool[] = [
   {
     id: "ada-eth",
     token1: tokens[0], // ADA
-    token2: tokens[1], // ETH
+    token2: tokens[1], // ETH with new icon
     volume24h: "$1.2M",
     tvl: "$5.2M",
     apr: 8.5
