@@ -28,3 +28,23 @@
 .animate-pulse-subtle {
   animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Add new animation for the border light effect */
+@keyframes border-light {
+  0% {
+    box-shadow: 0 0 10px #ef4444;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 20px #ef4444;
+    opacity: 0.5;
+  }
+  100% {
+    box-shadow: 0 0 10px #ef4444;
+    opacity: 1;
+  }
+}
+
+.animate-border-light {
+  animation: border-light 2s infinite;
+}
