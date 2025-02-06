@@ -16,17 +16,23 @@ const StakeLPDialog = ({ isOpen, onOpenChange, pool }: StakeLPDialogProps) => {
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-background border-secondary">
         <DialogHeader>
-          <DialogTitle>Stake LP tokens</DialogTitle>
+          <DialogTitle>Add Liquidity</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex items-center space-x-2">
-            <img src={pool.token1.icon} alt={pool.token1.symbol} className="w-8 h-8" />
-            <img src={pool.token2.icon} alt={pool.token2.symbol} className="w-8 h-8" />
-            <span className="ml-2">{pool.token1.symbol}-{pool.token2.symbol} LP</span>
+            <div className="relative">
+              <img src={pool.token1.icon} alt={pool.token1.symbol} className="w-8 h-8 rounded-full" />
+              <img 
+                src={pool.token2.icon} 
+                alt={pool.token2.symbol} 
+                className="w-8 h-8 rounded-full absolute -right-4 -bottom-2"
+              />
+            </div>
+            <span className="ml-6 text-lg">{pool.token1.symbol}-{pool.token2.symbol} LP</span>
           </div>
           <p className="text-muted-foreground">You have no liquidity</p>
-          <p className="text-sm">Add liquidity to stake</p>
-          <Button className="w-full">
+          <p className="text-sm">Add liquidity to start earning fees</p>
+          <Button className="w-full bg-primary hover:bg-primary/90">
             Connect Wallet
           </Button>
         </div>
