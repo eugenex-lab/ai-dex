@@ -12,10 +12,15 @@ const PairSearch = ({
 }: PairSearchProps) => {
   // Format the pair dynamically to show base/quote assets
   const formatTradingPair = (pair: string): string => {
-    console.log('PairSearch: Formatting pair:', pair);
+    console.log('PairSearch: Raw pair received:', pair);
     
-    // Common quote assets
-    const quoteAssets = ['USDT', 'BUSD', 'ETH', 'BTC'];
+    if (!pair) {
+      console.log('PairSearch: Empty pair received');
+      return '';
+    }
+    
+    // Common quote assets in order of checking (longer ones first to avoid partial matches)
+    const quoteAssets = ['USDT', 'BUSD', 'ETH', 'BTC', 'BNB'];
     
     // Find which quote asset is used in this pair
     const quoteAsset = quoteAssets.find(asset => pair.endsWith(asset));
@@ -36,9 +41,9 @@ const PairSearch = ({
   return (
     <div className="mb-4">
       <div className="flex items-center gap-2 p-3 rounded-md bg-background/50 border border-border">
-        <span className="text-sm text-muted-foreground">Selected Trading Pair:</span>
+        <span className="text-sm text-muted-foreground">Trading Pair:</span>
         <span className="font-semibold text-lg">{formatTradingPair(searchPair)}</span>
-        <span className="text-xs text-muted-foreground ml-auto cursor-help">(Change pair in chart)</span>
+        <span className="text-xs text-muted-foreground ml-auto cursor-help">Click chart to change pair</span>
       </div>
     </div>
   );

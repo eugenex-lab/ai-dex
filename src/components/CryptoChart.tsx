@@ -20,7 +20,7 @@ const CryptoChart = ({
   // Ensure consistent format for TradingView symbol
   const formatTradingViewSymbol = useCallback((symbol: string) => {
     const cleanSymbol = symbol.includes(':') ? symbol : `BINANCE:${symbol}`;
-    console.log('Chart: Formatted symbol:', cleanSymbol);
+    console.log('Chart: Formatted TradingView symbol:', cleanSymbol);
     return cleanSymbol;
   }, []);
 
@@ -32,8 +32,8 @@ const CryptoChart = ({
 
   const handleSymbolChange = useCallback((symbol: string) => {
     try {
-      // Remove BINANCE: prefix if present for consistent format
-      const cleanSymbol = symbol.replace('BINANCE:', '');
+      // Remove BINANCE: prefix and clean the symbol
+      const cleanSymbol = symbol.replace('BINANCE:', '').toUpperCase();
       console.log('Chart: Symbol changed to:', cleanSymbol);
       
       setLocalPair(cleanSymbol);

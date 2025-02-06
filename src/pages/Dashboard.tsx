@@ -11,21 +11,29 @@ const Dashboard = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const formatTradingPair = useCallback((pair: string): string => {
-    if (!pair) return currentPair;
+    if (!pair) {
+      console.log('Dashboard: Empty pair provided');
+      return currentPair;
+    }
     
     try {
       // Clean up the pair format (remove BINANCE: prefix if present)
       const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
-      // Convert to uppercase
-      return cleanPair.toUpperCase();
+      // Convert to uppercase and remove any spaces
+      const formattedPair = cleanPair.toUpperCase().replace(/\s+/g, '');
+      console.log('Dashboard: Formatted pair:', formattedPair);
+      return formattedPair;
     } catch (error) {
-      console.error('Error formatting pair:', error);
+      console.error('Dashboard: Error formatting pair:', error);
       return currentPair;
     }
   }, [currentPair]);
 
   const handlePairChange = useCallback((pair: string) => {
-    if (!pair) return;
+    if (!pair) {
+      console.log('Dashboard: Empty pair received');
+      return;
+    }
     
     try {
       console.log('Dashboard: Handling pair change:', pair);
@@ -40,7 +48,7 @@ const Dashboard = () => {
         });
       }
     } catch (error) {
-      console.error('Error updating pair:', error);
+      console.error('Dashboard: Error updating pair:', error);
       toast({
         title: "Error updating trading pair",
         description: "Please try again",
