@@ -89,15 +89,7 @@ const Roadmap = () => {
               transition={{ duration: 0.5, delay: index * 0.2 }}
               className="relative"
             >
-              <div className="glass-card p-8 rounded-lg relative overflow-hidden group">
-                {/* Animated border effect */}
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-0 left-0 w-1 h-1 bg-red-500 animate-border-light" />
-                  <div className="absolute top-0 right-0 w-1 h-1 bg-red-500 animate-border-light delay-200" />
-                  <div className="absolute bottom-0 left-0 w-1 h-1 bg-red-500 animate-border-light delay-400" />
-                  <div className="absolute bottom-0 right-0 w-1 h-1 bg-red-500 animate-border-light delay-600" />
-                </div>
-
+              <div className="glass-card p-8 rounded-lg relative overflow-hidden group traveling-light">
                 <h2 className="text-2xl font-semibold mb-4 text-primary">{phase.title}</h2>
                 <ul className="space-y-3">
                   {phase.items.map((item, itemIndex) => (

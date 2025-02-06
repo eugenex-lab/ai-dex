@@ -32,19 +32,55 @@
 /* Add new animation for the border light effect */
 @keyframes border-light {
   0% {
-    box-shadow: 0 0 10px #ef4444;
+    box-shadow: 0 0 10px #3B82F6;
     opacity: 1;
   }
   50% {
-    box-shadow: 0 0 20px #ef4444;
+    box-shadow: 0 0 20px #3B82F6;
     opacity: 0.5;
   }
   100% {
-    box-shadow: 0 0 10px #ef4444;
+    box-shadow: 0 0 10px #3B82F6;
     opacity: 1;
   }
 }
 
 .animate-border-light {
   animation: border-light 2s infinite;
+}
+
+/* Add traveling light animation */
+@keyframes travel-light {
+  0% {
+    left: 0;
+    top: 0;
+  }
+  25% {
+    left: 100%;
+    top: 0;
+  }
+  50% {
+    left: 100%;
+    top: 100%;
+  }
+  75% {
+    left: 0;
+    top: 100%;
+  }
+  100% {
+    left: 0;
+    top: 0;
+  }
+}
+
+.traveling-light::before {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #3B82F6;
+  border-radius: 50%;
+  filter: blur(2px);
+  animation: travel-light 4s linear infinite;
+  z-index: 1;
 }
