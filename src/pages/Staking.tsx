@@ -164,12 +164,14 @@ const StakingCard = ({ option }: { option: StakingOption }) => {
 
 const Staking = () => {
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen">
-      <h1 className="text-4xl font-bold mb-8 text-center">Staking</h1>
-      <div className="space-y-4">
-        {stakingOptions.map((option) => (
-          <StakingCard key={option.id} option={option} />
-        ))}
+    <div className="pt-20 pb-8 px-4 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8 text-center">Staking</h1>
+        <div className="space-y-4">
+          {stakingOptions.map((option) => (
+            <StakingCard key={option.id} option={option} />
+          ))}
+        </div>
       </div>
     </div>
   );
