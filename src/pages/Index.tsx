@@ -1,5 +1,4 @@
 import { SplineScene } from "@/components/ui/spline";
-import { Spotlight } from "@/components/ui/spotlight";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -15,6 +14,7 @@ const colors = [
 const Index = () => {
   const [colorIndex, setColorIndex] = useState(0);
   const [currentColor, setCurrentColor] = useState(colors[0]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -57,14 +57,19 @@ const Index = () => {
               </p>
               <Link 
                 to="/dashboard"
-                className="mt-8 inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                className="mt-8 inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Launch Dashboard
               </Link>
             </motion.div>
           </div>
 
-          <div className="flex-1 relative h-[400px] md:h-full">
+          <div className="flex-1 relative h-[400px] md:h-full w-full md:w-auto">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            )}
             <SplineScene 
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
