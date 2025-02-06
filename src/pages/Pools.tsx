@@ -119,17 +119,21 @@ const Pools = () => {
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
   const [currentPool, setCurrentPool] = useState<Pool | null>(null);
   const [session, setSession] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for authentication status
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
+      setIsLoading(false);
       if (!session) {
         navigate('/auth');
       }
-    });
+    };
+
+    checkSession();
 
     const {
       data: { subscription },
@@ -192,8 +196,10 @@ const Pools = () => {
     pool.token2.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  if (!session) {
-    return null; // or a loading spinner
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>;
   }
 
   return (
