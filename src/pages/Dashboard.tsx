@@ -9,7 +9,8 @@ const Dashboard = () => {
 
   const handlePairChange = (pair: string) => {
     console.log('Dashboard: Setting current pair to:', pair); // Debug log
-    setCurrentPair(pair);
+    const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
+    setCurrentPair(cleanPair);
   };
 
   return (
@@ -27,7 +28,10 @@ const Dashboard = () => {
             <CryptoChart onPairChange={handlePairChange} />
           </div>
           <div>
-            <PortfolioCard currentPair={currentPair} />
+            <PortfolioCard 
+              currentPair={currentPair} 
+              onPairSelect={handlePairChange}
+            />
           </div>
         </div>
         
