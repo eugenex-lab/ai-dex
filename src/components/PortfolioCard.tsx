@@ -34,23 +34,11 @@ const PortfolioCard = ({
   }, [currentPair]);
 
   const handlePairChange = useCallback((value: string) => {
-    try {
-      console.log('PortfolioCard: Handling pair change:', value);
-      const upperValue = value.toUpperCase();
-      
-      setLocalPair(upperValue);
-      
-      if (onPairSelect && upperValue.endsWith('USDT') && upperValue.length > 4) {
-        console.log('PortfolioCard: Notifying parent of pair change:', upperValue);
-        onPairSelect(upperValue);
-      }
-    } catch (error) {
-      console.error('PortfolioCard: Error changing pair:', error);
-      toast({
-        title: "Error updating pair",
-        description: "Please try again",
-        variant: "destructive",
-      });
+    console.log('PortfolioCard: Handling pair change:', value);
+    
+    if (onPairSelect) {
+      console.log('PortfolioCard: Notifying parent of pair change:', value);
+      onPairSelect(value);
     }
   }, [onPairSelect]);
 

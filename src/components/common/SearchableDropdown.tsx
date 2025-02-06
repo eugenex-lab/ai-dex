@@ -74,32 +74,20 @@ const SearchableDropdown = ({
   }, [handleClickOutside]);
 
   const selectPair = useCallback((pair: string) => {
-    try {
-      console.log('SearchableDropdown: Selecting pair:', pair);
-      setSearchTerm(pair);
-      onSelect(pair);
-      handleVisibilityChange(false);
-      setSelectedIndex(-1);
-    } catch (error) {
-      console.error('Error selecting pair:', error);
-      toast({
-        title: "Error selecting pair",
-        description: "Please try again",
-        variant: "destructive",
-      });
-    }
+    console.log('SearchableDropdown: Selecting pair:', pair);
+    setSearchTerm(pair);
+    onSelect(pair);
+    handleVisibilityChange(false);
+    setSelectedIndex(-1);
   }, [onSelect, handleVisibilityChange]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
+    const inputValue = e.target.value.toUpperCase();
     console.log('SearchableDropdown: Input changed to:', inputValue);
     setSearchTerm(inputValue);
     handleVisibilityChange(true);
-    
-    if (inputValue.toUpperCase().endsWith('USDT') && inputValue.length > 4) {
-      selectPair(inputValue.toUpperCase());
-    }
-  }, [selectPair, handleVisibilityChange]);
+    onSelect(inputValue);
+  }, [handleVisibilityChange, onSelect]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!isDropdownOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
@@ -112,8 +100,6 @@ const SearchableDropdown = ({
         e.preventDefault();
         if (selectedIndex >= 0 && selectedIndex < filteredPairs.length) {
           selectPair(filteredPairs[selectedIndex]);
-        } else if (filteredPairs.length > 0) {
-          selectPair(filteredPairs[0]);
         }
         break;
       case 'Escape':

@@ -15,7 +15,7 @@ const Dashboard = () => {
       console.log('Dashboard: Handling pair change:', pair);
       // Clean up the pair format (remove BINANCE: prefix if present)
       const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
-      // Convert to uppercase and ensure proper format
+      // Convert to uppercase
       const formattedPair = cleanPair.toUpperCase();
       
       if (formattedPair !== currentPair) {
