@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +7,7 @@ import PoolList from '@/components/pools/PoolList';
 import CreatePoolDialog from '@/components/pools/CreatePoolDialog';
 import StakeLPDialog from '@/components/pools/StakeLPDialog';
 import { Pool, Token } from '@/components/pools/types';
+import { useNavigate } from 'react-router-dom';
 
 const tokens: Token[] = [
   {
@@ -117,19 +118,48 @@ const Pools = () => {
   const [selectedToken2, setSelectedToken2] = useState<Token | null>(null);
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
   const [currentPool, setCurrentPool] = useState<Pool | null>(null);
+  const [session, setSession] = useState<any>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check for authentication status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleCreatePool = async () => {
-    if (!selectedToken1 || !selectedToken2) return;
+    if (!selectedToken1 || !selectedToken2 || !session?.user?.email) {
+      toast({
+        title: "Error",
+        description: "Please select both tokens and ensure you're logged in",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
-      const user = await supabase.auth.getUser();
       const { error } = await supabase
         .from('pools')
         .insert([{
           token1_symbol: selectedToken1.symbol,
           token2_symbol: selectedToken2.symbol,
-          created_by: user.data.user?.email
+          created_by: session.user.email
         }]);
 
       if (error) throw error;
@@ -142,10 +172,11 @@ const Pools = () => {
       setIsCreatePoolOpen(false);
       setSelectedToken1(null);
       setSelectedToken2(null);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error creating pool:', error);
       toast({
         title: "Error",
-        description: "Failed to create pool",
+        description: error.message || "Failed to create pool",
         variant: "destructive"
       });
     }
@@ -160,6 +191,10 @@ const Pools = () => {
     pool.token1.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
     pool.token2.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (!session) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div className="min-h-screen pt-20 pb-8 px-4">
