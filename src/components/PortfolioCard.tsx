@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
@@ -11,36 +10,25 @@ import { toast } from "@/hooks/use-toast";
 interface PortfolioCardProps {
   currentPair?: string;
   onPairSelect?: (pair: string) => void;
+  isSearchOpen: boolean;
+  onSearchVisibilityChange: (isOpen: boolean) => void;
 }
 
-const COMMON_PAIRS = [
-  'BTCUSDT',
-  'ETHUSDT',
-  'BNBUSDT',
-  'ADAUSDT',
-  'DOGEUSDT',
-  'XRPUSDT',
-];
-
-const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardProps) => {
+const PortfolioCard = ({ 
+  currentPair = 'BTCUSDT', 
+  onPairSelect,
+  isSearchOpen,
+  onSearchVisibilityChange
+}: PortfolioCardProps) => {
   const [amount, setAmount] = useState("");
   const [receiveAmount, setReceiveAmount] = useState("");
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
-  const [searchPair, setSearchPair] = useState(currentPair);
-
-  // Update local state when parent prop changes
-  useEffect(() => {
-    console.log('PortfolioCard: Received new currentPair:', currentPair);
-    setSearchPair(currentPair);
-  }, [currentPair]);
 
   const handlePairChange = useCallback((value: string) => {
     try {
       console.log('PortfolioCard: Handling pair change:', value);
       const upperValue = value.toUpperCase();
-      
-      setSearchPair(upperValue);
       
       if (upperValue.endsWith('USDT') && upperValue.length > 4) {
         if (onPairSelect) {
@@ -82,7 +70,12 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
 
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
-      <PairSearch searchPair={searchPair} onPairChange={handlePairChange} />
+      <PairSearch 
+        searchPair={currentPair} 
+        onPairChange={handlePairChange}
+        isSearchOpen={isSearchOpen}
+        onSearchVisibilityChange={onSearchVisibilityChange}
+      />
       <TokenStats tokenStats={tokenStats} />
       <TabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
       <TradeTypeSelector 

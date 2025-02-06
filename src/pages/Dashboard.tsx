@@ -8,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState('BTCUSDT');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handlePairChange = useCallback((pair: string) => {
     try {
@@ -26,6 +27,10 @@ const Dashboard = () => {
         variant: "destructive",
       });
     }
+  }, []);
+
+  const handleSearchVisibilityChange = useCallback((isOpen: boolean) => {
+    setIsSearchOpen(isOpen);
   }, []);
 
   // Log state changes for debugging
@@ -47,13 +52,17 @@ const Dashboard = () => {
           <div className="lg:col-span-2">
             <CryptoChart 
               currentPair={currentPair} 
-              onPairChange={handlePairChange} 
+              onPairChange={handlePairChange}
+              isSearchOpen={isSearchOpen}
+              onSearchVisibilityChange={handleSearchVisibilityChange}
             />
           </div>
           <div>
             <PortfolioCard 
               currentPair={currentPair} 
               onPairSelect={handlePairChange}
+              isSearchOpen={isSearchOpen}
+              onSearchVisibilityChange={handleSearchVisibilityChange}
             />
           </div>
         </div>

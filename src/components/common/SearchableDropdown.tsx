@@ -9,6 +9,8 @@ interface SearchableDropdownProps {
   onSelect: (pair: string) => void;
   placeholder?: string;
   className?: string;
+  isOpen?: boolean;
+  onVisibilityChange?: (isOpen: boolean) => void;
 }
 
 const COMMON_PAIRS = [
@@ -24,7 +26,9 @@ const SearchableDropdown = ({
   value, 
   onSelect, 
   placeholder = "Search trading pairs...",
-  className = ""
+  className = "",
+  isOpen: externalIsOpen,
+  onVisibilityChange
 }: SearchableDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value);
@@ -32,6 +36,14 @@ const SearchableDropdown = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Sync with external isOpen state if provided
+  useEffect(() => {
+    if (externalIsOpen !== undefined && externalIsOpen !== isOpen) {
+      setIsOpen(externalIsOpen);
+    }
+  }, [externalIsOpen]);
+
+  // Sync with external value
   useEffect(() => {
     if (value !== searchTerm) {
       console.log('SearchableDropdown: Updating search term to:', value);
@@ -47,8 +59,9 @@ const SearchableDropdown = ({
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
       setIsOpen(false);
       setSelectedIndex(-1);
+      onVisibilityChange?.(false);
     }
-  }, []);
+  }, [onVisibilityChange]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -61,6 +74,7 @@ const SearchableDropdown = ({
       setSearchTerm(pair);
       onSelect(pair);
       setIsOpen(false);
+      onVisibilityChange?.(false);
       setSelectedIndex(-1);
     } catch (error) {
       console.error('Error selecting pair:', error);
@@ -70,7 +84,7 @@ const SearchableDropdown = ({
         variant: "destructive",
       });
     }
-  }, [onSelect]);
+  }, [onSelect, onVisibilityChange]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -80,6 +94,7 @@ const SearchableDropdown = ({
     console.log('SearchableDropdown: Input changed to:', inputValue);
     setSearchTerm(inputValue);
     setIsOpen(true);
+    onVisibilityChange?.(true);
     setSelectedIndex(-1);
     
     // Only update if it's a valid pair format
@@ -87,7 +102,7 @@ const SearchableDropdown = ({
     if (upperValue.endsWith('USDT') && upperValue.length > 4) {
       selectPair(upperValue);
     }
-  }, [selectPair]);
+  }, [selectPair, onVisibilityChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -112,6 +127,7 @@ const SearchableDropdown = ({
     if (e.key === 'Escape') {
       e.preventDefault();
       setIsOpen(false);
+      onVisibilityChange?.(false);
       setSelectedIndex(-1);
       return;
     }
@@ -119,6 +135,7 @@ const SearchableDropdown = ({
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setIsOpen(true);
+      onVisibilityChange?.(true);
       setSelectedIndex(prev => 
         prev < filteredPairs.length - 1 ? prev + 1 : prev
       );
@@ -126,7 +143,12 @@ const SearchableDropdown = ({
       e.preventDefault();
       setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
     }
-  }, [filteredPairs, selectPair]);
+  }, [filteredPairs, selectPair, onVisibilityChange]);
+
+  const handleFocus = useCallback(() => {
+    setIsOpen(true);
+    onVisibilityChange?.(true);
+  }, [onVisibilityChange]);
 
   const handleWrapperClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -144,7 +166,7 @@ const SearchableDropdown = ({
           value={searchTerm}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(true)}
+          onFocus={handleFocus}
           className="pl-9 mb-2 bg-background"
           role="combobox"
           aria-expanded={isOpen}

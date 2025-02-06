@@ -5,9 +5,16 @@ import TradingViewWidget from 'react-tradingview-widget';
 interface CryptoChartProps {
   onPairChange?: (pair: string) => void;
   currentPair: string;
+  isSearchOpen: boolean;
+  onSearchVisibilityChange: (isOpen: boolean) => void;
 }
 
-const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
+const CryptoChart = ({ 
+  onPairChange, 
+  currentPair,
+  isSearchOpen,
+  onSearchVisibilityChange 
+}: CryptoChartProps) => {
   const [localPair, setLocalPair] = useState(currentPair);
 
   // Ensure consistent format for TradingView symbol
