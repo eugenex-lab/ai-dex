@@ -3,29 +3,35 @@ import TradingViewWidget from 'react-tradingview-widget';
 
 interface CryptoChartProps {
   onPairChange?: (pair: string) => void;
+  currentPair?: string;
 }
 
-const CryptoChart = ({ onPairChange }: CryptoChartProps) => {
-  const [currentPair, setCurrentPair] = useState('BINANCE:BTCUSDT');
+const CryptoChart = ({ onPairChange, currentPair = 'BINANCE:BTCUSDT' }: CryptoChartProps) => {
+  const [localPair, setLocalPair] = useState(currentPair);
 
   const handleSymbolChange = (symbol: string) => {
-    setCurrentPair(symbol);
+    setLocalPair(symbol);
     // Extract the trading pair from the symbol (e.g., "BINANCE:BTCUSDT" -> "BTCUSDT")
     const pair = symbol.includes(':') ? symbol.split(':')[1] : symbol;
     if (onPairChange) {
-      console.log('Chart: Updating pair to:', pair); // Debug log
+      console.log('Chart: Updating pair to:', pair);
       onPairChange(pair);
     }
   };
 
+  // Update local state when prop changes
+  if (currentPair !== localPair && currentPair.includes('BINANCE:')) {
+    setLocalPair(currentPair);
+  }
+
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Bitcoin Price</h2>
+        <h2 className="text-xl font-semibold">Price Chart</h2>
       </div>
       <div className="h-[400px] w-full">
         <TradingViewWidget
-          symbol={currentPair}
+          symbol={localPair}
           theme="dark"
           locale="en"
           autosize

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
@@ -27,8 +27,16 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
   const [searchPair, setSearchPair] = useState("");
+  const [selectedPair, setSelectedPair] = useState(currentPair);
 
-  // Mock data - In a real app, this would come from your API
+  // Update local state when prop changes
+  useEffect(() => {
+    if (currentPair !== selectedPair) {
+      setSelectedPair(currentPair);
+    }
+  }, [currentPair]);
+
+  // Mock data - In a real app, this would be fetched based on the selected pair
   const tokenStats = {
     priceUSD: 0.01636,
     priceSOL: 0.08137,
@@ -51,14 +59,25 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
     }
   };
 
-  const formattedPair = currentPair.includes('USDT') 
-    ? currentPair.replace('USDT', '/USDT')
-    : `${currentPair}/USDT`;
+  const formattedPair = selectedPair.includes('USDT') 
+    ? selectedPair.replace('USDT', '/USDT')
+    : `${selectedPair}/USDT`;
 
   const handlePairSelect = (pair: string) => {
+    setSelectedPair(pair);
     if (onPairSelect) {
       console.log('PortfolioCard: Selected pair:', pair);
       onPairSelect(`BINANCE:${pair}`);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchPair(value);
+    // If the input matches a valid pair format, update the chart
+    const upperValue = value.toUpperCase();
+    if (upperValue.endsWith('USDT') && upperValue.length > 4) {
+      handlePairSelect(upperValue);
     }
   };
 
@@ -75,11 +94,11 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
             type="text"
             placeholder="Search trading pairs..."
             value={searchPair}
-            onChange={(e) => setSearchPair(e.target.value)}
+            onChange={handleSearchChange}
             className="pl-9 mb-2"
           />
         </div>
-        <Select onValueChange={handlePairSelect} value={currentPair}>
+        <Select onValueChange={handlePairSelect} value={selectedPair}>
           <SelectTrigger className="w-full bg-background">
             <SelectValue placeholder={formattedPair} />
           </SelectTrigger>
