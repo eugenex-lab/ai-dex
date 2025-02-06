@@ -31,11 +31,12 @@ interface SourceSelectorProps {
 
 const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProps) => {
   const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(""); // Add this to track command value
 
-  const toggleSource = (value: string) => {
-    const newSelection = selectedSources.includes(value)
-      ? selectedSources.filter((item) => item !== value)
-      : [...selectedSources, value];
+  const toggleSource = (sourceValue: string) => {
+    const newSelection = selectedSources.includes(sourceValue)
+      ? selectedSources.filter((item) => item !== sourceValue)
+      : [...selectedSources, sourceValue];
     onSourcesChange(newSelection);
   };
 
@@ -57,7 +58,7 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-full p-0">
-          <Command>
+          <Command value={value} onValueChange={setValue}>
             <CommandInput placeholder="Search sources..." />
             <CommandEmpty>No source found.</CommandEmpty>
             <CommandGroup heading="Available Sources">
@@ -65,7 +66,10 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
                 <CommandItem
                   key={source.value}
                   value={source.value}
-                  onSelect={() => toggleSource(source.value)}
+                  onSelect={() => {
+                    toggleSource(source.value);
+                    setValue(source.value);
+                  }}
                 >
                   <Check
                     className={cn(
@@ -100,4 +104,3 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
 };
 
 export default SourceSelector;
-
