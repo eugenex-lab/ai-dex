@@ -28,29 +28,27 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
   const [searchPair, setSearchPair] = useState(currentPair);
-  const [walletConnected, setWalletConnected] = useState(false);
 
-  // Update local state when prop changes
+  // Update local state when parent prop changes
   useEffect(() => {
-    if (currentPair !== searchPair) {
-      console.log('PortfolioCard: Updating search pair to:', currentPair);
-      setSearchPair(currentPair);
-    }
+    console.log('PortfolioCard: Received new currentPair:', currentPair);
+    setSearchPair(currentPair);
   }, [currentPair]);
 
   const handlePairChange = useCallback((value: string) => {
     try {
-      setSearchPair(value);
-      // Only update if the input is a valid pair format
+      console.log('PortfolioCard: Handling pair change:', value);
       const upperValue = value.toUpperCase();
+      
+      setSearchPair(upperValue);
+      
       if (upperValue.endsWith('USDT') && upperValue.length > 4) {
         if (onPairSelect) {
-          console.log('PortfolioCard: Selected pair:', upperValue);
           onPairSelect(upperValue);
         }
       }
     } catch (error) {
-      console.error('Error changing pair:', error);
+      console.error('PortfolioCard: Error changing pair:', error);
       toast({
         title: "Error updating pair",
         description: "Please try again",
@@ -93,8 +91,8 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
         activeTab={activeTab} 
       />
       <WalletConnection 
-        walletConnected={walletConnected}
-        onWalletConnect={() => setWalletConnected(!walletConnected)}
+        walletConnected={false}
+        onWalletConnect={() => {}}
       />
       <TradeForm
         activeTrade={activeTrade}

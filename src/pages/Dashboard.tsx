@@ -11,15 +11,13 @@ const Dashboard = () => {
 
   const handlePairChange = useCallback((pair: string) => {
     try {
-      console.log('Dashboard: Setting current pair to:', pair);
+      console.log('Dashboard: Handling pair change:', pair);
       // Clean up the pair format (remove BINANCE: prefix if present)
       const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
       // Convert to uppercase and ensure proper format
       const formattedPair = cleanPair.toUpperCase();
       
-      if (formattedPair !== currentPair) {
-        setCurrentPair(formattedPair);
-      }
+      setCurrentPair(formattedPair);
     } catch (error) {
       console.error('Error updating pair:', error);
       toast({
@@ -28,16 +26,15 @@ const Dashboard = () => {
         variant: "destructive",
       });
     }
-  }, [currentPair]);
-
-  // Prevent form submission at the top level
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
   }, []);
 
+  // Log state changes for debugging
+  useEffect(() => {
+    console.log('Dashboard: Current pair updated to:', currentPair);
+  }, [currentPair]);
+
   return (
-    <form onSubmit={handleSubmit} className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Crypto Dashboard</h1>
@@ -63,7 +60,7 @@ const Dashboard = () => {
         
         <CryptoList />
       </div>
-    </form>
+    </div>
   );
 };
 
