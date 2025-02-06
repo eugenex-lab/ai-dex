@@ -28,7 +28,7 @@ export const tokens: Token[] = [
   {
     symbol: "IAG",
     name: "IAG",
-    icon: "/lovable-uploads/3e5a23f1-0e01-49cb-86b5-d06452933afc.png"
+    icon: "/lovable-uploads/08b4ae11-0bba-4903-b6f7-66302fe739fc.png" // Updated IAG icon
   },
   {
     symbol: "BOTLY",
@@ -84,7 +84,7 @@ export const defaultPools: Pool[] = [
   {
     id: "ada-iag",
     token1: tokens[0], // ADA
-    token2: tokens[4], // IAG
+    token2: tokens[4], // IAG with new icon
     volume24h: "$750K",
     tvl: "$2.8M",
     apr: 7.5
