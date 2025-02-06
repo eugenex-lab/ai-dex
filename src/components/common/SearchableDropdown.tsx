@@ -30,18 +30,26 @@ const SearchableDropdown = ({
   isOpen: externalIsOpen,
   onVisibilityChange
 }: SearchableDropdownProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setLocalIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState(value);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Handle visibility state
+  const setIsOpen = useCallback((newIsOpen: boolean) => {
+    setLocalIsOpen(newIsOpen);
+    onVisibilityChange?.(newIsOpen);
+    console.log('SearchableDropdown: Visibility changed to:', newIsOpen);
+  }, [onVisibilityChange]);
+
   // Sync with external isOpen state if provided
   useEffect(() => {
     if (externalIsOpen !== undefined && externalIsOpen !== isOpen) {
-      setIsOpen(externalIsOpen);
+      console.log('SearchableDropdown: Syncing with external isOpen:', externalIsOpen);
+      setLocalIsOpen(externalIsOpen);
     }
-  }, [externalIsOpen]);
+  }, [externalIsOpen, isOpen]);
 
   // Sync with external value
   useEffect(() => {
@@ -57,11 +65,11 @@ const SearchableDropdown = ({
 
   const handleClickOutside = useCallback((event: MouseEvent) => {
     if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      console.log('SearchableDropdown: Closing dropdown due to outside click');
       setIsOpen(false);
       setSelectedIndex(-1);
-      onVisibilityChange?.(false);
     }
-  }, [onVisibilityChange]);
+  }, [setIsOpen]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -74,7 +82,6 @@ const SearchableDropdown = ({
       setSearchTerm(pair);
       onSelect(pair);
       setIsOpen(false);
-      onVisibilityChange?.(false);
       setSelectedIndex(-1);
     } catch (error) {
       console.error('Error selecting pair:', error);
@@ -84,7 +91,7 @@ const SearchableDropdown = ({
         variant: "destructive",
       });
     }
-  }, [onSelect, onVisibilityChange]);
+  }, [onSelect, setIsOpen]);
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -94,69 +101,53 @@ const SearchableDropdown = ({
     console.log('SearchableDropdown: Input changed to:', inputValue);
     setSearchTerm(inputValue);
     setIsOpen(true);
-    onVisibilityChange?.(true);
-    setSelectedIndex(-1);
     
     // Only update if it's a valid pair format
     const upperValue = inputValue.toUpperCase();
     if (upperValue.endsWith('USDT') && upperValue.length > 4) {
       selectPair(upperValue);
     }
-  }, [selectPair, onVisibilityChange]);
+  }, [selectPair, setIsOpen]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.stopPropagation();
-
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      
-      if (selectedIndex >= 0 && selectedIndex < filteredPairs.length) {
-        selectPair(filteredPairs[selectedIndex]);
-      } else if (filteredPairs.length > 0) {
-        selectPair(filteredPairs[0]);
-      } else {
-        toast({
-          title: "No matching pairs found",
-          description: "Please select a valid trading pair",
-          variant: "destructive",
-        });
-      }
-      return;
-    }
-
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      setIsOpen(false);
-      onVisibilityChange?.(false);
-      setSelectedIndex(-1);
-      return;
-    }
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
+    if (!isOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      console.log('SearchableDropdown: Opening dropdown due to arrow key');
       setIsOpen(true);
-      onVisibilityChange?.(true);
-      setSelectedIndex(prev => 
-        prev < filteredPairs.length - 1 ? prev + 1 : prev
-      );
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
+      return;
     }
-  }, [filteredPairs, selectPair, onVisibilityChange]);
+
+    switch (e.key) {
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < filteredPairs.length) {
+          selectPair(filteredPairs[selectedIndex]);
+        } else if (filteredPairs.length > 0) {
+          selectPair(filteredPairs[0]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        setSelectedIndex(-1);
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex(prev => prev < filteredPairs.length - 1 ? prev + 1 : prev);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
+        break;
+    }
+  }, [isOpen, selectedIndex, filteredPairs, selectPair, setIsOpen]);
 
   const handleFocus = useCallback(() => {
+    console.log('SearchableDropdown: Input focused');
     setIsOpen(true);
-    onVisibilityChange?.(true);
-  }, [onVisibilityChange]);
-
-  const handleWrapperClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
+  }, [setIsOpen]);
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef} onClick={handleWrapperClick}>
+    <div className={`relative ${className}`} ref={dropdownRef}>
       <div className="relative">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
@@ -191,11 +182,7 @@ const SearchableDropdown = ({
                   ? 'bg-accent text-accent-foreground' 
                   : 'hover:bg-accent hover:text-accent-foreground'
               }`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                selectPair(pair);
-              }}
+              onClick={() => selectPair(pair)}
             >
               {pair}
             </div>

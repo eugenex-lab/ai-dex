@@ -18,7 +18,10 @@ const Dashboard = () => {
       // Convert to uppercase and ensure proper format
       const formattedPair = cleanPair.toUpperCase();
       
-      setCurrentPair(formattedPair);
+      if (formattedPair !== currentPair) {
+        console.log('Dashboard: Updating current pair to:', formattedPair);
+        setCurrentPair(formattedPair);
+      }
     } catch (error) {
       console.error('Error updating pair:', error);
       toast({
@@ -27,9 +30,10 @@ const Dashboard = () => {
         variant: "destructive",
       });
     }
-  }, []);
+  }, [currentPair]);
 
   const handleSearchVisibilityChange = useCallback((isOpen: boolean) => {
+    console.log('Dashboard: Search visibility changed to:', isOpen);
     setIsSearchOpen(isOpen);
   }, []);
 

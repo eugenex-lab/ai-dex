@@ -39,6 +39,7 @@ const CryptoChart = ({
       setLocalPair(cleanSymbol);
       
       if (onPairChange) {
+        console.log('Chart: Notifying parent of symbol change:', cleanSymbol);
         onPairChange(cleanSymbol);
       }
     } catch (error) {
