@@ -15,7 +15,9 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT' }: PortfolioCardProps) => {
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
 
   // Format the trading pair for display
-  const formattedPair = currentPair.replace('USDT', '/USDT');
+  const formattedPair = currentPair.includes('USDT') 
+    ? currentPair.replace('USDT', '/USDT')
+    : `${currentPair}/USDT`;
 
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
