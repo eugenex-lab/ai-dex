@@ -116,7 +116,7 @@ const Pools = () => {
   const [selectedToken1, setSelectedToken1] = useState<Token | null>(null);
   const [selectedToken2, setSelectedToken2] = useState<Token | null>(null);
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
-  const [currentPool, setCurrentPool] = useState<Pool | null>(null);
+  const [selectedPool, setSelectedPool] = useState<Pool | null>(null);
   const [session, setSession] = useState<any>(null);
   const { toast } = useToast();
 
@@ -185,7 +185,7 @@ const Pools = () => {
       });
       return;
     }
-    setCurrentPool(pool);
+    setSelectedPool(pool);
     setIsStakeLPOpen(true);
   };
 
@@ -249,7 +249,7 @@ const Pools = () => {
       <StakeLPDialog
         isOpen={isStakeLPOpen}
         onOpenChange={setIsStakeLPOpen}
-        pool={currentPool}
+        pool={selectedPool}
       />
     </div>
   );
