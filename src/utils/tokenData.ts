@@ -13,12 +13,12 @@ export const tokens: Token[] = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    icon: "/lovable-uploads/daa42020-48b4-4117-b910-c60ac49a087e.png" // Updated ETH icon
+    icon: "/lovable-uploads/daa42020-48b4-4117-b910-c60ac49a087e.png"
   },
   {
     symbol: "SNEK",
     name: "Snek",
-    icon: "/lovable-uploads/5b6f7541-b862-4d1c-9739-4422042ed31b.png"
+    icon: "/lovable-uploads/3961fa01-8280-4576-b632-09f2126c4f70.png" // Updated SNEK icon
   },
   {
     symbol: "MIN",
@@ -60,7 +60,7 @@ export const defaultPools: Pool[] = [
   {
     id: "ada-eth",
     token1: tokens[0], // ADA
-    token2: tokens[1], // ETH with new icon
+    token2: tokens[1], // ETH
     volume24h: "$1.2M",
     tvl: "$5.2M",
     apr: 8.5
@@ -68,7 +68,7 @@ export const defaultPools: Pool[] = [
   {
     id: "ada-snek",
     token1: tokens[0], // ADA
-    token2: tokens[2], // SNEK
+    token2: tokens[2], // SNEK with new icon
     volume24h: "$2.1M",
     tvl: "$8.4M",
     apr: 6.2
