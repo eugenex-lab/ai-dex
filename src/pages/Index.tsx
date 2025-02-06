@@ -14,7 +14,6 @@ const colors = [
 const Index = () => {
   const [colorIndex, setColorIndex] = useState(0);
   const [currentColor, setCurrentColor] = useState(colors[0]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -65,11 +64,6 @@ const Index = () => {
           </div>
 
           <div className="flex-1 relative h-[400px] md:h-full w-full md:w-auto">
-            {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-              </div>
-            )}
             <SplineScene 
               scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
               className="w-full h-full"
