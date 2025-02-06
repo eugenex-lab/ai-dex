@@ -7,6 +7,11 @@ import CryptoList from "@/components/CryptoList";
 const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState('BTCUSDT');
 
+  const handlePairChange = (pair: string) => {
+    console.log('Dashboard: Setting current pair to:', pair); // Debug log
+    setCurrentPair(pair);
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
@@ -19,7 +24,7 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <CryptoChart onPairChange={setCurrentPair} />
+            <CryptoChart onPairChange={handlePairChange} />
           </div>
           <div>
             <PortfolioCard currentPair={currentPair} />

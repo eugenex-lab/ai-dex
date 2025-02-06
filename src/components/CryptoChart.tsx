@@ -12,7 +12,10 @@ const CryptoChart = ({ onPairChange }: CryptoChartProps) => {
     setCurrentPair(symbol);
     // Extract the trading pair from the symbol (e.g., "BINANCE:BTCUSDT" -> "BTCUSDT")
     const pair = symbol.includes(':') ? symbol.split(':')[1] : symbol;
-    onPairChange?.(pair);
+    if (onPairChange) {
+      console.log('Chart: Updating pair to:', pair); // Debug log
+      onPairChange(pair);
+    }
   };
 
   return (

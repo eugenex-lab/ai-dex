@@ -19,6 +19,9 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT' }: PortfolioCardProps) => {
     ? currentPair.replace('USDT', '/USDT')
     : `${currentPair}/USDT`;
 
+  console.log('PortfolioCard: Received pair:', currentPair); // Debug log
+  console.log('PortfolioCard: Formatted pair:', formattedPair); // Debug log
+
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
       <div className="mb-4 p-3 bg-background rounded-lg border border-muted">
