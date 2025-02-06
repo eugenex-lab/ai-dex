@@ -26,7 +26,6 @@ const PortfolioCard = ({
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
 
   const handlePairChange = (value: string) => {
-    console.log('PortfolioCard: Handling pair change:', value);
     if (onPairSelect && value) {
       console.log('PortfolioCard: Notifying parent of pair change:', value);
       onPairSelect(value);
@@ -92,4 +91,3 @@ const PortfolioCard = ({
 };
 
 export default PortfolioCard;
-

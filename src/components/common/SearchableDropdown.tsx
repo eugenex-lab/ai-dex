@@ -30,25 +30,22 @@ const SearchableDropdown = ({
   onVisibilityChange
 }: SearchableDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState(value);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const blurTimeoutRef = useRef<NodeJS.Timeout>();
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   // Sync with external value
   useEffect(() => {
-    console.log('SearchableDropdown: External value changed to:', value);
     setSearchTerm(value);
   }, [value]);
 
-  const filteredPairs = searchTerm
-    ? COMMON_PAIRS.filter(pair =>
-        pair.toLowerCase().includes(searchTerm.toLowerCase()))
-    : COMMON_PAIRS;
+  const filteredPairs = COMMON_PAIRS.filter(pair =>
+    pair.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleVisibilityChange = useCallback((newIsOpen: boolean) => {
-    console.log('SearchableDropdown: Setting dropdown visibility to:', newIsOpen);
-    setIsDropdownOpen(newIsOpen);
+    console.log('SearchableDropdown: Changing visibility to:', newIsOpen);
     onVisibilityChange?.(newIsOpen);
   }, [onVisibilityChange]);
 
@@ -63,6 +60,9 @@ const SearchableDropdown = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
     };
   }, [handleClickOutside]);
 
@@ -83,7 +83,7 @@ const SearchableDropdown = ({
   }, [handleVisibilityChange, onSelect]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isDropdownOpen) {
+    if (!isOpen) {
       handleVisibilityChange(true);
       return;
     }
@@ -109,11 +109,24 @@ const SearchableDropdown = ({
         setSelectedIndex(prev => Math.max(prev - 1, 0));
         break;
     }
-  }, [isDropdownOpen, selectedIndex, filteredPairs, selectPair, handleVisibilityChange]);
+  }, [isOpen, selectedIndex, filteredPairs, selectPair, handleVisibilityChange]);
 
   const handleFocus = useCallback(() => {
     console.log('SearchableDropdown: Input focused');
+    if (blurTimeoutRef.current) {
+      clearTimeout(blurTimeoutRef.current);
+    }
     handleVisibilityChange(true);
+  }, [handleVisibilityChange]);
+
+  const handleBlur = useCallback(() => {
+    console.log('SearchableDropdown: Input blurred');
+    // Add delay before closing to allow for clicks on suggestions
+    blurTimeoutRef.current = setTimeout(() => {
+      if (!dropdownRef.current?.contains(document.activeElement)) {
+        handleVisibilityChange(false);
+      }
+    }, 200);
   }, [handleVisibilityChange]);
 
   return (
@@ -128,15 +141,16 @@ const SearchableDropdown = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           className="pl-9 mb-2 bg-background"
           role="combobox"
-          aria-expanded={isDropdownOpen}
+          aria-expanded={isOpen}
           aria-controls="pair-listbox"
           aria-autocomplete="list"
         />
       </div>
       
-      {isDropdownOpen && (
+      {isOpen && (
         <div 
           id="pair-listbox"
           role="listbox"
@@ -164,4 +178,3 @@ const SearchableDropdown = ({
 };
 
 export default SearchableDropdown;
-
