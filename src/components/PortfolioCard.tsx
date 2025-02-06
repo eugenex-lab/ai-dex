@@ -25,13 +25,6 @@ const PortfolioCard = ({
   const [receiveAmount, setReceiveAmount] = useState("");
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
-  const [localPair, setLocalPair] = useState(currentPair);
-
-  // Sync with parent's currentPair
-  useEffect(() => {
-    console.log('PortfolioCard: Updating local pair to:', currentPair);
-    setLocalPair(currentPair);
-  }, [currentPair]);
 
   const handlePairChange = useCallback((value: string) => {
     console.log('PortfolioCard: Handling pair change:', value);
@@ -68,7 +61,7 @@ const PortfolioCard = ({
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
       <PairSearch 
-        searchPair={localPair}
+        searchPair={currentPair}
         onPairChange={handlePairChange}
         isSearchOpen={isSearchOpen}
         onSearchVisibilityChange={onSearchVisibilityChange}

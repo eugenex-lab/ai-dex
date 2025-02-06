@@ -27,7 +27,6 @@ const SearchableDropdown = ({
   onSelect, 
   placeholder = "Search trading pairs...",
   className = "",
-  isOpen: externalIsOpen,
   onVisibilityChange
 }: SearchableDropdownProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -35,14 +34,7 @@ const SearchableDropdown = ({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Sync with external isOpen state if provided
-  useEffect(() => {
-    if (externalIsOpen !== undefined) {
-      console.log('SearchableDropdown: External isOpen changed to:', externalIsOpen);
-      setIsDropdownOpen(externalIsOpen);
-    }
-  }, [externalIsOpen]);
+  const closeTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Sync with external value
   useEffect(() => {
@@ -50,9 +42,10 @@ const SearchableDropdown = ({
     setSearchTerm(value);
   }, [value]);
 
-  const filteredPairs = COMMON_PAIRS.filter(pair =>
-    pair.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPairs = searchTerm
+    ? COMMON_PAIRS.filter(pair =>
+        pair.toLowerCase().includes(searchTerm.toLowerCase()))
+    : COMMON_PAIRS;
 
   const handleVisibilityChange = useCallback((newIsOpen: boolean) => {
     console.log('SearchableDropdown: Setting dropdown visibility to:', newIsOpen);
@@ -70,7 +63,12 @@ const SearchableDropdown = ({
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
   }, [handleClickOutside]);
 
   const selectPair = useCallback((pair: string) => {
@@ -90,7 +88,7 @@ const SearchableDropdown = ({
   }, [handleVisibilityChange, onSelect]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isDropdownOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+    if (!isDropdownOpen) {
       handleVisibilityChange(true);
       return;
     }
@@ -120,7 +118,16 @@ const SearchableDropdown = ({
 
   const handleFocus = useCallback(() => {
     console.log('SearchableDropdown: Input focused');
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
     handleVisibilityChange(true);
+  }, [handleVisibilityChange]);
+
+  const handleBlur = useCallback(() => {
+    closeTimeoutRef.current = setTimeout(() => {
+      handleVisibilityChange(false);
+    }, 200);
   }, [handleVisibilityChange]);
 
   return (
@@ -135,6 +142,7 @@ const SearchableDropdown = ({
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           onFocus={handleFocus}
+          onBlur={handleBlur}
           className="pl-9 mb-2 bg-background"
           role="combobox"
           aria-expanded={isDropdownOpen}
@@ -143,7 +151,7 @@ const SearchableDropdown = ({
         />
       </div>
       
-      {isDropdownOpen && filteredPairs.length > 0 && (
+      {isDropdownOpen && (
         <div 
           id="pair-listbox"
           role="listbox"

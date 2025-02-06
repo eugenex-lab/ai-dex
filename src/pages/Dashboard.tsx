@@ -15,12 +15,13 @@ const Dashboard = () => {
       console.log('Dashboard: Handling pair change:', pair);
       // Clean up the pair format (remove BINANCE: prefix if present)
       const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
-      // Convert to uppercase
+      // Convert to uppercase and ensure USDT suffix
       const formattedPair = cleanPair.toUpperCase();
+      const finalPair = formattedPair.endsWith('USDT') ? formattedPair : `${formattedPair}USDT`;
       
-      if (formattedPair !== currentPair) {
-        console.log('Dashboard: Updating current pair to:', formattedPair);
-        setCurrentPair(formattedPair);
+      if (finalPair !== currentPair) {
+        console.log('Dashboard: Updating current pair to:', finalPair);
+        setCurrentPair(finalPair);
       }
     } catch (error) {
       console.error('Error updating pair:', error);
