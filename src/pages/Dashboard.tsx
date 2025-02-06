@@ -17,8 +17,8 @@ const Dashboard = () => {
     }
     
     try {
-      // Clean up the pair format (remove BINANCE: prefix if present)
-      const cleanPair = pair.includes(':') ? pair.split(':')[1] : pair;
+      // Clean up the pair format (remove exchange prefix if present)
+      const cleanPair = pair.replace(/^(?:BINANCE:)?/, '');
       // Convert to uppercase and remove any spaces
       const formattedPair = cleanPair.toUpperCase().replace(/\s+/g, '');
       console.log('Dashboard: Formatted pair:', formattedPair);

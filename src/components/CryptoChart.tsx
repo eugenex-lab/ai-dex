@@ -32,20 +32,40 @@ const CryptoChart = ({
 
   const handleSymbolChange = useCallback((symbol: string) => {
     try {
-      // Remove BINANCE: prefix and clean the symbol
-      const cleanSymbol = symbol.replace('BINANCE:', '').toUpperCase();
-      console.log('Chart: Symbol changed to:', cleanSymbol);
+      // Handle both formats: with and without exchange prefix
+      const cleanSymbol = symbol.replace(/^(?:BINANCE:)?/, '').toUpperCase();
+      console.log('Chart: Raw symbol from TradingView:', symbol);
+      console.log('Chart: Cleaned symbol:', cleanSymbol);
       
-      setLocalPair(cleanSymbol);
-      
-      if (onPairChange) {
-        console.log('Chart: Notifying parent of symbol change:', cleanSymbol);
-        onPairChange(cleanSymbol);
+      if (cleanSymbol !== localPair) {
+        console.log('Chart: Updating local pair to:', cleanSymbol);
+        setLocalPair(cleanSymbol);
+        
+        if (onPairChange) {
+          console.log('Chart: Notifying parent of symbol change:', cleanSymbol);
+          onPairChange(cleanSymbol);
+        }
       }
     } catch (error) {
       console.error('Chart: Error handling symbol change:', error);
     }
-  }, [onPairChange]);
+  }, [localPair, onPairChange]);
+
+  // Setup widget options
+  const widgetOptions = {
+    symbol: formatTradingViewSymbol(localPair),
+    theme: "dark",
+    locale: "en",
+    autosize: true,
+    hide_side_toolbar: false,
+    allow_symbol_change: true,
+    interval: "D",
+    toolbar_bg: "#141413",
+    enable_publishing: false,
+    hide_top_toolbar: false,
+    save_image: false,
+    container_id: "tradingview_chart",
+  };
 
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in">
@@ -54,18 +74,7 @@ const CryptoChart = ({
       </div>
       <div className="h-[400px] w-full">
         <TradingViewWidget
-          symbol={formatTradingViewSymbol(localPair)}
-          theme="dark"
-          locale="en"
-          autosize
-          hide_side_toolbar={false}
-          allow_symbol_change={true}
-          interval="D"
-          toolbar_bg="#141413"
-          enable_publishing={false}
-          hide_top_toolbar={false}
-          save_image={false}
-          container_id="tradingview_chart"
+          {...widgetOptions}
           onSymbolChange={handleSymbolChange}
         />
       </div>

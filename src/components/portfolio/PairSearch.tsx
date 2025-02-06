@@ -22,20 +22,29 @@ const PairSearch = ({
     // Common quote assets in order of checking (longer ones first to avoid partial matches)
     const quoteAssets = ['USDT', 'BUSD', 'ETH', 'BTC', 'BNB'];
     
-    // Find which quote asset is used in this pair
-    const quoteAsset = quoteAssets.find(asset => pair.endsWith(asset));
-    
-    if (!quoteAsset) {
-      console.log('PairSearch: No known quote asset found, returning original pair');
+    try {
+      // Clean up the pair first
+      const cleanPair = pair.replace(/^(?:BINANCE:)?/, '').toUpperCase();
+      console.log('PairSearch: Cleaned pair:', cleanPair);
+      
+      // Find which quote asset is used in this pair
+      const quoteAsset = quoteAssets.find(asset => cleanPair.endsWith(asset));
+      
+      if (!quoteAsset) {
+        console.log('PairSearch: No known quote asset found, using original pair');
+        return cleanPair;
+      }
+      
+      // Split the pair into base and quote
+      const baseAsset = cleanPair.slice(0, -quoteAsset.length);
+      const formattedPair = `${baseAsset}/${quoteAsset}`;
+      
+      console.log('PairSearch: Formatted pair:', formattedPair);
+      return formattedPair;
+    } catch (error) {
+      console.error('PairSearch: Error formatting pair:', error);
       return pair;
     }
-    
-    // Split the pair into base and quote
-    const baseAsset = pair.slice(0, -quoteAsset.length);
-    const formattedPair = `${baseAsset}/${quoteAsset}`;
-    
-    console.log('PairSearch: Formatted pair:', formattedPair);
-    return formattedPair;
   };
 
   return (
