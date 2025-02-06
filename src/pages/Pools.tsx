@@ -85,15 +85,14 @@ const Pools = () => {
     if (!selectedToken1 || !selectedToken2) return;
 
     try {
+      const user = await supabase.auth.getUser();
       const { error } = await supabase
         .from('pools')
-        .insert([
-          {
-            token1_symbol: selectedToken1.symbol,
-            token2_symbol: selectedToken2.symbol,
-            created_by: supabase.auth.getUser()
-          }
-        ]);
+        .insert([{
+          token1_symbol: selectedToken1.symbol,
+          token2_symbol: selectedToken2.symbol,
+          created_by: user.data.user?.email
+        }]);
 
       if (error) throw error;
 

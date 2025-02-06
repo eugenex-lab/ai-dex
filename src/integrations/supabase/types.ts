@@ -81,6 +81,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pools: {
+        Row: {
+          apr: number | null
+          created_at: string
+          created_by: string
+          id: string
+          status: string | null
+          token1_symbol: string
+          token2_symbol: string
+          tvl: number | null
+          volume_24h: number | null
+        }
+        Insert: {
+          apr?: number | null
+          created_at?: string
+          created_by: string
+          id?: string
+          status?: string | null
+          token1_symbol: string
+          token2_symbol: string
+          tvl?: number | null
+          volume_24h?: number | null
+        }
+        Update: {
+          apr?: number | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          status?: string | null
+          token1_symbol?: string
+          token2_symbol?: string
+          tvl?: number | null
+          volume_24h?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
