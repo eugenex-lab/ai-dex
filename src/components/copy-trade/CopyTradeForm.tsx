@@ -16,6 +16,7 @@ const CopyTradeForm = () => {
   const [copySellEnabled, setCopySellEnabled] = useState(false);
   const [selectedChain, setSelectedChain] = useState("cardano");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const { toast } = useToast();
 
   const handleExecuteOrder = async () => {
@@ -83,6 +84,39 @@ const CopyTradeForm = () => {
     }
   };
 
+  const handleDeleteCopyTrade = async () => {
+    try {
+      const { error } = await supabase
+        .from('copy_trades')
+        .delete()
+        .match({ target_wallet: targetWallet });
+
+      if (error) throw error;
+
+      toast({
+        title: "Copy Trade Deleted",
+        description: "Your copy trade has been deleted successfully"
+      });
+
+      // Reset form
+      setWalletTag("");
+      setTargetWallet("");
+      setMaxBuyAmount("");
+      setSlippage("0.8");
+      setCopySellEnabled(false);
+      setSelectedChain("cardano");
+      setIsPaused(false);
+
+    } catch (error) {
+      console.error('Error deleting copy trade:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete copy trade. Please try again."
+      });
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
       <div className="glass-card p-8 rounded-lg space-y-6">
@@ -120,34 +154,52 @@ const CopyTradeForm = () => {
 
           <div className="space-y-2">
             <label className="text-sm font-medium">Set Slippage</label>
-            <Select value={slippage} onValueChange={setSlippage}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select slippage" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0.5">0.5%</SelectItem>
-                <SelectItem value="0.8">0.8%</SelectItem>
-                <SelectItem value="1.0">1.0%</SelectItem>
-                <SelectItem value="2.0">2.0%</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              type="number"
+              placeholder="0.8"
+              value={slippage}
+              onChange={(e) => setSlippage(e.target.value)}
+              min="0"
+              max="100"
+              step="0.1"
+              className="bg-background"
+            />
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-4 border-t border-b border-border">
-          <span className="font-medium">Copy Sells</span>
-          <Switch
-            checked={copySellEnabled}
-            onCheckedChange={setCopySellEnabled}
-          />
-        </div>
-
         <div className="space-y-4">
-          <Select value={selectedChain} onValueChange={setSelectedChain}>
+          <div className="flex items-center justify-between py-4 border-t border-b border-border">
+            <span className="font-medium">Copy Sells</span>
+            <Switch
+              checked={copySellEnabled}
+              onCheckedChange={setCopySellEnabled}
+            />
+          </div>
+
+          <div className="flex gap-4 items-center">
+            <Button 
+              className={`flex-1 ${isPaused ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}
+              onClick={() => setIsPaused(!isPaused)}
+            >
+              {isPaused ? "Copy Trade Off" : "Copy Trade On"}
+            </Button>
+            <Button 
+              variant="destructive"
+              className="flex-1"
+              onClick={handleDeleteCopyTrade}
+            >
+              Delete Copy Trade
+            </Button>
+          </div>
+
+          <Select 
+            value={selectedChain} 
+            onValueChange={setSelectedChain}
+          >
             <SelectTrigger className="bg-background">
               <SelectValue placeholder="Select blockchain" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background">
               <SelectItem value="cardano">Cardano</SelectItem>
               <SelectItem value="ethereum">Ethereum</SelectItem>
               <SelectItem value="solana">Solana</SelectItem>
