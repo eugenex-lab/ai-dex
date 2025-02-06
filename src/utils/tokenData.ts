@@ -43,7 +43,7 @@ export const tokens: Token[] = [
   {
     symbol: "USDM",
     name: "USDM",
-    icon: "/lovable-uploads/8ed67d82-31cd-4c3d-bbcf-986392a08e1c.png"
+    icon: "/lovable-uploads/4a55c30c-fdf5-42da-8056-7077f13e6f1f.png" // Updated USDM icon
   }
 ];
 
@@ -108,7 +108,7 @@ export const defaultPools: Pool[] = [
   {
     id: "ada-usdm",
     token1: tokens[0], // ADA
-    token2: tokens[7], // USDM
+    token2: tokens[7], // USDM with new icon
     volume24h: "$670K",
     tvl: "$2.4M",
     apr: 6.9
