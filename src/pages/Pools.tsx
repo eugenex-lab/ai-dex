@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -131,19 +131,54 @@ const Pools = () => {
   const [selectedToken2, setSelectedToken2] = useState<Token | null>(null);
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
   const [currentPool, setCurrentPool] = useState<Pool | null>(null);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    // Check auth state on component mount
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    
+    checkAuth();
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   const handleCreatePool = async () => {
-    if (!selectedToken1 || !selectedToken2) return;
+    if (!selectedToken1 || !selectedToken2) {
+      toast({
+        title: "Error",
+        description: "Please select both tokens",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please login to create a pool",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
-      const user = await supabase.auth.getUser();
       const { error } = await supabase
         .from('pools')
         .insert([{
           token1_symbol: selectedToken1.symbol,
           token2_symbol: selectedToken2.symbol,
-          created_by: user.data.user?.email
+          created_by: user.email
         }]);
 
       if (error) throw error;
@@ -156,10 +191,11 @@ const Pools = () => {
       setIsCreatePoolOpen(false);
       setSelectedToken1(null);
       setSelectedToken2(null);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Error creating pool:', error);
       toast({
         title: "Error",
-        description: "Failed to create pool",
+        description: error.message || "Failed to create pool",
         variant: "destructive"
       });
     }
