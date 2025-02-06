@@ -1,90 +1,14 @@
 
-import { useEffect, useState } from 'react';
 import { Badge } from './ui/badge';
 import { Skeleton } from './ui/skeleton';
-import { fetchMarketData } from '@/services/binanceService';
+import { useTokenData } from '@/hooks/useTokenData';
 
 interface TokenStatsProps {
   symbol: string;
 }
 
 const TokenStats = ({ symbol }: TokenStatsProps) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [ws, setWs] = useState<WebSocket | null>(null);
-
-  // Effect for initial data fetch and cleanup
-  useEffect(() => {
-    console.log('TokenStats: Symbol changed to:', symbol);
-    
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const marketData = await fetchMarketData(symbol);
-        console.log('TokenStats: Initial market data fetched:', marketData);
-        setData(marketData);
-      } catch (err) {
-        setError('Failed to fetch market data');
-        console.error('Error fetching market data:', err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [symbol]); // Only depend on symbol changes
-
-  // Separate effect for WebSocket connection
-  useEffect(() => {
-    console.log('TokenStats: Setting up WebSocket for symbol:', symbol);
-    
-    // Clean up previous WebSocket connection
-    if (ws) {
-      console.log('TokenStats: Closing previous WebSocket connection');
-      ws.close();
-    }
-
-    // Create new WebSocket connection
-    const wsConnection = new WebSocket(`wss://stream.binance.us:9443/ws/${symbol.toLowerCase()}@ticker`);
-    setWs(wsConnection);
-
-    wsConnection.onopen = () => {
-      console.log('TokenStats: WebSocket connected for symbol:', symbol);
-    };
-    
-    wsConnection.onmessage = (event) => {
-      const tickerData = JSON.parse(event.data);
-      setData(prevData => {
-        if (!prevData) return prevData;
-        
-        const updatedData = {
-          ...prevData,
-          price: parseFloat(tickerData.c),
-          priceChange: {
-            ...prevData.priceChange,
-            "24h": parseFloat(tickerData.P)
-          }
-        };
-        console.log('TokenStats: Updating data from WebSocket:', updatedData);
-        return updatedData;
-      });
-    };
-
-    wsConnection.onerror = (error) => {
-      console.error('TokenStats: WebSocket error:', error);
-      setError('WebSocket connection error');
-    };
-
-    // Cleanup function
-    return () => {
-      console.log('TokenStats: Cleaning up WebSocket connection');
-      if (wsConnection.readyState === WebSocket.OPEN) {
-        wsConnection.close();
-      }
-    };
-  }, [symbol]); // Recreate WebSocket when symbol changes
+  const { data, isLoading, error } = useTokenData(symbol);
 
   if (error) {
     return (

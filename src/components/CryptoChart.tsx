@@ -31,7 +31,7 @@ const CryptoChart = ({ onPairChange, currentPair = 'BTCUSDT' }: CryptoChartProps
       <div className="h-[400px] w-full">
         <TradingViewWidget
           symbol={formattedPair}
-          theme="dark"
+          theme="Dark"
           locale="en"
           autosize
           hide_side_toolbar={false}
