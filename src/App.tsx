@@ -11,7 +11,7 @@ import Cookies from "./pages/Cookies";
 import FAQ from "./pages/FAQ";
 import Roadmap from "./pages/Roadmap";
 import Dashboard from "./pages/Dashboard";
-import "./App.css";
+import API from "./pages/API";
 
 function App() {
   return (
@@ -30,6 +30,7 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/api" element={<API />} />
           </Routes>
         </main>
         <Footer />
