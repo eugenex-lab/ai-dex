@@ -273,7 +273,7 @@ const Pools = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border border-input">
                   {tokens.map((token) => (
                     <SelectItem key={token.symbol} value={token.symbol}>
                       <div className="flex items-center">
@@ -295,7 +295,7 @@ const Pools = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Select token" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-background border border-input">
                   {tokens.map((token) => (
                     <SelectItem key={token.symbol} value={token.symbol}>
                       <div className="flex items-center">
