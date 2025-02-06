@@ -38,7 +38,7 @@ export const tokens: Token[] = [
   {
     symbol: "WMTX",
     name: "WMTX",
-    icon: "/lovable-uploads/76d13a0a-84e4-4648-a383-ae586be0e16b.png"
+    icon: "/lovable-uploads/cc3d1b7f-2872-484b-a08f-40ddbcb228a0.png" // Updated WMTX icon
   },
   {
     symbol: "USDM",
@@ -100,7 +100,7 @@ export const defaultPools: Pool[] = [
   {
     id: "ada-wmtx",
     token1: tokens[0], // ADA
-    token2: tokens[6], // WMTX
+    token2: tokens[6], // WMTX with new icon
     volume24h: "$980K",
     tvl: "$3.5M",
     apr: 7.8
