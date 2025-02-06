@@ -1,16 +1,16 @@
 
 const CopyTradeInstructions = () => {
   const setupSteps = [
-    "Assign a unique name or "tag" to your target wallet, to make it easier to identify.",
-    "Enter the target wallet address to copy trade.",
-    "Enter the amount of crypto you want to copy trade with of the target's buy.",
-    "Toggle on Copy Sells to copy the sells of the target wallet.",
-    "Click "Execute Order" to create and activate the Copy Trade."
+    "Assign a unique name or "tag" to your target wallet, to make it easier to identify",
+    "Enter the target wallet address to copy trade",
+    "Enter the amount of crypto you want to copy trade with of the target's buy",
+    "Toggle on Copy Sells to copy the sells of the target wallet",
+    "Click "Execute Order" to create and activate the Copy Trade"
   ];
 
   const manageSteps = [
-    "Click the "Copy Sell ON / OFF" button to "Pause" the Copy Trade.",
-    "Delete a Copy Trade by clicking the "Delete" button."
+    "Click the "Copy Sell ON / OFF" button to "Pause" the Copy Trade",
+    "Delete a Copy Trade by clicking the "Delete" button"
   ];
 
   return (
