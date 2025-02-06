@@ -42,6 +42,45 @@ export type Database = {
         }
         Relationships: []
       }
+      copy_trades: {
+        Row: {
+          copy_sell_enabled: boolean | null
+          created_at: string | null
+          id: string
+          max_buy_amount: number
+          selected_chain: string
+          slippage: number
+          target_wallet: string
+          updated_at: string | null
+          user_id: string | null
+          wallet_tag: string
+        }
+        Insert: {
+          copy_sell_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          max_buy_amount: number
+          selected_chain: string
+          slippage: number
+          target_wallet: string
+          updated_at?: string | null
+          user_id?: string | null
+          wallet_tag: string
+        }
+        Update: {
+          copy_sell_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          max_buy_amount?: number
+          selected_chain?: string
+          slippage?: number
+          target_wallet?: string
+          updated_at?: string | null
+          user_id?: string | null
+          wallet_tag?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number

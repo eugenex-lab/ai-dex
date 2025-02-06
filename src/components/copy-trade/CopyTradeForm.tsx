@@ -6,6 +6,7 @@ import { Switch } from "../ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { useToast } from "../ui/use-toast";
 import WalletSection from "../trade/WalletSection";
+import { supabase } from "@/integrations/supabase/client";
 
 const CopyTradeForm = () => {
   const [walletTag, setWalletTag] = useState("");
@@ -14,9 +15,10 @@ const CopyTradeForm = () => {
   const [slippage, setSlippage] = useState("0.8");
   const [copySellEnabled, setCopySellEnabled] = useState(false);
   const [selectedChain, setSelectedChain] = useState("cardano");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const handleExecuteOrder = () => {
+  const handleExecuteOrder = async () => {
     if (!walletTag || !targetWallet || !maxBuyAmount) {
       toast({
         variant: "destructive",
@@ -26,10 +28,59 @@ const CopyTradeForm = () => {
       return;
     }
 
-    toast({
-      title: "Copy Trade Created",
-      description: "Your copy trade has been set up successfully"
-    });
+    try {
+      setIsSubmitting(true);
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Please log in to create a copy trade"
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('copy_trades')
+        .insert({
+          user_id: user.id,
+          wallet_tag: walletTag,
+          target_wallet: targetWallet,
+          max_buy_amount: parseFloat(maxBuyAmount),
+          slippage: parseFloat(slippage),
+          copy_sell_enabled: copySellEnabled,
+          selected_chain: selectedChain
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Copy Trade Created",
+        description: "Your copy trade has been set up successfully"
+      });
+
+      // Reset form
+      setWalletTag("");
+      setTargetWallet("");
+      setMaxBuyAmount("");
+      setSlippage("0.8");
+      setCopySellEnabled(false);
+      setSelectedChain("cardano");
+
+    } catch (error) {
+      console.error('Error creating copy trade:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to create copy trade. Please try again."
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -109,8 +160,9 @@ const CopyTradeForm = () => {
             className="w-full"
             size="lg"
             onClick={handleExecuteOrder}
+            disabled={isSubmitting}
           >
-            Execute Order
+            {isSubmitting ? "Creating..." : "Execute Order"}
           </Button>
         </div>
 
