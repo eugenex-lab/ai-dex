@@ -24,7 +24,7 @@ const ArbitrageSteps = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 p-4">
       {steps.map((step) => (
         <div key={step.number} className="glass-card p-6 rounded-lg">
           <div className="flex items-center gap-4 mb-4">
