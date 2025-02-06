@@ -237,24 +237,24 @@ const Pools = () => {
           pools={filteredPools}
           onStakeLP={handleStakeLP}
         />
+
+        <CreatePoolDialog
+          isOpen={isCreatePoolOpen}
+          onOpenChange={setIsCreatePoolOpen}
+          tokens={tokens}
+          selectedToken1={selectedToken1}
+          selectedToken2={selectedToken2}
+          onToken1Select={setSelectedToken1}
+          onToken2Select={setSelectedToken2}
+          onCreatePool={handleCreatePool}
+        />
+
+        <StakeLPDialog
+          isOpen={isStakeLPOpen}
+          onOpenChange={setIsStakeLPOpen}
+          pool={selectedPool}
+        />
       </div>
-
-      <CreatePoolDialog
-        isOpen={isCreatePoolOpen}
-        onOpenChange={setIsCreatePoolOpen}
-        tokens={tokens}
-        selectedToken1={selectedToken1}
-        selectedToken2={selectedToken2}
-        onToken1Select={setSelectedToken1}
-        onToken2Select={setSelectedToken2}
-        onCreatePool={handleCreatePool}
-      />
-
-      <StakeLPDialog
-        isOpen={isStakeLPOpen}
-        onOpenChange={setIsStakeLPOpen}
-        pool={selectedPool}
-      />
     </div>
   );
 };

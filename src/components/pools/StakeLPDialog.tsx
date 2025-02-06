@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Pool } from './types';
@@ -10,8 +10,10 @@ interface StakeLPDialogProps {
 }
 
 const StakeLPDialog = ({ isOpen, onOpenChange, pool }: StakeLPDialogProps) => {
-  console.log("StakeLPDialog rendered with isOpen:", isOpen, "pool:", pool);
-  
+  useEffect(() => {
+    console.log("StakeLPDialog rendered with isOpen:", isOpen, "pool:", pool);
+  }, [isOpen, pool]);
+
   if (!pool) return null;
   
   return (
