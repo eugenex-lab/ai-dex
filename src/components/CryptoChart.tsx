@@ -1,6 +1,18 @@
+import { useState } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 
-const CryptoChart = () => {
+interface CryptoChartProps {
+  onPairChange?: (pair: string) => void;
+}
+
+const CryptoChart = ({ onPairChange }: CryptoChartProps) => {
+  const [currentPair, setCurrentPair] = useState('BINANCE:BTCUSDT');
+
+  const handleSymbolChange = (symbol: string) => {
+    setCurrentPair(symbol);
+    onPairChange?.(symbol.replace('BINANCE:', ''));
+  };
+
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
@@ -8,7 +20,7 @@ const CryptoChart = () => {
       </div>
       <div className="h-[400px] w-full">
         <TradingViewWidget
-          symbol="BINANCE:BTCUSDT"
+          symbol={currentPair}
           theme="dark"
           locale="en"
           autosize
@@ -20,6 +32,7 @@ const CryptoChart = () => {
           hide_top_toolbar={false}
           save_image={false}
           container_id="tradingview_chart"
+          onSymbolChange={handleSymbolChange}
         />
       </div>
     </div>

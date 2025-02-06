@@ -1,10 +1,12 @@
-// Copy the entire content of the current Index.tsx here
+import { useState } from "react";
 import MarketStats from "@/components/MarketStats";
 import CryptoChart from "@/components/CryptoChart";
 import PortfolioCard from "@/components/PortfolioCard";
 import CryptoList from "@/components/CryptoList";
 
 const Dashboard = () => {
+  const [currentPair, setCurrentPair] = useState('BTCUSDT');
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-7xl mx-auto">
@@ -17,10 +19,10 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <CryptoChart />
+            <CryptoChart onPairChange={setCurrentPair} />
           </div>
           <div>
-            <PortfolioCard />
+            <PortfolioCard currentPair={currentPair} />
           </div>
         </div>
         

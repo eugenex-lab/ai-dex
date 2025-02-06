@@ -4,14 +4,27 @@ import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
 import TradeForm from "./trade/TradeForm";
 
-const PortfolioCard = () => {
+interface PortfolioCardProps {
+  currentPair?: string;
+}
+
+const PortfolioCard = ({ currentPair = 'BTCUSDT' }: PortfolioCardProps) => {
   const [amount, setAmount] = useState("");
   const [receiveAmount, setReceiveAmount] = useState("");
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
 
+  // Format the trading pair for display
+  const formattedPair = currentPair.replace('USDT', '/USDT');
+
   return (
     <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50">
+      <div className="mb-4 p-3 bg-background rounded-lg border border-muted">
+        <p className="text-center text-sm font-medium">
+          Trading Pair: <span className="text-primary">{formattedPair}</span>
+        </p>
+      </div>
+      
       <TabSelector activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <TradeTypeSelector 
