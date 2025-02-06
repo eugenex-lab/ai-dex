@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { CreatePoolDialog } from '@/components/pools/CreatePoolDialog';
+import { StakeLPDialog } from '@/components/pools/StakeLPDialog';
+import { PoolCard } from '@/components/pools/PoolCard';
 
 interface Token {
   symbol: string;
@@ -126,16 +127,11 @@ const pools: Pool[] = [
 const Pools = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreatePoolOpen, setIsCreatePoolOpen] = useState(false);
-  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
-  const [selectedToken1, setSelectedToken1] = useState<Token | null>(null);
-  const [selectedToken2, setSelectedToken2] = useState<Token | null>(null);
   const [isStakeLPOpen, setIsStakeLPOpen] = useState(false);
   const [currentPool, setCurrentPool] = useState<Pool | null>(null);
   const [user, setUser] = useState<any>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
-    // Check auth state on component mount
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
@@ -143,7 +139,6 @@ const Pools = () => {
     
     checkAuth();
 
-    // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -153,52 +148,9 @@ const Pools = () => {
     };
   }, []);
 
-  const handleCreatePool = async () => {
-    if (!selectedToken1 || !selectedToken2) {
-      toast({
-        title: "Error",
-        description: "Please select both tokens",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "Please login to create a pool",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('pools')
-        .insert([{
-          token1_symbol: selectedToken1.symbol,
-          token2_symbol: selectedToken2.symbol,
-          created_by: user.email
-        }]);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Pool Created Successfully",
-      });
-
-      setIsCreatePoolOpen(false);
-      setSelectedToken1(null);
-      setSelectedToken2(null);
-    } catch (error: any) {
-      console.error('Error creating pool:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create pool",
-        variant: "destructive"
-      });
-    }
+  const handleStake = (pool: Pool) => {
+    setCurrentPool(pool);
+    setIsStakeLPOpen(true);
   };
 
   const filteredPools = pools.filter(pool => 
@@ -233,150 +185,27 @@ const Pools = () => {
 
         <div className="space-y-4">
           {filteredPools.map((pool) => (
-            <div key={pool.id} className="bg-secondary/20 backdrop-blur-lg rounded-lg p-6 animate-fade-in">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <img src={pool.token1.icon} alt={pool.token1.symbol} className="w-10 h-10 rounded-full" />
-                    <img 
-                      src={pool.token2.icon} 
-                      alt={pool.token2.symbol} 
-                      className="w-10 h-10 rounded-full absolute -right-4 -bottom-2"
-                    />
-                  </div>
-                  <div className="ml-6">
-                    <h3 className="text-lg font-medium">{pool.token1.symbol}-{pool.token2.symbol}</h3>
-                    <p className="text-sm text-muted-foreground">Pool</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-8">
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">Volume 24H</div>
-                    <div className="font-medium">{pool.volume24h}</div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">TVL</div>
-                    <div className="font-medium">{pool.tvl}</div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-sm text-muted-foreground">APR</div>
-                    <div className="font-medium text-success">{pool.apr}%</div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button 
-                      className="bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        setCurrentPool(pool);
-                        setIsStakeLPOpen(true);
-                      }}
-                    >
-                      Add Liquidity
-                    </Button>
-                    <Button 
-                      variant="destructive"
-                      onClick={() => {
-                        setCurrentPool(pool);
-                        setIsStakeLPOpen(true);
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <PoolCard
+              key={pool.id}
+              pool={pool}
+              onStake={handleStake}
+            />
           ))}
         </div>
       </div>
 
-      {/* Create Pool Dialog */}
-      <Dialog open={isCreatePoolOpen} onOpenChange={setIsCreatePoolOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create a new pool</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 py-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">First Token</label>
-              <Select onValueChange={(value) => {
-                const token = tokens.find(t => t.symbol === value);
-                if (token) setSelectedToken1(token);
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select token" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-input">
-                  {tokens.map((token) => (
-                    <SelectItem key={token.symbol} value={token.symbol}>
-                      <div className="flex items-center">
-                        <img src={token.icon} alt={token.symbol} className="w-6 h-6 mr-2" />
-                        {token.symbol}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+      <CreatePoolDialog
+        isOpen={isCreatePoolOpen}
+        onClose={() => setIsCreatePoolOpen(false)}
+        tokens={tokens}
+        user={user}
+      />
 
-            <div>
-              <label className="block text-sm font-medium mb-2">Second Token</label>
-              <Select onValueChange={(value) => {
-                const token = tokens.find(t => t.symbol === value);
-                if (token) setSelectedToken2(token);
-              }}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select token" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-input">
-                  {tokens.map((token) => (
-                    <SelectItem key={token.symbol} value={token.symbol}>
-                      <div className="flex items-center">
-                        <img src={token.icon} alt={token.symbol} className="w-6 h-6 mr-2" />
-                        {token.symbol}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Button 
-              className="w-full"
-              onClick={handleCreatePool}
-              disabled={!selectedToken1 || !selectedToken2}
-            >
-              Create Pool
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Stake LP Dialog */}
-      <Dialog open={isStakeLPOpen} onOpenChange={setIsStakeLPOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Stake LP tokens</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            {currentPool && (
-              <div className="flex items-center space-x-2">
-                <img src={currentPool.token1.icon} alt={currentPool.token1.symbol} className="w-8 h-8" />
-                <img src={currentPool.token2.icon} alt={currentPool.token2.symbol} className="w-8 h-8" />
-                <span className="ml-2">{currentPool.token1.symbol}-{currentPool.token2.symbol} LP</span>
-              </div>
-            )}
-            <p className="text-muted-foreground">You have no liquidity</p>
-            <p className="text-sm">Add liquidity to stake</p>
-            <Button className="w-full" onClick={() => setIsStakeLPOpen(false)}>
-              Connect Wallet
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <StakeLPDialog
+        isOpen={isStakeLPOpen}
+        onClose={() => setIsStakeLPOpen(false)}
+        pool={currentPool}
+      />
     </div>
   );
 };
