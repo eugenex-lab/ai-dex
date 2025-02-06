@@ -1,5 +1,6 @@
+
 import { Link } from "react-router-dom";
-import { MessageSquare, HelpCircle, ExternalLink } from "lucide-react";
+import { MessageSquare, HelpCircle, ExternalLink, Brain } from "lucide-react";
 
 const HelpLinks = () => {
   return (
@@ -13,6 +14,10 @@ const HelpLinks = () => {
         <Link to="/faq" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
           <HelpCircle className="h-4 w-4" />
           <span>FAQ</span>
+        </Link>
+        <Link to="/ai-analysis" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
+          <Brain className="h-4 w-4" />
+          <span>AI Analysis</span>
         </Link>
         <a 
           href="https://medium.com/@tradenly" 

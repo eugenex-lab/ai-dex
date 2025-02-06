@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import Header from "./components/Header";
@@ -19,6 +18,7 @@ import Staking from "./pages/Staking";
 import Pools from "./pages/Pools";
 import Arbitrage from "./pages/Arbitrage";
 import CopyTrade from "./pages/CopyTrade";
+import AIAnalysis from "./pages/AIAnalysis";
 
 // Scroll to top component
 function ScrollToTop() {
@@ -55,6 +55,7 @@ function App() {
             <Route path="/pools" element={<Pools />} />
             <Route path="/arbitrage" element={<Arbitrage />} />
             <Route path="/copy-trade" element={<CopyTrade />} />
+            <Route path="/ai-analysis" element={<AIAnalysis />} />
           </Routes>
         </main>
         <Footer />

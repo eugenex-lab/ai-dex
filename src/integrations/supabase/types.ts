@@ -9,6 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_analysis_results: {
+        Row: {
+          analysis_summary: string
+          contract_address: string | null
+          created_at: string
+          documentation_url: string | null
+          github_profile: string | null
+          id: string
+          project_name: string
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          risk_score: number
+          social_media_handle: string | null
+          website_url: string | null
+        }
+        Insert: {
+          analysis_summary: string
+          contract_address?: string | null
+          created_at?: string
+          documentation_url?: string | null
+          github_profile?: string | null
+          id?: string
+          project_name: string
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          risk_score: number
+          social_media_handle?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          analysis_summary?: string
+          contract_address?: string | null
+          created_at?: string
+          documentation_url?: string | null
+          github_profile?: string | null
+          id?: string
+          project_name?: string
+          risk_level?: Database["public"]["Enums"]["risk_level"]
+          risk_score?: number
+          social_media_handle?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      analysis_alerts: {
+        Row: {
+          created_at: string
+          enabled: boolean | null
+          high_volume_enabled: boolean | null
+          id: string
+          market_cap_threshold: number | null
+          social_sentiment_enabled: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean | null
+          high_volume_enabled?: boolean | null
+          id?: string
+          market_cap_threshold?: number | null
+          social_sentiment_enabled?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean | null
+          high_volume_enabled?: boolean | null
+          id?: string
+          market_cap_threshold?: number | null
+          social_sentiment_enabled?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       api_applications: {
         Row: {
           company_name: string | null
@@ -164,7 +236,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      risk_level: "low" | "medium" | "high"
     }
     CompositeTypes: {
       [_ in never]: never
