@@ -20,18 +20,51 @@ interface MarketData {
   };
 }
 
+const API_BASE_URL = 'https://api.binance.us/api/v3';
+const FETCH_TIMEOUT = 10000; // 10 seconds timeout
+
+const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout');
+    }
+    throw error;
+  }
+};
+
 export const fetchMarketData = async (symbol: string): Promise<MarketData> => {
   try {
+    console.log('binanceService: Fetching market data for symbol:', symbol);
+    
     // Fetch 24hr ticker data
-    const tickerResponse = await fetch(`https://api.binance.us/api/v3/ticker/24hr?symbol=${symbol}`);
-    const tickerData = await tickerResponse.json();
+    const tickerResponse = await fetchWithTimeout(
+      `${API_BASE_URL}/ticker/24hr?symbol=${symbol}`
+    );
+    console.log('binanceService: Ticker data received:', tickerResponse);
 
     // Fetch recent trades
-    const tradesResponse = await fetch(`https://api.binance.us/api/v3/trades?symbol=${symbol}&limit=100`);
-    const tradesData = await tradesResponse.json();
+    const tradesResponse = await fetchWithTimeout(
+      `${API_BASE_URL}/trades?symbol=${symbol}&limit=100`
+    );
+    console.log('binanceService: Trades data received:', tradesResponse);
 
     // Process trades data
-    const trades = tradesData.slice(-100);
+    const trades = tradesResponse.slice(-100);
     const buys = trades.filter((trade: any) => trade.isBuyerMaker).length;
     const sells = trades.length - buys;
     
@@ -45,28 +78,28 @@ export const fetchMarketData = async (symbol: string): Promise<MarketData> => {
 
     // Format the data
     return {
-      price: parseFloat(tickerData.lastPrice),
+      price: parseFloat(tickerResponse.lastPrice),
       priceChange: {
-        "5m": parseFloat(tickerData.priceChangePercent) / 24 / 12, // Approximate 5min change
-        "1h": parseFloat(tickerData.priceChangePercent) / 24,      // Approximate 1h change
-        "6h": parseFloat(tickerData.priceChangePercent) / 4,       // Approximate 6h change
-        "24h": parseFloat(tickerData.priceChangePercent),          // 24h change
+        "5m": parseFloat(tickerResponse.priceChangePercent) / 24 / 12,
+        "1h": parseFloat(tickerResponse.priceChangePercent) / 24,
+        "6h": parseFloat(tickerResponse.priceChangePercent) / 4,
+        "24h": parseFloat(tickerResponse.priceChangePercent),
       },
-      supply: formatSupply(tickerData.volume),
-      liquidity: formatCurrency(parseFloat(tickerData.quoteVolume)),
-      marketCap: formatCurrency(parseFloat(tickerData.lastPrice) * parseFloat(tickerData.volume)),
+      supply: formatSupply(tickerResponse.volume),
+      liquidity: formatCurrency(parseFloat(tickerResponse.quoteVolume)),
+      marketCap: formatCurrency(parseFloat(tickerResponse.lastPrice) * parseFloat(tickerResponse.volume)),
       transactions: {
         buys,
         sells,
         buyVolume: formatCurrency(buyVolume),
         sellVolume: formatCurrency(sellVolume),
-        buyers: Math.floor(buys * 0.7), // Approximate unique buyers
-        sellers: Math.floor(sells * 0.7), // Approximate unique sellers
+        buyers: Math.floor(buys * 0.7),
+        sellers: Math.floor(sells * 0.7),
       }
     };
   } catch (error) {
-    console.error('Error fetching market data:', error);
-    throw error;
+    console.error('binanceService: Error fetching market data:', error);
+    throw new Error(`Failed to fetch market data: ${error.message}`);
   }
 };
 

@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
+import { cleanSymbol } from '@/utils/symbolUtils';
 
 interface CryptoChartProps {
   onPairChange?: (pair: string) => void;
@@ -8,15 +9,15 @@ interface CryptoChartProps {
 }
 
 const CryptoChart = ({ onPairChange, currentPair = 'BTCUSDT' }: CryptoChartProps) => {
-  const [localPair, setLocalPair] = useState(currentPair);
+  const [localPair, setLocalPair] = useState(cleanSymbol(currentPair));
 
   const handleSymbolChange = (symbol: string) => {
-    // Clean the symbol by removing 'BINANCE:' prefix if present
-    const cleanSymbol = symbol.replace('BINANCE:', '');
-    setLocalPair(cleanSymbol);
+    const cleanedSymbol = cleanSymbol(symbol);
+    console.log('Chart: Cleaning symbol from:', symbol, 'to:', cleanedSymbol);
+    setLocalPair(cleanedSymbol);
     if (onPairChange) {
-      console.log('Chart: Updating pair to:', cleanSymbol);
-      onPairChange(cleanSymbol);
+      console.log('Chart: Updating pair to:', cleanedSymbol);
+      onPairChange(cleanedSymbol);
     }
   };
 

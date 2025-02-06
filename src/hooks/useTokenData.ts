@@ -1,11 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { fetchMarketData } from '@/services/binanceService';
-
-// Utility function to clean and validate symbol
-const cleanSymbol = (symbol: string): string => {
-  return symbol.replace('BINANCE:', '').toUpperCase();
-};
+import { cleanSymbol, isValidSymbol } from '@/utils/symbolUtils';
 
 export const useTokenData = (symbol: string) => {
   const [data, setData] = useState<any>(null);
@@ -15,8 +11,14 @@ export const useTokenData = (symbol: string) => {
 
   useEffect(() => {
     const cleanedSymbol = cleanSymbol(symbol);
-    console.log('useTokenData: Symbol changed to:', cleanedSymbol);
+    console.log('useTokenData: Symbol cleaned to:', cleanedSymbol);
     
+    if (!isValidSymbol(cleanedSymbol)) {
+      console.error('useTokenData: Invalid symbol:', cleanedSymbol);
+      setError('Invalid trading pair');
+      return;
+    }
+
     // Function to fetch initial data
     const fetchData = async () => {
       try {
@@ -27,7 +29,7 @@ export const useTokenData = (symbol: string) => {
         setData(marketData);
       } catch (err) {
         console.error('useTokenData: Error fetching market data:', err);
-        setError('Failed to fetch market data');
+        setError('Failed to fetch market data. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +72,7 @@ export const useTokenData = (symbol: string) => {
 
       wsConnection.onerror = (error) => {
         console.error('useTokenData: WebSocket error:', error);
-        setError('WebSocket connection error');
+        setError('WebSocket connection error. Please refresh the page.');
       };
 
       setWs(wsConnection);
