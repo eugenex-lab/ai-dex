@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
@@ -26,6 +27,7 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
   const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
   const [activeTrade, setActiveTrade] = useState<'market' | 'dip' | 'limit'>('market');
   const [searchPair, setSearchPair] = useState(currentPair);
+  const [walletConnected, setWalletConnected] = useState(false);
 
   // Update local state when prop changes
   useEffect(() => {
@@ -181,16 +183,15 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
         activeTab={activeTab} 
       />
 
-      <div className="relative">
-        <Select>
-          <SelectTrigger className="w-full mb-4 bg-background">
-            <SelectValue placeholder="Connect Wallet" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="metamask">MetaMask</SelectItem>
-            <SelectItem value="walletconnect">WalletConnect</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="relative mb-4">
+        <Input
+          type="text"
+          placeholder="Connect Wallet"
+          readOnly
+          onClick={() => setWalletConnected(!walletConnected)}
+          value={walletConnected ? "Wallet Connected" : ""}
+          className="w-full bg-background cursor-pointer"
+        />
       </div>
 
       <TradeForm
@@ -210,3 +211,4 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
 };
 
 export default PortfolioCard;
+
