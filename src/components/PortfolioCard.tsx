@@ -51,7 +51,6 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
     }
   };
 
-  // Format the trading pair for display
   const formattedPair = currentPair.includes('USDT') 
     ? currentPair.replace('USDT', '/USDT')
     : `${currentPair}/USDT`;
@@ -95,86 +94,82 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
       </div>
 
       {/* Token Statistics Panel */}
-      <div className="mb-6 p-4 bg-background/40 rounded-lg space-y-4">
-        <div className="flex items-center justify-between mb-2">
+      <div className="mb-6 p-4 bg-background/40 rounded-lg">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">{currentPair.replace('USDT', '')}</h3>
+            <h3 className="text-lg font-semibold">UWU</h3>
+            <span className="text-sm text-muted-foreground">Raydium CPMM</span>
             <Badge variant="outline" className="text-xs">
               Verify Profile
             </Badge>
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
-            <div className="text-muted-foreground">PRICE USD</div>
-            <div className="font-medium">${tokenStats.priceUSD}</div>
+            <div className="text-sm text-muted-foreground">PRICE USD</div>
+            <div className="text-base font-medium">${tokenStats.priceUSD}</div>
           </div>
           <div>
-            <div className="text-muted-foreground">PRICE SOL</div>
-            <div className="font-medium">{tokenStats.priceSOL}</div>
+            <div className="text-sm text-muted-foreground">PRICE SOL</div>
+            <div className="text-base font-medium">{tokenStats.priceSOL}</div>
           </div>
           <div>
-            <div className="text-muted-foreground">SUPPLY</div>
-            <div className="font-medium">{tokenStats.supply}</div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <div className="text-muted-foreground">LIQUIDITY</div>
-            <div className="font-medium">{tokenStats.liquidity}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">MKT CAP</div>
-            <div className="font-medium">{tokenStats.marketCap}</div>
+            <div className="text-sm text-muted-foreground">SUPPLY</div>
+            <div className="text-base font-medium">{tokenStats.supply}</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 text-xs">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <div className="text-muted-foreground">5M</div>
-            <div className="font-medium text-green-400">{tokenStats.changes["5M"]}</div>
+            <div className="text-sm text-muted-foreground">LIQUIDITY</div>
+            <div className="text-base font-medium">{tokenStats.liquidity}</div>
           </div>
           <div>
-            <div className="text-muted-foreground">1H</div>
-            <div className="font-medium text-green-400">{tokenStats.changes["1H"]}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">6H</div>
-            <div className="font-medium text-red-400">{tokenStats.changes["6H"]}</div>
-          </div>
-          <div>
-            <div className="text-muted-foreground">24H</div>
-            <div className="font-medium text-red-400">{tokenStats.changes["24H"]}</div>
+            <div className="text-sm text-muted-foreground">MKT CAP</div>
+            <div className="text-base font-medium">{tokenStats.marketCap}</div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          {Object.entries(tokenStats.changes).map(([period, change]) => (
+            <div key={period}>
+              <div className="text-xs text-muted-foreground">{period}</div>
+              <div className={`text-sm font-medium ${
+                change.startsWith('+') ? 'text-green-400' : 
+                change === '0.00%' ? 'text-muted-foreground' : 'text-red-400'
+              }`}>
+                {change}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">TXNS</span>
               <span>{tokenStats.transactions.buys}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">BUY VOL</span>
               <span>{tokenStats.transactions.buyVolume}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">MAKERS</span>
               <span>{tokenStats.transactions.buyers}</span>
             </div>
           </div>
           <div className="space-y-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">SELLS</span>
               <span>{tokenStats.transactions.sells}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">SELL VOL</span>
               <span>{tokenStats.transactions.sellVolume}</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">SELLERS</span>
               <span>{tokenStats.transactions.sellers}</span>
             </div>
