@@ -1,11 +1,12 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import TabSelector from "./trade/TabSelector";
 import TradeTypeSelector from "./trade/TradeTypeSelector";
 import TradeForm from "./trade/TradeForm";
 import PairSearch from "./portfolio/PairSearch";
 import TokenStats from "./portfolio/TokenStats";
 import WalletConnection from "./portfolio/WalletConnection";
+import { toast } from "@/hooks/use-toast";
 
 interface PortfolioCardProps {
   currentPair?: string;
@@ -37,17 +38,26 @@ const PortfolioCard = ({ currentPair = 'BTCUSDT', onPairSelect }: PortfolioCardP
     }
   }, [currentPair]);
 
-  const handlePairChange = (value: string) => {
-    setSearchPair(value);
-    // Only update if the input is a valid pair format
-    const upperValue = value.toUpperCase();
-    if (upperValue.endsWith('USDT') && upperValue.length > 4) {
-      if (onPairSelect) {
-        console.log('PortfolioCard: Selected pair:', upperValue);
-        onPairSelect(upperValue);
+  const handlePairChange = useCallback((value: string) => {
+    try {
+      setSearchPair(value);
+      // Only update if the input is a valid pair format
+      const upperValue = value.toUpperCase();
+      if (upperValue.endsWith('USDT') && upperValue.length > 4) {
+        if (onPairSelect) {
+          console.log('PortfolioCard: Selected pair:', upperValue);
+          onPairSelect(upperValue);
+        }
       }
+    } catch (error) {
+      console.error('Error changing pair:', error);
+      toast({
+        title: "Error updating pair",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
-  };
+  }, [onPairSelect]);
 
   // Mock data - In a real app, this would be fetched based on the selected pair
   const tokenStats = {

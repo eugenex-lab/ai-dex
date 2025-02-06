@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search } from "lucide-react";
 import { Input } from "../ui/input";
-import { toast } from "../ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 interface SearchableDropdownProps {
   value: string;
@@ -33,7 +33,10 @@ const SearchableDropdown = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setSearchTerm(value);
+    if (value !== searchTerm) {
+      console.log('SearchableDropdown: Updating search term to:', value);
+      setSearchTerm(value);
+    }
   }, [value]);
 
   const filteredPairs = COMMON_PAIRS.filter(pair =>
@@ -52,8 +55,9 @@ const SearchableDropdown = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleClickOutside]);
 
-  const selectPair = (pair: string) => {
+  const selectPair = useCallback((pair: string) => {
     try {
+      console.log('SearchableDropdown: Selecting pair:', pair);
       setSearchTerm(pair);
       onSelect(pair);
       setIsOpen(false);
@@ -66,11 +70,14 @@ const SearchableDropdown = ({
         variant: "destructive",
       });
     }
-  };
+  }, [onSelect]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
+    e.stopPropagation();
+    
     const inputValue = e.target.value;
+    console.log('SearchableDropdown: Input changed to:', inputValue);
     setSearchTerm(inputValue);
     setIsOpen(true);
     setSelectedIndex(-1);
@@ -78,16 +85,15 @@ const SearchableDropdown = ({
     // Only update if it's a valid pair format
     const upperValue = inputValue.toUpperCase();
     if (upperValue.endsWith('USDT') && upperValue.length > 4) {
-      onSelect(upperValue);
+      selectPair(upperValue);
     }
-  };
+  }, [selectPair]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Prevent event from bubbling up to any parent forms
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     e.stopPropagation();
 
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission
+      e.preventDefault();
       
       if (selectedIndex >= 0 && selectedIndex < filteredPairs.length) {
         selectPair(filteredPairs[selectedIndex]);
@@ -120,12 +126,12 @@ const SearchableDropdown = ({
       e.preventDefault();
       setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
     }
-  };
+  }, [filteredPairs, selectPair]);
 
-  const handleWrapperClick = (e: React.MouseEvent) => {
+  const handleWrapperClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-  };
+  }, []);
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef} onClick={handleWrapperClick}>
