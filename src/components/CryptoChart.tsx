@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import TradingViewWidget from 'react-tradingview-widget';
 
 interface CryptoChartProps {
@@ -9,19 +9,36 @@ interface CryptoChartProps {
 
 const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
   const [localPair, setLocalPair] = useState(currentPair);
+  const widgetRef = useRef<any>(null);
+
+  // Ensure consistent format for TradingView symbol
+  const formatTradingViewSymbol = useCallback((symbol: string) => {
+    const cleanSymbol = symbol.includes(':') ? symbol : `BINANCE:${symbol}`;
+    console.log('Formatted symbol:', cleanSymbol);
+    return cleanSymbol;
+  }, []);
 
   useEffect(() => {
     if (currentPair !== localPair) {
       console.log('Chart: Updating local pair to:', currentPair);
       setLocalPair(currentPair);
+      
+      // Force widget refresh when pair changes
+      if (widgetRef.current) {
+        const formattedSymbol = formatTradingViewSymbol(currentPair);
+        widgetRef.current.postMessage({ name: 'changeSymbol', data: { symbol: formattedSymbol } });
+      }
     }
-  }, [currentPair]);
+  }, [currentPair, localPair, formatTradingViewSymbol]);
 
   const handleSymbolChange = (symbol: string) => {
-    setLocalPair(symbol);
+    // Remove BINANCE: prefix if present for consistent format
+    const cleanSymbol = symbol.replace('BINANCE:', '');
+    setLocalPair(cleanSymbol);
+    
     if (onPairChange) {
-      console.log('Chart: Pair changed to:', symbol);
-      onPairChange(symbol);
+      console.log('Chart: Pair changed to:', cleanSymbol);
+      onPairChange(cleanSymbol);
     }
   };
 
@@ -32,7 +49,7 @@ const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
       </div>
       <div className="h-[400px] w-full">
         <TradingViewWidget
-          symbol={localPair}
+          symbol={formatTradingViewSymbol(localPair)}
           theme="dark"
           locale="en"
           autosize
@@ -45,6 +62,7 @@ const CryptoChart = ({ onPairChange, currentPair }: CryptoChartProps) => {
           save_image={false}
           container_id="tradingview_chart"
           onSymbolChange={handleSymbolChange}
+          ref={widgetRef}
         />
       </div>
     </div>
