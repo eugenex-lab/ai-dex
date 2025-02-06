@@ -58,12 +58,12 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0">
-          <Command value={value} onValueChange={setValue}>
-            <CommandInput placeholder="Search sources..." />
-            <CommandList>
-              <CommandEmpty>No source found.</CommandEmpty>
-              <CommandGroup>
+        <PopoverContent className="w-full p-0 bg-background shadow-md border">
+          <Command value={value} onValueChange={setValue} className="bg-background">
+            <CommandInput placeholder="Search sources..." className="bg-background" />
+            <CommandList className="bg-background">
+              <CommandEmpty className="bg-background">No source found.</CommandEmpty>
+              <CommandGroup className="bg-background">
                 {sources.map((source) => (
                   <CommandItem
                     key={source.value}
@@ -72,6 +72,7 @@ const SourceSelector = ({ selectedSources, onSourcesChange }: SourceSelectorProp
                       toggleSource(source.value);
                       setValue("");
                     }}
+                    className="bg-background hover:bg-accent"
                   >
                     <Check
                       className={cn(
