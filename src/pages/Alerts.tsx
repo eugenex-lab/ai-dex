@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +37,11 @@ const Alerts = () => {
       setLoading(false);
     }
   };
+
+  // Load alerts on component mount
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
 
   // Create new alert
   const createAlert = async (e: React.FormEvent) => {
