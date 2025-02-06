@@ -16,6 +16,7 @@ import API from "./pages/API";
 import Orders from "./pages/Orders";
 import Staking from "./pages/Staking";
 import Pools from "./pages/Pools";
+import Arbitrage from "./pages/Arbitrage";
 
 // Scroll to top component
 function ScrollToTop() {
@@ -50,6 +51,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/staking" element={<Staking />} />
             <Route path="/pools" element={<Pools />} />
+            <Route path="/arbitrage" element={<Arbitrage />} />
           </Routes>
         </main>
         <Footer />
