@@ -76,11 +76,12 @@
 .traveling-light::before {
   content: '';
   position: absolute;
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
   background: #3B82F6;
   border-radius: 50%;
-  filter: blur(2px);
-  animation: travel-light 4s linear infinite;
+  filter: blur(4px);
+  box-shadow: 0 0 15px 5px #3B82F6;
+  animation: travel-light 8s linear infinite;
   z-index: 1;
 }
