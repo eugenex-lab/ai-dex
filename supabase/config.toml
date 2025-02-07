@@ -1,1 +1,5 @@
+
 project_id = "loqpepftcimqjkiinuwv"
+
+[functions.careers-apply]
+verify_jwt = false
