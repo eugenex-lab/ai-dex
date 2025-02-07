@@ -42,7 +42,8 @@ export const CareersForm = ({ positions }: CareersFormProps) => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      // First, store in Supabase
+      const { error: dbError } = await supabase
         .from('career_applications')
         .insert([{
           name: formData.name,
@@ -52,10 +53,21 @@ export const CareersForm = ({ positions }: CareersFormProps) => {
           resume_url: formData.resume,
           github_url: formData.github,
           telegram_username: formData.telegram,
-          cover_letter: formData.coverLetter
+          cover_letter: formData.coverLetter,
+          status: 'pending'
         }]);
 
-      if (error) throw error;
+      if (dbError) throw dbError;
+
+      // Then, send email
+      const { error: emailError } = await supabase.functions.invoke('send-form-email', {
+        body: JSON.stringify({
+          type: 'career',
+          ...formData
+        })
+      });
+
+      if (emailError) throw emailError;
 
       toast({
         title: "Application submitted!",
