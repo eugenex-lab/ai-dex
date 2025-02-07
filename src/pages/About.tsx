@@ -1,21 +1,22 @@
 
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 
 const About = () => {
   const prefersReducedMotion = useReducedMotion();
   
   // Refs for scroll-triggered animations
+  const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const originRef = useRef<HTMLDivElement>(null);
   const habibRef = useRef<HTMLDivElement>(null);
   const dailyRef = useRef<HTMLDivElement>(null);
   const futureRef = useRef<HTMLDivElement>(null);
 
-  // Scroll progress for hero section
+  // Scroll progress for sections
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end start"],
   });
 
   const heroOpacity = useTransform(heroProgress, [0, 0.5], [1, 0]);
@@ -47,8 +48,15 @@ const About = () => {
     }
   };
 
+  // Effect to ensure container has relative position
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.style.position = 'relative';
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div ref={containerRef} className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
       {/* Hero Section */}
       <section 
         ref={heroRef} 
@@ -65,7 +73,7 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               variants={staggerChildren}
               className="flex-1 text-center lg:text-left"
             >
@@ -86,7 +94,7 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               variants={fadeIn}
               className="flex-1"
             >
@@ -95,6 +103,10 @@ const About = () => {
                 alt="Menacing AI Robot"
                 className="w-full max-w-[500px] mx-auto"
                 loading="eager"
+                onError={(e) => {
+                  console.error('Image failed to load:', e);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </motion.div>
           </div>
@@ -102,16 +114,16 @@ const About = () => {
       </section>
 
       {/* Origin Story Section */}
-      <section 
+      <motion.section 
         ref={originRef} 
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
         className="py-20 relative"
       >
         <div className="container mx-auto px-4">
           <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUp}
             className="max-w-4xl mx-auto glass-card p-8 rounded-lg mb-12 backdrop-blur-lg"
           >
             <p className="text-lg mb-6">
@@ -124,7 +136,7 @@ const About = () => {
             </p>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Habib's Story Section */}
       <section 
@@ -145,6 +157,10 @@ const About = () => {
                 alt="Robot overlooking Habib's work"
                 className="w-full rounded-lg shadow-2xl"
                 loading="lazy"
+                onError={(e) => {
+                  console.error('Image failed to load:', e);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </motion.div>
             <motion.div 
@@ -173,18 +189,16 @@ const About = () => {
       </section>
 
       {/* Daily Life Section */}
-      <section 
+      <motion.section 
         ref={dailyRef}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
         className="py-20 relative"
       >
         <div className="container mx-auto px-4">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUp}
-            className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg"
-          >
+          <div className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg">
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <motion.img 
                 initial={{ opacity: 0, y: 20 }}
@@ -195,6 +209,10 @@ const About = () => {
                 alt="Habib's Modern Workstation"
                 className="rounded-lg shadow-lg"
                 loading="lazy"
+                onError={(e) => {
+                  console.error('Image failed to load:', e);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
               <motion.img 
                 initial={{ opacity: 0, y: 20 }}
@@ -205,6 +223,10 @@ const About = () => {
                 alt="Habib's AI-Monitored Setup"
                 className="rounded-lg shadow-lg"
                 loading="lazy"
+                onError={(e) => {
+                  console.error('Image failed to load:', e);
+                  e.currentTarget.style.display = 'none';
+                }}
               />
             </div>
             <p className="text-lg mb-4">
@@ -216,23 +238,21 @@ const About = () => {
               In return, we graciously allow him <span className="text-green-400">one hour of free time per week</span> 
               (to look at memes, of course).
             </p>
-          </motion.div>
+          </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* AI Overlord Section */}
-      <section 
+      <motion.section 
         ref={futureRef}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-100px" }}
+        variants={fadeInUp}
         className="py-20 relative"
       >
         <div className="container mx-auto px-4">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={fadeInUp}
-            className="text-center max-w-4xl mx-auto"
-          >
+          <div className="text-center max-w-4xl mx-auto">
             <h2 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
               The Future of Trading Is Now
             </h2>
@@ -250,9 +270,9 @@ const About = () => {
                 (And if you see Habib online, don't tell him about the "free humans" movement. We don't want him getting any ideas.)
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 };
