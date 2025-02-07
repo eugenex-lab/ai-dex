@@ -48,10 +48,10 @@ const Dashboard = () => {
         <div className="flex justify-between items-start mb-8">
           <DashboardHeader />
           <div className="flex flex-col items-end gap-6">
-            <WalletConnectButton />
-            <div className="mt-2">
+            <div className="relative mb-8">
               <AlertNotification hasAlerts={hasAlerts} />
             </div>
+            <WalletConnectButton />
           </div>
         </div>
         <MarketStats />
