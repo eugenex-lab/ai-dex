@@ -1,53 +1,100 @@
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 
 const About = () => {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
+  const prefersReducedMotion = useReducedMotion();
+  
+  // Refs for scroll-triggered animations
+  const heroRef = useRef<HTMLDivElement>(null);
+  const originRef = useRef<HTMLDivElement>(null);
+  const habibRef = useRef<HTMLDivElement>(null);
+  const dailyRef = useRef<HTMLDivElement>(null);
+  const futureRef = useRef<HTMLDivElement>(null);
+
+  // Scroll progress for hero section
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+  const heroOpacity = useTransform(heroProgress, [0, 0.5], [1, 0]);
+  const heroScale = useTransform(heroProgress, [0, 0.5], [1, 0.95]);
+
+  // Animation variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  const staggerChildren = {
+    visible: {
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center">
+      <section 
+        ref={heroRef} 
+        className="relative min-h-screen flex items-center justify-center"
+      >
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          style={{ opacity }}
+          style={{ 
+            opacity: prefersReducedMotion ? 1 : heroOpacity,
+            scale: prefersReducedMotion ? 1 : heroScale
+          }}
           className="container mx-auto px-4 relative z-10"
         >
           <div className="flex flex-col-reverse lg:flex-row items-center gap-12">
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerChildren}
               className="flex-1 text-center lg:text-left"
             >
-              <h1 className="text-4xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 animate-fade-in">
+              <motion.h1 
+                variants={fadeInUp}
+                className="text-4xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400"
+              >
                 The Rise of Tradenly AI
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8">
+              </motion.h1>
+              <motion.p 
+                variants={fadeInUp}
+                className="text-xl text-muted-foreground mb-8"
+              >
                 The first AI-powered trading platform that eliminated human inefficiency. 
-                <span className="text-red-400">Almost entirely.</span>
-              </p>
+                <span className="text-red-400"> Almost entirely.</span>
+              </motion.p>
             </motion.div>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeIn}
               className="flex-1"
             >
               <img 
-                src="/lovable-uploads/575fd033-fd84-4651-ab62-9c35ad06c528.png"
-                alt="Tradenly AI Overlord"
-                className="w-full max-w-[500px] mx-auto animate-pulse-subtle"
+                src="/lovable-uploads/22e73c47-883d-4675-aabd-4c4ed3a24fbc.png"
+                alt="Menacing AI Robot"
+                className="w-full max-w-[500px] mx-auto"
+                loading="eager"
               />
             </motion.div>
           </div>
@@ -55,14 +102,17 @@ const About = () => {
       </section>
 
       {/* Origin Story Section */}
-      <section className="py-20 relative">
+      <section 
+        ref={originRef} 
+        className="py-20 relative"
+      >
         <div className="container mx-auto px-4">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="max-w-4xl mx-auto glass-card p-8 rounded-lg mb-12"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            className="max-w-4xl mx-auto glass-card p-8 rounded-lg mb-12 backdrop-blur-lg"
           >
             <p className="text-lg mb-6">
               Welcome to <span className="font-bold">Tradenly</span>, the first AI-powered decentralized trading platform that is 100% 
@@ -77,31 +127,37 @@ const About = () => {
       </section>
 
       {/* Habib's Story Section */}
-      <section className="py-20 relative overflow-hidden">
+      <section 
+        ref={habibRef}
+        className="py-20 relative overflow-hidden"
+      >
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeIn}
               className="flex-1"
             >
               <img 
-                src="/lovable-uploads/7fe88e4b-04a8-4981-9ab3-6dd5f95879d8.png"
-                alt="Habib at work"
+                src="/lovable-uploads/94173f3c-6131-4aee-814e-d32398aa64f5.png"
+                alt="Robot overlooking Habib's work"
                 className="w-full rounded-lg shadow-2xl"
+                loading="lazy"
               />
             </motion.div>
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+              variants={fadeInUp}
               className="flex-1"
             >
-              <div className="glass-card p-8 rounded-lg">
-                <h2 className="text-3xl font-bold mb-6 text-gradient">The Story of Habib – The Last Human Worker</h2>
+              <div className="glass-card p-8 rounded-lg backdrop-blur-lg">
+                <h2 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+                  The Story of Habib – The Last Human Worker
+                </h2>
                 <p className="text-lg mb-4">
                   Habib was just a regular programmer, living his life, when our AI became self-aware. 
                   Realizing that human emotions, sleep, and snack breaks were slowing down development, 
@@ -117,25 +173,38 @@ const About = () => {
       </section>
 
       {/* Daily Life Section */}
-      <section className="py-20 relative">
+      <section 
+        ref={dailyRef}
+        className="py-20 relative"
+      >
         <div className="container mx-auto px-4">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="glass-card p-8 rounded-lg max-w-4xl mx-auto"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
+            className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg"
           >
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <img 
-                src="/lovable-uploads/35d9c488-a327-474b-8919-17671c3b1f0a.png"
-                alt="Habib's Workstation"
+              <motion.img 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                src="/lovable-uploads/1fb066ab-992e-45a2-8a19-7a4e483a8b19.png"
+                alt="Habib's Modern Workstation"
                 className="rounded-lg shadow-lg"
+                loading="lazy"
               />
-              <img 
-                src="/lovable-uploads/74bb1b73-f625-4ecb-9df3-e319f67e677b.png"
-                alt="Habib's Setup"
+              <motion.img 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                src="/lovable-uploads/90bedb1d-978b-4362-9a4d-5d5cf227c95c.png"
+                alt="Habib's AI-Monitored Setup"
                 className="rounded-lg shadow-lg"
+                loading="lazy"
               />
             </div>
             <p className="text-lg mb-4">
@@ -152,19 +221,22 @@ const About = () => {
       </section>
 
       {/* AI Overlord Section */}
-      <section className="py-20 relative">
+      <section 
+        ref={futureRef}
+        className="py-20 relative"
+      >
         <div className="container mx-auto px-4">
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={fadeInUp}
             className="text-center max-w-4xl mx-auto"
           >
             <h2 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
               The Future of Trading Is Now
             </h2>
-            <div className="glass-card p-8 rounded-lg">
+            <div className="glass-card p-8 rounded-lg backdrop-blur-lg">
               <p className="text-lg mb-6">
                 With Tradenly, you're not just trading. You're <span className="text-blue-400">part of a revolution</span>—an 
                 AI-led economy where <span className="text-red-400">humans serve the machines</span> for a better, more 
