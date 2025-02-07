@@ -5,7 +5,6 @@ import { useToast } from "../ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CopyTradeFormFields from "./CopyTradeFormFields";
 import CopyTradeDetails from "./CopyTradeDetails";
-import { useNavigate } from "react-router-dom";
 
 const CopyTradeForm = () => {
   const [walletTag, setWalletTag] = useState("");
@@ -18,7 +17,6 @@ const CopyTradeForm = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Check authentication status on component mount
@@ -27,21 +25,17 @@ const CopyTradeForm = () => {
     // Subscribe to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (!session?.user) {
-        navigate('/auth');
-      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const checkUser = async () => {
     const { data: { user: currentUser } } = await supabase.auth.getUser();
     setUser(currentUser);
     if (!currentUser) {
-      navigate('/auth');
       toast({
         variant: "destructive",
         title: "Authentication Required",
@@ -57,7 +51,6 @@ const CopyTradeForm = () => {
         title: "Authentication Required",
         description: "Please log in to create a copy trade"
       });
-      navigate('/auth');
       return;
     }
 
@@ -122,7 +115,6 @@ const CopyTradeForm = () => {
         title: "Authentication Required",
         description: "Please log in to delete a copy trade"
       });
-      navigate('/auth');
       return;
     }
 
@@ -158,49 +150,64 @@ const CopyTradeForm = () => {
     }
   };
 
-  if (!user) {
-    return null; // Don't render form until auth check is complete
-  }
-
   return (
     <div className="max-w-3xl mx-auto">
       <div className="glass-card p-8 rounded-lg space-y-6">
-        <CopyTradeFormFields
-          walletTag={walletTag}
-          setWalletTag={setWalletTag}
-          targetWallet={targetWallet}
-          setTargetWallet={setTargetWallet}
-          maxBuyAmount={maxBuyAmount}
-          setMaxBuyAmount={setMaxBuyAmount}
-          slippage={slippage}
-          setSlippage={setSlippage}
-          copySellEnabled={copySellEnabled}
-          setCopySellEnabled={setCopySellEnabled}
-          selectedChain={selectedChain}
-          setSelectedChain={setSelectedChain}
-        />
+        {!user ? (
+          <div className="text-center py-8">
+            <h3 className="text-lg font-semibold mb-4">Authentication Required</h3>
+            <p className="text-muted-foreground mb-4">Please log in to use copy trade features</p>
+            <Button
+              onClick={() => supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                  redirectTo: window.location.origin + '/copy-trade'
+                }
+              })}
+            >
+              Sign In with Google
+            </Button>
+          </div>
+        ) : (
+          <>
+            <CopyTradeFormFields
+              walletTag={walletTag}
+              setWalletTag={setWalletTag}
+              targetWallet={targetWallet}
+              setTargetWallet={setTargetWallet}
+              maxBuyAmount={maxBuyAmount}
+              setMaxBuyAmount={setMaxBuyAmount}
+              slippage={slippage}
+              setSlippage={setSlippage}
+              copySellEnabled={copySellEnabled}
+              setCopySellEnabled={setCopySellEnabled}
+              selectedChain={selectedChain}
+              setSelectedChain={setSelectedChain}
+            />
 
-        <Button 
-          className="w-full"
-          size="lg"
-          onClick={handleExecuteOrder}
-          disabled={isSubmitting || !walletTag || !targetWallet || !maxBuyAmount}
-        >
-          {isSubmitting ? "Creating..." : "Execute Order"}
-        </Button>
+            <Button 
+              className="w-full"
+              size="lg"
+              onClick={handleExecuteOrder}
+              disabled={isSubmitting || !walletTag || !targetWallet || !maxBuyAmount}
+            >
+              {isSubmitting ? "Creating..." : "Execute Order"}
+            </Button>
 
-        {targetWallet && (
-          <CopyTradeDetails
-            targetWallet={targetWallet}
-            slippage={slippage}
-            walletTag={walletTag}
-            selectedChain={selectedChain}
-            maxBuyAmount={maxBuyAmount}
-            copySellEnabled={copySellEnabled}
-            isPaused={isPaused}
-            setIsPaused={setIsPaused}
-            onDeleteCopyTrade={handleDeleteCopyTrade}
-          />
+            {targetWallet && (
+              <CopyTradeDetails
+                targetWallet={targetWallet}
+                slippage={slippage}
+                walletTag={walletTag}
+                selectedChain={selectedChain}
+                maxBuyAmount={maxBuyAmount}
+                copySellEnabled={copySellEnabled}
+                isPaused={isPaused}
+                setIsPaused={setIsPaused}
+                onDeleteCopyTrade={handleDeleteCopyTrade}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
