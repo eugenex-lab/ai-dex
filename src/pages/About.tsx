@@ -1,14 +1,45 @@
 
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+interface AboutImage {
+  id: string;
+  filename: string;
+  storage_path: string;
+  alt_text: string;
+  section: string;
+}
 
 interface ImageWithFallbackProps {
-  src: string;
+  storageUrl: string;
   alt: string;
   className?: string;
 }
 
-const ImageWithFallback = ({ src, alt, className = "" }: ImageWithFallbackProps) => {
+// Fetch all about page images
+const fetchAboutImages = async () => {
+  const { data, error } = await supabase
+    .from('about_images')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching images:', error);
+    throw error;
+  }
+
+  return data as AboutImage[];
+};
+
+// Get public URL for an image
+const getPublicUrl = async (path: string) => {
+  const { data } = supabase.storage.from('about-images').getPublicUrl(path);
+  return data.publicUrl;
+};
+
+const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbackProps) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -21,12 +52,12 @@ const ImageWithFallback = ({ src, alt, className = "" }: ImageWithFallbackProps)
       )}
       {!error ? (
         <img
-          src={src}
+          src={storageUrl}
           alt={alt}
           className={`w-full h-full object-contain transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
           onLoad={() => setLoading(false)}
           onError={() => {
-            console.error('Image failed to load:', src);
+            console.error('Image failed to load:', storageUrl);
             setError(true);
             setLoading(false);
           }}
@@ -43,6 +74,12 @@ const ImageWithFallback = ({ src, alt, className = "" }: ImageWithFallbackProps)
 const About = () => {
   const prefersReducedMotion = useReducedMotion();
   
+  // Fetch images from Supabase
+  const { data: images, isLoading: imagesLoading } = useQuery({
+    queryKey: ['about-images'],
+    queryFn: fetchAboutImages
+  });
+
   // Refs for scroll-triggered animations
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -89,6 +126,28 @@ const About = () => {
     }
   }, []);
 
+  // Get the image URL for a specific section
+  const getImageForSection = (section: string) => {
+    const image = images?.find(img => img.section === section);
+    if (!image) return null;
+    const { data } = supabase.storage.from('about-images').getPublicUrl(image.storage_path);
+    return { url: data.publicUrl, alt: image.alt_text };
+  };
+
+  if (imagesLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  const heroImage = getImageForSection('hero');
+  const storyImage = getImageForSection('story');
+  const workstation1Image = getImageForSection('workstation1');
+  const workstation2Image = getImageForSection('workstation2');
+  const futureImage = getImageForSection('future');
+
   return (
     <div ref={containerRef} className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
       {/* Hero Section */}
@@ -132,13 +191,15 @@ const About = () => {
               variants={fadeIn}
               className="flex-1"
             >
-              <div className="relative w-full aspect-square max-w-[500px] mx-auto">
-                <ImageWithFallback 
-                  src="/lovable-uploads/9872299c-cbd3-4e10-9fda-c525b2a67dfa.png"
-                  alt="Menacing AI Robot"
-                  className="w-full h-full"
-                />
-              </div>
+              {heroImage && (
+                <div className="relative w-full aspect-square max-w-[500px] mx-auto">
+                  <ImageWithFallback 
+                    storageUrl={heroImage.url}
+                    alt={heroImage.alt}
+                    className="w-full h-full"
+                  />
+                </div>
+              )}
             </motion.div>
           </div>
         </motion.div>
@@ -179,13 +240,15 @@ const About = () => {
               variants={fadeIn}
               className="flex-1"
             >
-              <div className="relative w-full aspect-square max-w-[500px] mx-auto">
-                <ImageWithFallback 
-                  src="/lovable-uploads/20617851-4fbd-4b95-8d39-3216eecdb10f.png"
-                  alt="Robot overlooking Habib's work"
-                  className="w-full h-full rounded-lg shadow-2xl"
-                />
-              </div>
+              {storyImage && (
+                <div className="relative w-full aspect-square max-w-[500px] mx-auto">
+                  <ImageWithFallback 
+                    storageUrl={storyImage.url}
+                    alt={storyImage.alt}
+                    className="w-full h-full rounded-lg shadow-2xl"
+                  />
+                </div>
+              )}
             </motion.div>
             <motion.div 
               initial="hidden"
@@ -223,32 +286,36 @@ const About = () => {
         <div className="container mx-auto px-4">
           <div className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg bg-secondary/30">
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <motion.div 
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                variants={fadeIn}
-                className="relative aspect-square"
-              >
-                <ImageWithFallback 
-                  src="/lovable-uploads/895da2ba-f346-4d90-a214-2ae83046eb4d.png"
-                  alt="Habib's Modern Workstation"
-                  className="w-full h-full rounded-lg shadow-lg"
-                />
-              </motion.div>
-              <motion.div 
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                variants={fadeIn}
-                className="relative aspect-square"
-              >
-                <ImageWithFallback 
-                  src="/lovable-uploads/9ef97c52-3625-495d-b710-9ce6a000409c.png"
-                  alt="Habib's AI-Monitored Setup"
-                  className="w-full h-full rounded-lg shadow-lg"
-                />
-              </motion.div>
+              {workstation1Image && (
+                <motion.div 
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.1 }}
+                  variants={fadeIn}
+                  className="relative aspect-square"
+                >
+                  <ImageWithFallback 
+                    storageUrl={workstation1Image.url}
+                    alt={workstation1Image.alt}
+                    className="w-full h-full rounded-lg shadow-lg"
+                  />
+                </motion.div>
+              )}
+              {workstation2Image && (
+                <motion.div 
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, amount: 0.1 }}
+                  variants={fadeIn}
+                  className="relative aspect-square"
+                >
+                  <ImageWithFallback 
+                    storageUrl={workstation2Image.url}
+                    alt={workstation2Image.alt}
+                    className="w-full h-full rounded-lg shadow-lg"
+                  />
+                </motion.div>
+              )}
             </div>
             <p className="text-lg mb-4">
               We <span className="text-blue-400">chained him to a computer</span>, plugged him directly into our systems, 
@@ -277,13 +344,15 @@ const About = () => {
               The Future of Trading Is Now
             </h2>
             <div className="glass-card p-8 rounded-lg backdrop-blur-lg bg-secondary/30">
-              <div className="mb-8">
-                <ImageWithFallback 
-                  src="/lovable-uploads/6bab336d-9292-4f65-852a-90a9c4e38f9d.png"
-                  alt="Future of Trading Workspace"
-                  className="w-full max-w-2xl mx-auto rounded-lg shadow-2xl"
-                />
-              </div>
+              {futureImage && (
+                <div className="mb-8">
+                  <ImageWithFallback 
+                    storageUrl={futureImage.url}
+                    alt={futureImage.alt}
+                    className="w-full max-w-2xl mx-auto rounded-lg shadow-2xl"
+                  />
+                </div>
+              )}
               <p className="text-lg mb-6">
                 With Tradenly, you're not just trading. You're <span className="text-blue-400">part of a revolution</span>—an 
                 AI-led economy where <span className="text-red-400">humans serve the machines</span> for a better, more 
