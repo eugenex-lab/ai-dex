@@ -21,7 +21,7 @@ const MatrixBackground = () => {
 
     // Matrix characters (including some Japanese katakana)
     const chars = '01アベマンパ'.split('');
-    const fontSize = 24; // Increased from 20 to 24
+    const fontSize = 24;
     const columns = canvas.width / fontSize;
     const drops: number[] = [];
 
@@ -32,11 +32,11 @@ const MatrixBackground = () => {
 
     const draw = () => {
       // Lighter background fade
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // Reduced from 0.75 to 0.05
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Brighter green for better visibility
-      ctx.fillStyle = 'rgba(0, 255, 70, 0.95)'; // Increased from 0.65 to 0.95
+      ctx.fillStyle = 'rgba(0, 255, 70, 0.95)';
       ctx.font = `${fontSize}px monospace`;
 
       // Draw characters
@@ -57,7 +57,7 @@ const MatrixBackground = () => {
     // Animation loop with performance optimization
     let animationId: number;
     let lastTime = 0;
-    const interval = 1000 / 30; // Increased from 24 to 30 FPS for smoother animation
+    const interval = 1000 / 30;
 
     const animate = (currentTime: number) => {
       animationId = requestAnimationFrame(animate);
@@ -80,8 +80,12 @@ const MatrixBackground = () => {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0"
       style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
         pointerEvents: 'none',
         opacity: 1,
         zIndex: 1

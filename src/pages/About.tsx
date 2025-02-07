@@ -151,7 +151,7 @@ const About = () => {
   return (
     <div 
       ref={containerRef} 
-      className="page-container min-h-screen bg-background/50 text-foreground relative isolate"
+      className="matrix-container min-h-screen bg-background/50 text-foreground relative isolate"
     >
       <div className="absolute inset-0 -z-10 bg-background/80" />
       <MatrixBackground />
