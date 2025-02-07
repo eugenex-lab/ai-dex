@@ -55,8 +55,7 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: 'vespr',
     name: 'Vespr',
-    icon: 'vespr.png',
-    comingSoon: true
+    icon: 'vespr.png'
   }
 ];
 
@@ -69,15 +68,17 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
       
       for (const wallet of WALLET_OPTIONS) {
         try {
-          const { data: { publicUrl } } = supabase
+          const { data } = await supabase
             .storage
             .from('wallet-icons')
-            .getPublicUrl(wallet.icon);
+            .download(wallet.icon);
             
-          iconUrls[wallet.id] = publicUrl;
+          if (data) {
+            const url = URL.createObjectURL(data);
+            iconUrls[wallet.id] = url;
+          }
         } catch (error) {
           console.error(`Failed to load icon for ${wallet.name}:`, error);
-          // Use a fallback icon URL or leave as undefined
           iconUrls[wallet.id] = '/placeholder.svg';
         }
       }
@@ -86,6 +87,15 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
     };
 
     loadWalletIcons();
+
+    // Cleanup URLs on unmount
+    return () => {
+      Object.values(walletIcons).forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
   }, []);
 
   return (
@@ -94,9 +104,7 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
         <Card
           key={wallet.id}
           className={`relative p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            wallet.comingSoon 
-              ? 'opacity-50 cursor-not-allowed' 
-              : 'hover:scale-105 hover:border-primary/50'
+            !wallet.comingSoon && !isLoading ? 'hover:scale-105 hover:border-primary/50' : ''
           } ${isLoading && loadingWallet === wallet.id ? 'animate-pulse' : ''}`}
           onClick={() => !wallet.comingSoon && !isLoading && onSelect(wallet.id)}
         >
@@ -112,13 +120,6 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
             />
           </div>
           <p className="text-sm font-medium text-center">{wallet.name}</p>
-          {wallet.comingSoon && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
-              <span className="text-xs font-medium text-muted-foreground px-2 py-0.5 bg-secondary/50 rounded">
-                Coming Soon
-              </span>
-            </div>
-          )}
         </Card>
       ))}
     </div>
