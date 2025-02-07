@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { BookOpen, Code, Github, TrendingUp, Bell } from "lucide-react";
+import { BookOpen, Code, Github } from "lucide-react";
 
 const DeveloperLinks = () => {
   return (
@@ -19,14 +19,6 @@ const DeveloperLinks = () => {
         <Link to="/api" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
           <Code className="h-4 w-4" />
           <span>API</span>
-        </Link>
-        <Link to="/arbitrage" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
-          <TrendingUp className="h-4 w-4" />
-          <span>Arbitrage</span>
-        </Link>
-        <Link to="/alerts" className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground">
-          <Bell className="h-4 w-4" />
-          <span>Alerts</span>
         </Link>
         <a 
           href="https://github.com/tradenly" 

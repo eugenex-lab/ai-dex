@@ -1,3 +1,4 @@
+
 import { SplineScene } from "@/components/ui/spline";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -45,7 +46,7 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 mb-4">
+              <h1 className="text-4xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 mb-4 pb-2">
                 Crypto Trading
                 <br />
                 Reimagined
