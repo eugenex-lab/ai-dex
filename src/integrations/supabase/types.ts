@@ -232,37 +232,49 @@ export type Database = {
           amount: number
           created_at: string
           id: string
+          metadata: Json | null
+          order_type: string | null
           pair: string
           price: number
           side: string
+          source_wallet: string | null
           status: string
           total: number
           type: string
           user_email: string
+          wallet_address: string | null
         }
         Insert: {
           amount: number
           created_at?: string
           id?: string
+          metadata?: Json | null
+          order_type?: string | null
           pair: string
           price: number
           side: string
+          source_wallet?: string | null
           status?: string
           total: number
           type: string
           user_email: string
+          wallet_address?: string | null
         }
         Update: {
           amount?: number
           created_at?: string
           id?: string
+          metadata?: Json | null
+          order_type?: string | null
           pair?: string
           price?: number
           side?: string
+          source_wallet?: string | null
           status?: string
           total?: number
           type?: string
           user_email?: string
+          wallet_address?: string | null
         }
         Relationships: []
       }
