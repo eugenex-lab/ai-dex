@@ -1,10 +1,13 @@
-import { Link } from "react-router-dom";
-import { Grid, Database, List, Menu, X } from "lucide-react";
+
+import { Link, useLocation } from "react-router-dom";
+import { Grid, Database, List, Menu, X, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+  const showDashboardLink = location.pathname !== '/dashboard';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background">
@@ -20,6 +23,15 @@ const Header = () => {
           </Link>
           
           <nav className="hidden md:flex items-center space-x-8">
+            {showDashboardLink && (
+              <Link 
+                to="/dashboard" 
+                className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground transition-colors"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            )}
             <Link 
               to="/pools" 
               className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground transition-colors"
@@ -56,6 +68,15 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 space-y-4 border-t border-white/10">
+            {showDashboardLink && (
+              <Link 
+                to="/dashboard" 
+                className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground transition-colors px-4 py-2"
+              >
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            )}
             <Link 
               to="/pools" 
               className="flex items-center space-x-2 text-sm text-foreground/80 hover:text-foreground transition-colors px-4 py-2"

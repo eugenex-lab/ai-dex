@@ -1,8 +1,20 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Wallet, Loader2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Wallet, Loader2, Copy, LogOut } from "lucide-react";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 import WalletOptions from "./WalletOptions";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -111,21 +123,100 @@ const WalletConnectButton = () => {
     }
   };
 
+  const handleDisconnect = async () => {
+    try {
+      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Update wallet_connections table
+        await supabase
+          .from('wallet_connections')
+          .update({
+            status: 'disconnected',
+            disconnected_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+          .eq('status', 'active');
+
+        // Update profiles table
+        await supabase
+          .from('profiles')
+          .update({
+            wallet_address: null,
+            wallet_connection_status: 'disconnected'
+          })
+          .eq('id', user.id);
+      }
+
+      setConnectedAddress(null);
+      toast({
+        title: "Wallet Disconnected",
+        description: "Your wallet has been successfully disconnected",
+      });
+    } catch (error: any) {
+      console.error('Wallet disconnection error:', error);
+      toast({
+        title: "Disconnection Failed",
+        description: error.message || "Failed to disconnect wallet. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (connectedAddress) {
+      navigator.clipboard.writeText(connectedAddress);
+      toast({
+        title: "Address Copied",
+        description: "Wallet address copied to clipboard",
+      });
+    }
+  };
+
   const displayAddress = connectedAddress 
     ? `${connectedAddress.slice(0, 6)}...${connectedAddress.slice(-4)}`
     : null;
+
+  if (connectedAddress) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="secondary"
+            className="gap-2 min-w-[180px] h-11"
+          >
+            <Wallet className="h-4 w-4" />
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : displayAddress}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-[200px]">
+          <DropdownMenuItem onClick={copyToClipboard} className="gap-2">
+            <Copy className="h-4 w-4" />
+            Copy Address
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDisconnect} className="gap-2 text-destructive">
+            <LogOut className="h-4 w-4" />
+            Disconnect
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button 
-          variant={connectedAddress ? "secondary" : "outline"}
+          variant="outline"
           className="gap-2 min-w-[180px] h-11"
         >
           <Wallet className="h-4 w-4" />
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : displayAddress || "Connect Wallet"}
+          Connect Wallet
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[480px]">
