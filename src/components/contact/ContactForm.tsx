@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("https://formspree.io/f/xgvozzey", {
+      const response = await fetch("https://formspree.io/f/xanqbbaz", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,3 +132,4 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
+
