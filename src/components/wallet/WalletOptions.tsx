@@ -1,9 +1,10 @@
 
 import { Card } from "@/components/ui/card";
-import { Check } from "lucide-react";
 
 interface WalletOptionsProps {
   onSelect: (wallet: string) => void;
+  isLoading?: boolean;
+  loadingWallet?: string;
 }
 
 const WALLET_OPTIONS = [
@@ -32,21 +33,33 @@ const WALLET_OPTIONS = [
   }
 ];
 
-const WalletOptions = ({ onSelect }: WalletOptionsProps) => {
+const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4 py-4">
+    <div className="grid grid-cols-2 gap-6 p-6">
       {WALLET_OPTIONS.map((wallet) => (
         <Card
           key={wallet.id}
-          className={`p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all hover:shadow-md ${
-            wallet.comingSoon ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
-          }`}
-          onClick={() => !wallet.comingSoon && onSelect(wallet.id)}
+          className={`relative p-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-200 hover:shadow-lg ${
+            wallet.comingSoon 
+              ? 'opacity-50 cursor-not-allowed' 
+              : 'hover:scale-105 hover:border-primary/50'
+          } ${isLoading && loadingWallet === wallet.id ? 'animate-pulse' : ''}`}
+          onClick={() => !wallet.comingSoon && !isLoading && onSelect(wallet.id)}
         >
-          <img src={wallet.icon} alt={wallet.name} className="w-12 h-12 object-contain" />
-          <p className="text-sm font-medium text-center">{wallet.name}</p>
+          <div className="w-16 h-16 flex items-center justify-center">
+            <img 
+              src={wallet.icon} 
+              alt={wallet.name} 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+          <p className="text-base font-medium text-center">{wallet.name}</p>
           {wallet.comingSoon && (
-            <span className="text-xs text-muted-foreground">Coming Soon</span>
+            <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
+              <span className="text-sm font-medium text-muted-foreground px-3 py-1 bg-secondary/50 rounded">
+                Coming Soon
+              </span>
+            </div>
           )}
         </Card>
       ))}
