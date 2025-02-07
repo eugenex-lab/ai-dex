@@ -11,52 +11,70 @@ const WALLET_OPTIONS = [
   {
     id: 'metamask',
     name: 'MetaMask',
-    icon: '/lovable-uploads/84389485-798e-4805-a990-82685d9a50b6.png',
+    icon: '/lovable-uploads/fa13de2f-3e38-4741-b3c6-e8ba0c4af358.png',
   },
   {
-    id: 'coinbase',
-    name: 'Coinbase Wallet',
-    icon: '/lovable-uploads/3961fa01-8280-4576-b632-09f2126c4f70.png',
-    comingSoon: true
+    id: 'phantom',
+    name: 'Phantom',
+    icon: '/lovable-uploads/e065b28f-1202-4f5a-9cd0-0a658b6a5e04.png',
   },
   {
-    id: 'trustwallet',
-    name: 'Trust Wallet',
-    icon: '/lovable-uploads/76d13a0a-84e4-4648-a383-ae586be0e16b.png',
-    comingSoon: true
+    id: 'yoroi',
+    name: 'Yoroi',
+    icon: '/lovable-uploads/462b85d8-e8f0-4958-9feb-42cbf16f9115.png',
   },
   {
-    id: 'walletconnect',
-    name: 'WalletConnect',
-    icon: '/lovable-uploads/74469a41-8023-4a58-b0fe-ef976ffa9f27.png',
+    id: 'eternl',
+    name: 'Eternl',
+    icon: '/lovable-uploads/b6398882-b28d-4d43-b49f-18e9b7878d9a.png',
+  },
+  {
+    id: 'lace',
+    name: 'Lace',
+    icon: '/lovable-uploads/636e320d-e15c-41fd-bad2-40607679ecd6.png',
+  },
+  {
+    id: 'begin',
+    name: 'Begin',
+    icon: '/lovable-uploads/b2600b8d-1e09-4542-8a99-6c8031434982.png',
+  },
+  {
+    id: 'tokeo',
+    name: 'Tokeo',
+    icon: '/lovable-uploads/6204ba0b-069d-4721-b60c-2af3a3be15de.png',
+  },
+  {
+    id: 'vespr',
+    name: 'Vespr',
+    icon: '/lovable-uploads/d085eaa1-a380-416c-b347-309b29b98d8a.png',
     comingSoon: true
   }
 ];
 
 const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProps) => {
   return (
-    <div className="grid grid-cols-2 gap-6 p-6">
+    <div className="grid grid-cols-2 gap-3 p-4">
       {WALLET_OPTIONS.map((wallet) => (
         <Card
           key={wallet.id}
-          className={`relative p-6 flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-200 hover:shadow-lg ${
+          className={`relative p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:shadow-lg ${
             wallet.comingSoon 
               ? 'opacity-50 cursor-not-allowed' 
               : 'hover:scale-105 hover:border-primary/50'
           } ${isLoading && loadingWallet === wallet.id ? 'animate-pulse' : ''}`}
           onClick={() => !wallet.comingSoon && !isLoading && onSelect(wallet.id)}
         >
-          <div className="w-16 h-16 flex items-center justify-center">
+          <div className="w-8 h-8 flex items-center justify-center">
             <img 
               src={wallet.icon} 
               alt={wallet.name} 
               className="w-full h-full object-contain" 
             />
           </div>
-          <p className="text-base font-medium text-center">{wallet.name}</p>
+          <p className="text-sm font-medium text-center">{wallet.name}</p>
           {wallet.comingSoon && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-lg">
-              <span className="text-sm font-medium text-muted-foreground px-3 py-1 bg-secondary/50 rounded">
+              <span className="text-xs font-medium text-muted-foreground px-2 py-0.5 bg-secondary/50 rounded">
                 Coming Soon
               </span>
             </div>

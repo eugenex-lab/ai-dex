@@ -219,7 +219,7 @@ const WalletConnectButton = () => {
           Connect Wallet
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold mb-2">Connect Wallet</DialogTitle>
         </DialogHeader>
