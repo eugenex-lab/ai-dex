@@ -1,8 +1,8 @@
-
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import MatrixBackground from "@/components/MatrixBackground";
 
 interface AboutImage {
   id: string;
@@ -143,7 +143,9 @@ const About = () => {
   const futureImage = getImageForSection('future');
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background text-foreground overflow-x-hidden relative">
+    <div ref={containerRef} className="page-container min-h-screen bg-background text-foreground relative">
+      <MatrixBackground />
+      
       {/* Hero Section */}
       <section 
         ref={heroRef} 

@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,14 +6,6 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
-}
-
-.glass-card {
-  @apply bg-secondary bg-opacity-20 backdrop-blur-lg border border-white border-opacity-10 shadow-lg;
-}
-
-.crypto-chart {
-  @apply h-[300px] w-full;
 }
 
 @keyframes pulse-subtle {
@@ -101,4 +92,80 @@
 
 .animate-bell {
   animation: bell-blink 1s ease-in-out infinite;
+}
+
+@keyframes laser-beam-blue {
+  0%, 100% { 
+    transform: translate(0, 0);
+    opacity: 0.4;
+  }
+  25% { 
+    transform: translate(100px, 50px);
+    opacity: 0.2;
+  }
+  50% { 
+    transform: translate(50px, -50px);
+    opacity: 0.4;
+  }
+  75% { 
+    transform: translate(-50px, 25px);
+    opacity: 0.2;
+  }
+}
+
+@keyframes laser-beam-red {
+  0%, 100% { 
+    transform: translate(0, 0);
+    opacity: 0.4;
+  }
+  33% { 
+    transform: translate(-75px, -25px);
+    opacity: 0.2;
+  }
+  66% { 
+    transform: translate(25px, 75px);
+    opacity: 0.4;
+  }
+}
+
+.glass-card {
+  @apply bg-secondary bg-opacity-20 backdrop-blur-lg border border-white border-opacity-10 shadow-lg relative overflow-hidden;
+}
+
+.glass-card::before,
+.glass-card::after {
+  content: '';
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0;
+}
+
+.glass-card::before {
+  background: #0FA0CE;
+  animation: laser-beam-blue 8s infinite ease-in-out;
+  top: -75px;
+  left: -75px;
+}
+
+.glass-card::after {
+  background: #ea384c;
+  animation: laser-beam-red 7s infinite ease-in-out;
+  bottom: -75px;
+  right: -75px;
+}
+
+.glass-card:hover::before,
+.glass-card:hover::after {
+  opacity: 0.4;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Remove the overflow-x-hidden to fix scrollbar issue */
+.page-container {
+  @apply relative max-w-full mx-auto;
+  contain: content;
 }
