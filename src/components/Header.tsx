@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const showDashboardLink = location.pathname !== '/dashboard';
+  const showDashboardLink = location.pathname !== '/dashboard' && location.pathname !== '/';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background">
