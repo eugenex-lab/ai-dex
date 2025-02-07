@@ -32,18 +32,21 @@ const CopyTradeForm = () => {
 
       const {
         data: { user },
+        error: authError
       } = await supabase.auth.getUser();
+
+      if (authError) throw authError;
 
       if (!user) {
         toast({
           variant: "destructive",
-          title: "Error",
+          title: "Authentication Error",
           description: "Please log in to create a copy trade"
         });
         return;
       }
 
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('copy_trades')
         .insert({
           user_id: user.id,
@@ -55,10 +58,13 @@ const CopyTradeForm = () => {
           selected_chain: selectedChain
         });
 
-      if (error) throw error;
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw insertError;
+      }
 
       toast({
-        title: "Copy Trade Created",
+        title: "Success",
         description: "Your copy trade has been set up successfully"
       });
 
@@ -70,12 +76,12 @@ const CopyTradeForm = () => {
       setCopySellEnabled(false);
       setSelectedChain("cardano");
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating copy trade:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create copy trade. Please try again."
+        description: error.message || "Failed to create copy trade. Please try again."
       });
     } finally {
       setIsSubmitting(false);
@@ -84,15 +90,28 @@ const CopyTradeForm = () => {
 
   const handleDeleteCopyTrade = async () => {
     try {
-      const { error } = await supabase
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) throw authError;
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please log in to delete a copy trade"
+        });
+        return;
+      }
+
+      const { error: deleteError } = await supabase
         .from('copy_trades')
         .delete()
-        .match({ target_wallet: targetWallet });
+        .match({ target_wallet: targetWallet, user_id: user.id });
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
 
       toast({
-        title: "Copy Trade Deleted",
+        title: "Success",
         description: "Your copy trade has been deleted successfully"
       });
 
@@ -105,12 +124,12 @@ const CopyTradeForm = () => {
       setSelectedChain("cardano");
       setIsPaused(false);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting copy trade:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete copy trade. Please try again."
+        description: error.message || "Failed to delete copy trade. Please try again."
       });
     }
   };
@@ -137,7 +156,7 @@ const CopyTradeForm = () => {
           className="w-full"
           size="lg"
           onClick={handleExecuteOrder}
-          disabled={isSubmitting}
+          disabled={isSubmitting || !walletTag || !targetWallet || !maxBuyAmount}
         >
           {isSubmitting ? "Creating..." : "Execute Order"}
         </Button>
