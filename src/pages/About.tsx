@@ -1,6 +1,5 @@
 
-import { useRef, useEffect } from "react";
-import MatrixBackground from "@/components/MatrixBackground";
+import { useRef } from "react";
 import HeroSection from "@/components/about/HeroSection";
 import ContentSections from "@/components/about/ContentSections";
 import { useAboutImages } from "@/components/about/useAboutImages";
@@ -8,13 +7,6 @@ import { useAboutImages } from "@/components/about/useAboutImages";
 const About = () => {
   const { data: images, isLoading: imagesLoading } = useAboutImages();
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Effect to ensure container has relative position
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.style.position = 'relative';
-    }
-  }, []);
 
   if (imagesLoading) {
     return (
@@ -27,11 +19,9 @@ const About = () => {
   return (
     <div 
       ref={containerRef} 
-      className="page-container min-h-screen bg-background/50 text-foreground relative isolate matrix-container"
+      className="page-container min-h-screen bg-background text-foreground relative"
     >
-      <div className="absolute inset-0 -z-10 bg-background/80" />
-      <MatrixBackground />
-      
+      <div className="absolute inset-0 -z-10 bg-background/95" />
       <HeroSection images={images} />
       <ContentSections images={images} />
     </div>
