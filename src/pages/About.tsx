@@ -134,7 +134,7 @@ const About = () => {
             >
               <div className="relative w-full aspect-square max-w-[500px] mx-auto">
                 <ImageWithFallback 
-                  src="/lovable-uploads/22e73c47-883d-4675-aabd-4c4ed3a24fbc.png"
+                  src="/lovable-uploads/9872299c-cbd3-4e10-9fda-c525b2a67dfa.png"
                   alt="Menacing AI Robot"
                   className="w-full h-full"
                 />
@@ -181,7 +181,7 @@ const About = () => {
             >
               <div className="relative w-full aspect-square max-w-[500px] mx-auto">
                 <ImageWithFallback 
-                  src="/lovable-uploads/94173f3c-6131-4aee-814e-d32398aa64f5.png"
+                  src="/lovable-uploads/20617851-4fbd-4b95-8d39-3216eecdb10f.png"
                   alt="Robot overlooking Habib's work"
                   className="w-full h-full rounded-lg shadow-2xl"
                 />
@@ -231,7 +231,7 @@ const About = () => {
                 className="relative aspect-square"
               >
                 <ImageWithFallback 
-                  src="/lovable-uploads/1fb066ab-992e-45a2-8a19-7a4e483a8b19.png"
+                  src="/lovable-uploads/895da2ba-f346-4d90-a214-2ae83046eb4d.png"
                   alt="Habib's Modern Workstation"
                   className="w-full h-full rounded-lg shadow-lg"
                 />
@@ -244,7 +244,7 @@ const About = () => {
                 className="relative aspect-square"
               >
                 <ImageWithFallback 
-                  src="/lovable-uploads/90bedb1d-978b-4362-9a4d-5d5cf227c95c.png"
+                  src="/lovable-uploads/9ef97c52-3625-495d-b710-9ce6a000409c.png"
                   alt="Habib's AI-Monitored Setup"
                   className="w-full h-full rounded-lg shadow-lg"
                 />
@@ -263,7 +263,7 @@ const About = () => {
         </div>
       </motion.section>
 
-      {/* AI Overlord Section */}
+      {/* Final Section with New Image */}
       <motion.section 
         initial="hidden"
         whileInView="visible"
@@ -277,6 +277,13 @@ const About = () => {
               The Future of Trading Is Now
             </h2>
             <div className="glass-card p-8 rounded-lg backdrop-blur-lg bg-secondary/30">
+              <div className="mb-8">
+                <ImageWithFallback 
+                  src="/lovable-uploads/6bab336d-9292-4f65-852a-90a9c4e38f9d.png"
+                  alt="Future of Trading Workspace"
+                  className="w-full max-w-2xl mx-auto rounded-lg shadow-2xl"
+                />
+              </div>
               <p className="text-lg mb-6">
                 With Tradenly, you're not just trading. You're <span className="text-blue-400">part of a revolution</span>—an 
                 AI-led economy where <span className="text-red-400">humans serve the machines</span> for a better, more 
