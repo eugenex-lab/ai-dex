@@ -149,7 +149,11 @@ const About = () => {
   const futureImage = getImageForSection('future');
 
   return (
-    <div ref={containerRef} className="page-container min-h-screen bg-background/95 text-foreground relative">
+    <div 
+      ref={containerRef} 
+      className="page-container min-h-screen bg-background/50 text-foreground relative isolate"
+    >
+      <div className="absolute inset-0 -z-10 bg-background/80" />
       <MatrixBackground />
       
       {/* Hero Section */}
