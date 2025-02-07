@@ -18,7 +18,7 @@ interface ImageWithFallbackProps {
   className?: string;
 }
 
-// Fetch all about page images with timestamp for cache busting
+// Fetch all about page images
 const fetchAboutImages = async () => {
   const { data, error } = await supabase
     .from('about_images')
@@ -37,8 +37,9 @@ const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbac
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Add cache-busting parameter to URL
-  const cacheBustedUrl = `${storageUrl}?t=${Date.now()}`;
+  // Add cache-busting parameter to URL, but use a stable value during the component's lifetime
+  const timestamp = useState(() => Date.now())[0];
+  const cacheBustedUrl = `${storageUrl}?t=${timestamp}`;
 
   return (
     <div className={`relative ${className}`}>
@@ -71,12 +72,12 @@ const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbac
 const About = () => {
   const prefersReducedMotion = useReducedMotion();
   
-  // Fetch images from Supabase with cache busting
+  // Use a stable query key and rely on refetchOnMount for cache busting
   const { data: images, isLoading: imagesLoading } = useQuery({
-    queryKey: ['about-images', Date.now()], // Add timestamp to force refresh
+    queryKey: ['about-images'],
     queryFn: fetchAboutImages,
-    refetchOnMount: true, // Always refetch when component mounts
-    staleTime: 0 // Consider data always stale
+    refetchOnMount: true,
+    staleTime: 0
   });
 
   // Refs for scroll-triggered animations
