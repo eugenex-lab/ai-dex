@@ -33,12 +33,6 @@ const fetchAboutImages = async () => {
   return data as AboutImage[];
 };
 
-// Get public URL for an image
-const getPublicUrl = async (path: string) => {
-  const { data } = supabase.storage.from('about-images').getPublicUrl(path);
-  return data.publicUrl;
-};
-
 const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbackProps) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
