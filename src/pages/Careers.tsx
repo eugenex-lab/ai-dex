@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 interface JobPosition {
   title: string;
@@ -118,6 +119,8 @@ const jobPositions: JobPosition[] = [
 ];
 
 const CareersPage = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -131,8 +134,44 @@ const CareersPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Email functionality will be implemented once we have the Resend API key
-    console.log("Form submitted:", formData);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("https://formspree.io/f/mbldkkjw", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) throw new Error("Failed to submit application");
+
+      toast({
+        title: "Application submitted!",
+        description: "We'll review your application and get back to you soon.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        position: "",
+        resume: "",
+        github: "",
+        telegram: "",
+        coverLetter: ""
+      });
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit application. Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -143,6 +182,7 @@ const CareersPage = () => {
   };
 
   return (
+    // ... keep existing code (job positions display)
     <div className="container mx-auto px-4 py-16 min-h-screen">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-4">
@@ -288,8 +328,8 @@ const CareersPage = () => {
                   required
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Submit Application
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Application"}
               </Button>
             </form>
           </CardContent>
