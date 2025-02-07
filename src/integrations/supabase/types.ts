@@ -157,8 +157,6 @@ export type Database = {
           cover_letter: string
           created_at: string
           email: string
-          email_sent: boolean | null
-          email_sent_at: string | null
           github_url: string | null
           id: string
           name: string
@@ -173,8 +171,6 @@ export type Database = {
           cover_letter: string
           created_at?: string
           email: string
-          email_sent?: boolean | null
-          email_sent_at?: string | null
           github_url?: string | null
           id?: string
           name: string
@@ -189,8 +185,6 @@ export type Database = {
           cover_letter?: string
           created_at?: string
           email?: string
-          email_sent?: boolean | null
-          email_sent_at?: string | null
           github_url?: string | null
           id?: string
           name?: string
@@ -207,8 +201,6 @@ export type Database = {
         Row: {
           created_at: string
           email: string
-          email_sent: boolean | null
-          email_sent_at: string | null
           id: string
           message: string
           name: string
@@ -219,8 +211,6 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
-          email_sent?: boolean | null
-          email_sent_at?: string | null
           id?: string
           message: string
           name: string
@@ -231,8 +221,6 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
-          email_sent?: boolean | null
-          email_sent_at?: string | null
           id?: string
           message?: string
           name?: string
