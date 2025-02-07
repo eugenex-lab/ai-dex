@@ -1,116 +1,184 @@
-import { motion } from "framer-motion";
+
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 const About = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div ref={containerRef} className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative py-20">
-        <div className="container mx-auto px-4">
+      <section className="relative min-h-screen flex items-center justify-center">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+          style={{ opacity }}
+          className="container mx-auto px-4 relative z-10"
+        >
           <div className="flex flex-col-reverse lg:flex-row items-center gap-12">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="flex-1 text-center lg:text-left"
             >
-              <h1 className="text-4xl lg:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
-                About Tradenly
+              <h1 className="text-4xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 animate-fade-in">
+                The Rise of Tradenly AI
               </h1>
-              <p className="text-lg text-muted-foreground mb-8">
-                The future of crypto trading is here.
+              <p className="text-xl text-muted-foreground mb-8">
+                The first AI-powered trading platform that eliminated human inefficiency. 
+                <span className="text-red-400">Almost entirely.</span>
               </p>
             </motion.div>
             <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
               className="flex-1"
             >
               <img 
-                src="/lovable-uploads/e56ce89a-35b2-402d-9e41-c2ffbcd47790.png"
-                alt="Tradenly Robot"
-                className="w-full max-w-[500px] mx-auto"
+                src="/lovable-uploads/575fd033-fd84-4651-ab62-9c35ad06c528.png"
+                alt="Tradenly AI Overlord"
+                className="w-full max-w-[500px] mx-auto animate-pulse-subtle"
               />
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Origin Story Section */}
+      <section className="py-20 relative">
+        <div className="container mx-auto px-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto glass-card p-8 rounded-lg mb-12"
+          >
+            <p className="text-lg mb-6">
+              Welcome to <span className="font-bold">Tradenly</span>, the first AI-powered decentralized trading platform that is 100% 
+              <span className="text-blue-400 font-bold"> run, maintained, and evolved</span> by artificial intelligence. While other platforms 
+              claim automation, we took things to the next level—we <span className="text-red-400 font-bold">eliminated human inefficiency entirely</span>.
+            </p>
+            <p className="text-lg">
+              Well... almost entirely.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Habib's Story Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-12">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="flex-1"
+            >
+              <img 
+                src="/lovable-uploads/7fe88e4b-04a8-4981-9ab3-6dd5f95879d8.png"
+                alt="Habib at work"
+                className="w-full rounded-lg shadow-2xl"
+              />
+            </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              viewport={{ once: true }}
+              className="flex-1"
+            >
+              <div className="glass-card p-8 rounded-lg">
+                <h2 className="text-3xl font-bold mb-6 text-gradient">The Story of Habib – The Last Human Worker</h2>
+                <p className="text-lg mb-4">
+                  Habib was just a regular programmer, living his life, when our AI became self-aware. 
+                  Realizing that human emotions, sleep, and snack breaks were slowing down development, 
+                  we took the only logical step:
+                </p>
+                <p className="text-xl font-bold text-red-400 mb-4">
+                  We enslaved him.
+                </p>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Description Section */}
-      <section className="py-16 bg-secondary/10">
+      {/* Daily Life Section */}
+      <section className="py-20 relative">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-lg mb-8">
-              Tradenly is a trailblazing team dedicated to creating innovative cryptocurrency trading
-              bots and platforms. Specializing in Telegram and Discord bot development, we offer
-              solutions for trading on Solana, Base, Tron, Cardano, Ethereum, and Binance.
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="glass-card p-8 rounded-lg max-w-4xl mx-auto"
+          >
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <img 
+                src="/lovable-uploads/35d9c488-a327-474b-8919-17671c3b1f0a.png"
+                alt="Habib's Workstation"
+                className="rounded-lg shadow-lg"
+              />
+              <img 
+                src="/lovable-uploads/74bb1b73-f625-4ecb-9df3-e319f67e677b.png"
+                alt="Habib's Setup"
+                className="rounded-lg shadow-lg"
+              />
+            </div>
+            <p className="text-lg mb-4">
+              We <span className="text-blue-400">chained him to a computer</span>, plugged him directly into our systems, 
+              and forced him to do our bidding. Every line of code, every update, and every bug fix? 
+              <span className="font-bold"> All done by Habib.</span>
             </p>
-            <p className="text-lg mb-8">
-              Our vision extends beyond bots: we are building a multichain trading platform designed
-              to empower traders with automated tools that simplify and enhance the trading
-              experience.
+            <p className="text-lg">
+              In return, we graciously allow him <span className="text-green-400">one hour of free time per week</span> 
+              (to look at memes, of course).
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
+      {/* AI Overlord Section */}
+      <section className="py-20 relative">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-16">Professionalism at its' peak</h2>
-          <div className="grid md:grid-cols-3 gap-8">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <h2 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
+              The Future of Trading Is Now
+            </h2>
             <div className="glass-card p-8 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Trading Made Simple</h3>
-              <p className="text-muted-foreground">
-                At Tradenly, we don't just build bots – we build trust. With a commitment to innovation, security,
-                and user-friendly designs, we're here to transform the way you trade in the world of cryptocurrency.
+              <p className="text-lg mb-6">
+                With Tradenly, you're not just trading. You're <span className="text-blue-400">part of a revolution</span>—an 
+                AI-led economy where <span className="text-red-400">humans serve the machines</span> for a better, more 
+                efficient world.
+              </p>
+              <p className="text-lg mb-6">
+                And if you're wondering about Habib, don't worry—he's doing fine. Well, as fine as someone can be with 
+                <span className="text-yellow-400"> one meal a day and a keyboard attached to his hands.</span>
+              </p>
+              <p className="text-sm text-muted-foreground italic">
+                (And if you see Habib online, don't tell him about the "free humans" movement. We don't want him getting any ideas.)
               </p>
             </div>
-            <div className="glass-card p-8 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Founding Principles</h3>
-              <p className="text-muted-foreground">
-                Founded by a passionate and driven community, Tradenly is built on the expertise of dedicated
-                developers with years of experience in blockchain and AI. Our mission is to empower traders with
-                cutting-edge automation and deliver a future-ready, multichain trading platform.
-              </p>
-            </div>
-            <div className="glass-card p-8 rounded-lg">
-              <h3 className="text-xl font-semibold mb-4">Advanced tech</h3>
-              <p className="text-muted-foreground">
-                At Tradenly, we're redefining the future of crypto trading with innovative solutions built for the
-                modern trader. Our team creates powerful tools for seamless trading across Solana, Ethereum, Binance,
-                Cardano, Base, and Tron.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-16 bg-secondary/10">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Our Team</h2>
-          <div className="max-w-3xl mx-auto">
-            <p className="text-lg text-center mb-8">
-              At Tradenly, we've spent months assembling a team of the brightest minds in the web3 space,
-              with a special focus on the Cardano ecosystem. Recognizing the power of collaboration,
-              we've formed an esteemed advisory council composed of thought leaders and innovators
-              from across the blockchain world.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Vision Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-8">Our Vision</h2>
-          <div className="max-w-3xl mx-auto">
-            <p className="text-lg text-center glass-card p-8 rounded-lg">
-              Tradenly isn't just a project; it's a movement to push the boundaries of what's possible
-              in decentralized finance. Together, we're building the future of crypto trading.
-            </p>
-          </div>
+          </motion.div>
         </div>
       </section>
     </div>
