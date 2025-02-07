@@ -6,6 +6,7 @@ import CryptoList from "@/components/CryptoList";
 import AlertNotification from "@/components/dashboard/AlertNotification";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ChartSection from "@/components/dashboard/ChartSection";
+import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 
 const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState('BTCUSDT');
@@ -44,8 +45,13 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background pt-24 px-8">
       <div className="max-w-7xl mx-auto relative">
-        <DashboardHeader />
-        <AlertNotification hasAlerts={hasAlerts} />
+        <div className="flex justify-between items-start mb-8">
+          <DashboardHeader />
+          <div className="flex items-center gap-4">
+            <WalletConnectButton />
+            <AlertNotification hasAlerts={hasAlerts} />
+          </div>
+        </div>
         <MarketStats />
         <ChartSection currentPair={currentPair} onPairChange={handlePairChange} />
         <CryptoList />

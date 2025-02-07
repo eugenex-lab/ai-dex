@@ -400,6 +400,8 @@ export type Database = {
           notification_preferences: Json | null
           updated_at: string
           username: string | null
+          wallet_address: string | null
+          wallet_connection_status: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -408,6 +410,8 @@ export type Database = {
           notification_preferences?: Json | null
           updated_at?: string
           username?: string | null
+          wallet_address?: string | null
+          wallet_connection_status?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -416,6 +420,41 @@ export type Database = {
           notification_preferences?: Json | null
           updated_at?: string
           username?: string | null
+          wallet_address?: string | null
+          wallet_connection_status?: string | null
+        }
+        Relationships: []
+      }
+      wallet_connections: {
+        Row: {
+          connected_at: string | null
+          created_at: string | null
+          disconnected_at: string | null
+          id: string
+          status: string | null
+          user_id: string | null
+          wallet_address: string
+          wallet_type: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string | null
+          disconnected_at?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string | null
+          wallet_address: string
+          wallet_type: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string | null
+          disconnected_at?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string | null
+          wallet_address?: string
+          wallet_type?: string
         }
         Relationships: []
       }
