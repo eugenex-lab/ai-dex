@@ -18,7 +18,7 @@ interface ImageWithFallbackProps {
   className?: string;
 }
 
-// Fetch all about page images
+// Fetch all about page images with timestamp for cache busting
 const fetchAboutImages = async () => {
   const { data, error } = await supabase
     .from('about_images')
@@ -36,6 +36,9 @@ const fetchAboutImages = async () => {
 const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbackProps) => {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // Add cache-busting parameter to URL
+  const cacheBustedUrl = `${storageUrl}?t=${Date.now()}`;
 
   return (
     <div className={`relative ${className}`}>
@@ -46,12 +49,12 @@ const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbac
       )}
       {!error ? (
         <img
-          src={storageUrl}
+          src={cacheBustedUrl}
           alt={alt}
           className={`w-full h-full object-contain transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
           onLoad={() => setLoading(false)}
           onError={() => {
-            console.error('Image failed to load:', storageUrl);
+            console.error('Image failed to load:', cacheBustedUrl);
             setError(true);
             setLoading(false);
           }}
@@ -68,10 +71,12 @@ const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbac
 const About = () => {
   const prefersReducedMotion = useReducedMotion();
   
-  // Fetch images from Supabase
+  // Fetch images from Supabase with cache busting
   const { data: images, isLoading: imagesLoading } = useQuery({
-    queryKey: ['about-images'],
-    queryFn: fetchAboutImages
+    queryKey: ['about-images', Date.now()], // Add timestamp to force refresh
+    queryFn: fetchAboutImages,
+    refetchOnMount: true, // Always refetch when component mounts
+    staleTime: 0 // Consider data always stale
   });
 
   // Refs for scroll-triggered animations
@@ -143,7 +148,7 @@ const About = () => {
   const futureImage = getImageForSection('future');
 
   return (
-    <div ref={containerRef} className="page-container min-h-screen bg-background text-foreground relative">
+    <div ref={containerRef} className="page-container min-h-screen bg-background/95 text-foreground relative">
       <MatrixBackground />
       
       {/* Hero Section */}
