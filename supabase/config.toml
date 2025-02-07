@@ -1,8 +1,1 @@
-
 project_id = "loqpepftcimqjkiinuwv"
-
-[functions.careers-apply]
-verify_jwt = false
-
-[functions.send-form-email]
-verify_jwt = false

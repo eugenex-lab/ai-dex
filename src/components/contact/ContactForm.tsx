@@ -1,10 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface FormData {
   name: string;
@@ -28,28 +26,15 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      // First, store in Supabase
-      const { error: dbError } = await supabase
-        .from('contact_submissions')
-        .insert([{
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message,
-          status: 'pending'
-        }]);
-
-      if (dbError) throw dbError;
-
-      // Then, send email
-      const { error: emailError } = await supabase.functions.invoke('send-form-email', {
-        body: JSON.stringify({
-          type: 'contact',
-          ...formData
-        })
+      const response = await fetch("https://formspree.io/f/xgvozzey", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (emailError) throw emailError;
+      if (!response.ok) throw new Error("Failed to submit form");
 
       toast({
         title: "Message sent!",
