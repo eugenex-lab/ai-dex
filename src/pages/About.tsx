@@ -1,6 +1,44 @@
 
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+
+interface ImageWithFallbackProps {
+  src: string;
+  alt: string;
+  className?: string;
+}
+
+const ImageWithFallback = ({ src, alt, className = "" }: ImageWithFallbackProps) => {
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  return (
+    <div className={`relative ${className}`}>
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-secondary/20">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      )}
+      {!error ? (
+        <img
+          src={src}
+          alt={alt}
+          className={`w-full h-full object-contain transition-opacity duration-300 ${loading ? 'opacity-0' : 'opacity-100'}`}
+          onLoad={() => setLoading(false)}
+          onError={() => {
+            console.error('Image failed to load:', src);
+            setError(true);
+            setLoading(false);
+          }}
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-secondary/20 rounded-lg">
+          <p className="text-muted-foreground text-sm">Image failed to load</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const About = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -8,12 +46,8 @@ const About = () => {
   // Refs for scroll-triggered animations
   const containerRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const originRef = useRef<HTMLDivElement>(null);
-  const habibRef = useRef<HTMLDivElement>(null);
-  const dailyRef = useRef<HTMLDivElement>(null);
-  const futureRef = useRef<HTMLDivElement>(null);
 
-  // Scroll progress for sections
+  // Scroll progress for hero section
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -22,13 +56,13 @@ const About = () => {
   const heroOpacity = useTransform(heroProgress, [0, 0.5], [1, 0]);
   const heroScale = useTransform(heroProgress, [0, 0.5], [1, 0.95]);
 
-  // Animation variants
+  // Animation variants with optimized timing
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" }
+      transition: { duration: 0.4, ease: "easeOut" }
     }
   };
 
@@ -36,14 +70,14 @@ const About = () => {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { duration: 0.6, ease: "easeOut" }
+      transition: { duration: 0.4, ease: "easeOut" }
     }
   };
 
   const staggerChildren = {
     visible: {
       transition: {
-        staggerChildren: 0.2
+        staggerChildren: 0.15
       }
     }
   };
@@ -73,7 +107,7 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
               variants={staggerChildren}
               className="flex-1 text-center lg:text-left"
             >
@@ -94,20 +128,15 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
               variants={fadeIn}
               className="flex-1"
             >
               <div className="relative w-full aspect-square max-w-[500px] mx-auto">
-                <img 
+                <ImageWithFallback 
                   src="/lovable-uploads/22e73c47-883d-4675-aabd-4c4ed3a24fbc.png"
                   alt="Menacing AI Robot"
-                  className="w-full h-full object-contain"
-                  loading="eager"
-                  onError={(e) => {
-                    console.error('Image failed to load:', e.currentTarget.src);
-                    e.currentTarget.style.display = 'none';
-                  }}
+                  className="w-full h-full"
                 />
               </div>
             </motion.div>
@@ -117,10 +146,9 @@ const About = () => {
 
       {/* Origin Story Section */}
       <motion.section 
-        ref={originRef} 
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
         variants={fadeInUp}
         className="py-20 relative"
       >
@@ -141,36 +169,28 @@ const About = () => {
       </motion.section>
 
       {/* Habib's Story Section */}
-      <section 
-        ref={habibRef}
-        className="py-20 relative overflow-hidden"
-      >
+      <section className="py-20 relative overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
               variants={fadeIn}
               className="flex-1"
             >
               <div className="relative w-full aspect-square max-w-[500px] mx-auto">
-                <img 
+                <ImageWithFallback 
                   src="/lovable-uploads/94173f3c-6131-4aee-814e-d32398aa64f5.png"
                   alt="Robot overlooking Habib's work"
-                  className="w-full h-full object-contain rounded-lg shadow-2xl"
-                  loading="lazy"
-                  onError={(e) => {
-                    console.error('Image failed to load:', e.currentTarget.src);
-                    e.currentTarget.style.display = 'none';
-                  }}
+                  className="w-full h-full rounded-lg shadow-2xl"
                 />
               </div>
             </motion.div>
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
               variants={fadeInUp}
               className="flex-1"
             >
@@ -194,10 +214,9 @@ const About = () => {
 
       {/* Daily Life Section */}
       <motion.section 
-        ref={dailyRef}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
         variants={fadeInUp}
         className="py-20 relative"
       >
@@ -205,39 +224,29 @@ const About = () => {
           <div className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg bg-secondary/30">
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ delay: 0.2, ease: "easeOut" }}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+                variants={fadeIn}
                 className="relative aspect-square"
               >
-                <img 
+                <ImageWithFallback 
                   src="/lovable-uploads/1fb066ab-992e-45a2-8a19-7a4e483a8b19.png"
                   alt="Habib's Modern Workstation"
-                  className="w-full h-full object-contain rounded-lg shadow-lg"
-                  loading="lazy"
-                  onError={(e) => {
-                    console.error('Image failed to load:', e.currentTarget.src);
-                    e.currentTarget.style.display = 'none';
-                  }}
+                  className="w-full h-full rounded-lg shadow-lg"
                 />
               </motion.div>
               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ delay: 0.4, ease: "easeOut" }}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+                variants={fadeIn}
                 className="relative aspect-square"
               >
-                <img 
+                <ImageWithFallback 
                   src="/lovable-uploads/90bedb1d-978b-4362-9a4d-5d5cf227c95c.png"
                   alt="Habib's AI-Monitored Setup"
-                  className="w-full h-full object-contain rounded-lg shadow-lg"
-                  loading="lazy"
-                  onError={(e) => {
-                    console.error('Image failed to load:', e.currentTarget.src);
-                    e.currentTarget.style.display = 'none';
-                  }}
+                  className="w-full h-full rounded-lg shadow-lg"
                 />
               </motion.div>
             </div>
@@ -256,10 +265,9 @@ const About = () => {
 
       {/* AI Overlord Section */}
       <motion.section 
-        ref={futureRef}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
         variants={fadeInUp}
         className="py-20 relative"
       >
