@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { useToast } from "../ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CopyTradeFormFields from "./CopyTradeFormFields";
 import CopyTradeDetails from "./CopyTradeDetails";
+import { useNavigate } from "react-router-dom";
 
 const CopyTradeForm = () => {
   const [walletTag, setWalletTag] = useState("");
@@ -15,9 +16,51 @@ const CopyTradeForm = () => {
   const [selectedChain, setSelectedChain] = useState("cardano");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check authentication status on component mount
+    checkUser();
+    
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (!session?.user) {
+        navigate('/auth');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  const checkUser = async () => {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    setUser(currentUser);
+    if (!currentUser) {
+      navigate('/auth');
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in to use copy trade features"
+      });
+    }
+  };
 
   const handleExecuteOrder = async () => {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in to create a copy trade"
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!walletTag || !targetWallet || !maxBuyAmount) {
       toast({
         variant: "destructive",
@@ -29,22 +72,6 @@ const CopyTradeForm = () => {
 
     try {
       setIsSubmitting(true);
-
-      const {
-        data: { user },
-        error: authError
-      } = await supabase.auth.getUser();
-
-      if (authError) throw authError;
-
-      if (!user) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "Please log in to create a copy trade"
-        });
-        return;
-      }
 
       const { error: insertError } = await supabase
         .from('copy_trades')
@@ -89,20 +116,17 @@ const CopyTradeForm = () => {
   };
 
   const handleDeleteCopyTrade = async () => {
-    try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      
-      if (authError) throw authError;
-      
-      if (!user) {
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "Please log in to delete a copy trade"
-        });
-        return;
-      }
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Required",
+        description: "Please log in to delete a copy trade"
+      });
+      navigate('/auth');
+      return;
+    }
 
+    try {
       const { error: deleteError } = await supabase
         .from('copy_trades')
         .delete()
@@ -133,6 +157,10 @@ const CopyTradeForm = () => {
       });
     }
   };
+
+  if (!user) {
+    return null; // Don't render form until auth check is complete
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
