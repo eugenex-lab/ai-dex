@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,12 +77,28 @@
 .traveling-light::before {
   content: '';
   position: absolute;
-  width: 24px; /* Increased from 8px to 24px */
-  height: 24px; /* Increased from 8px to 24px */
+  width: 24px;
+  height: 24px;
   background: #3B82F6;
   border-radius: 50%;
-  filter: blur(12px); /* Increased blur effect */
-  box-shadow: 0 0 45px 15px #3B82F6; /* Increased shadow size and spread */
+  filter: blur(12px);
+  box-shadow: 0 0 45px 15px #3B82F6;
   animation: travel-light 8s linear infinite;
   z-index: 1;
+}
+
+/* Add bell animation */
+@keyframes bell-blink {
+  0%, 100% {
+    color: #3B82F6;
+    transform: scale(1);
+  }
+  50% {
+    color: #60A5FA;
+    transform: scale(1.1);
+  }
+}
+
+.animate-bell {
+  animation: bell-blink 1s ease-in-out infinite;
 }
