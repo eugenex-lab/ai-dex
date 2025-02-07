@@ -3,7 +3,6 @@ import { SplineScene } from "@/components/ui/spline";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import MatrixBackground from "@/components/MatrixBackground";
 
 const colors = [
   "rgba(255, 255, 255, 0.8)",  // warm white
@@ -31,7 +30,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <MatrixBackground />
       <div className="w-full max-w-7xl h-[600px] relative overflow-hidden">
         <div 
           className="absolute inset-0 blur-3xl opacity-50 transition-all duration-1000"
@@ -79,4 +77,3 @@ const Index = () => {
 };
 
 export default Index;
-

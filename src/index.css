@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -164,13 +165,13 @@
   transition: opacity 0.3s ease-in-out;
 }
 
-/* Remove the overflow-x-hidden to fix scrollbar issue */
+/* Page container styles */
 .page-container {
   @apply relative max-w-full mx-auto;
   contain: content;
 }
 
-/* Matrix effect specific styles */
+/* Matrix effect specific styles - only applied to matrix-container class */
 .matrix-container {
   @apply relative min-h-screen overflow-hidden bg-black;
 }
