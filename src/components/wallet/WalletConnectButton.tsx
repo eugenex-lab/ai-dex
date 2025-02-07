@@ -27,39 +27,36 @@ const WalletConnectButton = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if already connected through MetaMask
+    // Only listen for account changes
     if (typeof window.ethereum !== 'undefined') {
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then((accounts: string[]) => {
-          if (accounts.length > 0) {
-            setConnectedAddress(accounts[0]);
-          }
-        })
-        .catch(console.error);
-
-      // Listen for account changes
-      window.ethereum.on('accountsChanged', (accounts: string[]) => {
+      const handleAccountsChanged = (accounts: string[]) => {
         setConnectedAddress(accounts[0] || null);
-      });
-    }
+      };
 
-    // Check connection status in database
-    const checkConnectionStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('wallet_address, wallet_connection_status')
-          .eq('id', user.id)
-          .single();
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
 
-        if (profile?.wallet_address) {
-          setConnectedAddress(profile.wallet_address);
+      // Check connection status in database
+      const checkConnectionStatus = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('wallet_address, wallet_connection_status')
+            .eq('id', user.id)
+            .single();
+
+          if (profile?.wallet_address && profile.wallet_connection_status === 'connected') {
+            setConnectedAddress(profile.wallet_address);
+          }
         }
-      }
-    };
+      };
 
-    checkConnectionStatus();
+      checkConnectionStatus();
+
+      return () => {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
   }, []);
 
   const handleWalletSelect = async (walletType: string) => {
@@ -77,7 +74,16 @@ const WalletConnectButton = () => {
           return;
         }
 
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // Always request a new connection, even if previously connected
+        await window.ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }]
+        });
+
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_requestAccounts'
+        });
+
         const address = accounts[0];
         setConnectedAddress(address);
 

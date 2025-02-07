@@ -1,5 +1,14 @@
 
 import { Card } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+
+interface WalletOption {
+  id: string;
+  name: string;
+  icon: string;
+  comingSoon?: boolean;
+}
 
 interface WalletOptionsProps {
   onSelect: (wallet: string) => void;
@@ -7,51 +16,78 @@ interface WalletOptionsProps {
   loadingWallet?: string;
 }
 
-const WALLET_OPTIONS = [
+const WALLET_OPTIONS: WalletOption[] = [
   {
     id: 'metamask',
     name: 'MetaMask',
-    icon: '/lovable-uploads/fa13de2f-3e38-4741-b3c6-e8ba0c4af358.png',
+    icon: 'metamask.png',
   },
   {
     id: 'phantom',
     name: 'Phantom',
-    icon: '/lovable-uploads/e065b28f-1202-4f5a-9cd0-0a658b6a5e04.png',
+    icon: 'phantom.png',
   },
   {
     id: 'yoroi',
     name: 'Yoroi',
-    icon: '/lovable-uploads/462b85d8-e8f0-4958-9feb-42cbf16f9115.png',
+    icon: 'yoroi.png',
   },
   {
     id: 'eternl',
     name: 'Eternl',
-    icon: '/lovable-uploads/b6398882-b28d-4d43-b49f-18e9b7878d9a.png',
+    icon: 'eternl.png',
   },
   {
     id: 'lace',
     name: 'Lace',
-    icon: '/lovable-uploads/636e320d-e15c-41fd-bad2-40607679ecd6.png',
+    icon: 'lace.png',
   },
   {
     id: 'begin',
     name: 'Begin',
-    icon: '/lovable-uploads/b2600b8d-1e09-4542-8a99-6c8031434982.png',
+    icon: 'begin.png',
   },
   {
     id: 'tokeo',
     name: 'Tokeo',
-    icon: '/lovable-uploads/6204ba0b-069d-4721-b60c-2af3a3be15de.png',
+    icon: 'tokeo.png',
   },
   {
     id: 'vespr',
     name: 'Vespr',
-    icon: '/lovable-uploads/d085eaa1-a380-416c-b347-309b29b98d8a.png',
+    icon: 'vespr.png',
     comingSoon: true
   }
 ];
 
 const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProps) => {
+  const [walletIcons, setWalletIcons] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const loadWalletIcons = async () => {
+      const iconUrls: Record<string, string> = {};
+      
+      for (const wallet of WALLET_OPTIONS) {
+        try {
+          const { data: { publicUrl } } = supabase
+            .storage
+            .from('wallet-icons')
+            .getPublicUrl(wallet.icon);
+            
+          iconUrls[wallet.id] = publicUrl;
+        } catch (error) {
+          console.error(`Failed to load icon for ${wallet.name}:`, error);
+          // Use a fallback icon URL or leave as undefined
+          iconUrls[wallet.id] = '/placeholder.svg';
+        }
+      }
+      
+      setWalletIcons(iconUrls);
+    };
+
+    loadWalletIcons();
+  }, []);
+
   return (
     <div className="grid grid-cols-2 gap-3 p-4">
       {WALLET_OPTIONS.map((wallet) => (
@@ -66,9 +102,13 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
         >
           <div className="w-8 h-8 flex items-center justify-center">
             <img 
-              src={wallet.icon} 
+              src={walletIcons[wallet.id] || '/placeholder.svg'} 
               alt={wallet.name} 
-              className="w-full h-full object-contain" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = '/placeholder.svg';
+              }}
             />
           </div>
           <p className="text-sm font-medium text-center">{wallet.name}</p>
