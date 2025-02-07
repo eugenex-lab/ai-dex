@@ -30,7 +30,8 @@ const CopyTradeForm = () => {
     try {
       setIsSubmitting(true);
 
-      const { error: insertError } = await supabase
+      // First create the copy trade
+      const { data: copyTradeData, error: copyTradeError } = await supabase
         .from('copy_trades')
         .insert({
           wallet_tag: walletTag,
@@ -39,11 +40,47 @@ const CopyTradeForm = () => {
           slippage: parseFloat(slippage),
           copy_sell_enabled: copySellEnabled,
           selected_chain: selectedChain
+        })
+        .select()
+        .single();
+
+      if (copyTradeError) {
+        console.error('Copy trade creation error:', copyTradeError);
+        throw copyTradeError;
+      }
+
+      // Then create the corresponding order
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          pair: `${selectedChain.toUpperCase()}/USDT`,
+          type: 'copy_trade',
+          side: 'buy',
+          price: 0, // Initial price, will be updated when executed
+          amount: parseFloat(maxBuyAmount),
+          total: 0, // Initial total, will be updated when executed
+          user_email: targetWallet, // Using target wallet as identifier
+          status: 'open'
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw orderError;
+      }
+
+      // Finally, create the link between copy trade and order
+      const { error: linkError } = await supabase
+        .from('copy_trade_orders')
+        .insert({
+          copy_trade_id: copyTradeData.id,
+          order_id: orderData.id
         });
 
-      if (insertError) {
-        console.error('Insert error:', insertError);
-        throw insertError;
+      if (linkError) {
+        console.error('Link creation error:', linkError);
+        throw linkError;
       }
 
       toast({
@@ -73,6 +110,33 @@ const CopyTradeForm = () => {
 
   const handleDeleteCopyTrade = async () => {
     try {
+      // First find and delete any linked orders
+      const { data: copyTradeOrders, error: fetchError } = await supabase
+        .from('copy_trade_orders')
+        .select('order_id')
+        .eq('copy_trade_id', targetWallet);
+
+      if (fetchError) throw fetchError;
+
+      if (copyTradeOrders?.length > 0) {
+        // Delete the orders
+        const { error: orderDeleteError } = await supabase
+          .from('orders')
+          .delete()
+          .in('id', copyTradeOrders.map(cto => cto.order_id));
+
+        if (orderDeleteError) throw orderDeleteError;
+
+        // Delete the links
+        const { error: linkDeleteError } = await supabase
+          .from('copy_trade_orders')
+          .delete()
+          .eq('copy_trade_id', targetWallet);
+
+        if (linkDeleteError) throw linkDeleteError;
+      }
+
+      // Finally delete the copy trade
       const { error: deleteError } = await supabase
         .from('copy_trades')
         .delete()

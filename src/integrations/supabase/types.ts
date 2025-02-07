@@ -152,6 +152,42 @@ export type Database = {
         }
         Relationships: []
       }
+      copy_trade_orders: {
+        Row: {
+          copy_trade_id: string
+          created_at: string
+          id: string
+          order_id: string
+        }
+        Insert: {
+          copy_trade_id: string
+          created_at?: string
+          id?: string
+          order_id: string
+        }
+        Update: {
+          copy_trade_id?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copy_trade_orders_copy_trade_id_fkey"
+            columns: ["copy_trade_id"]
+            isOneToOne: false
+            referencedRelation: "copy_trades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "copy_trade_orders_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       copy_trades: {
         Row: {
           copy_sell_enabled: boolean | null
