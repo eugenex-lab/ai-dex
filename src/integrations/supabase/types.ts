@@ -51,6 +51,44 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_history: {
+        Row: {
+          alert_data: Json
+          alert_id: string | null
+          alert_type: string
+          id: string
+          status: string | null
+          triggered_at: string
+          user_id: string | null
+        }
+        Insert: {
+          alert_data: Json
+          alert_id?: string | null
+          alert_type: string
+          id?: string
+          status?: string | null
+          triggered_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          alert_data?: Json
+          alert_id?: string | null
+          alert_type?: string
+          id?: string
+          status?: string | null
+          triggered_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       analysis_alerts: {
         Row: {
           created_at: string
@@ -192,6 +230,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pool_participants: {
+        Row: {
+          created_at: string
+          id: string
+          pool_id: string | null
+          staked_amount: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          pool_id?: string | null
+          staked_amount?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          pool_id?: string | null
+          staked_amount?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pool_participants_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pool_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pools: {
         Row: {
           apr: number | null
@@ -261,6 +341,33 @@ export type Database = {
           social_sentiment_enabled?: boolean | null
           token_name?: string
           volume_threshold?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          notification_preferences: Json | null
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          notification_preferences?: Json | null
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          notification_preferences?: Json | null
+          updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }

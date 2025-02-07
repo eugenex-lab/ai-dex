@@ -1,9 +1,12 @@
+
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ArrowUpDown, Clock, DollarSign, Hash, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 type Order = {
   id: string;
@@ -18,7 +21,9 @@ type Order = {
 };
 
 const Orders = () => {
-  const { data: orders, isLoading, error } = useQuery({
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  const { data: initialOrders, isLoading, error } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -30,6 +35,48 @@ const Orders = () => {
       return data as Order[];
     },
   });
+
+  useEffect(() => {
+    if (initialOrders) {
+      setOrders(initialOrders);
+    }
+  }, [initialOrders]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
+        (payload) => {
+          console.log('Real-time update:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            setOrders(prev => [payload.new as Order, ...prev]);
+            toast.success('New order placed');
+          } else if (payload.eventType === 'UPDATE') {
+            setOrders(prev => 
+              prev.map(order => 
+                order.id === payload.new.id ? { ...order, ...payload.new } : order
+              )
+            );
+            toast.info(`Order ${payload.new.id.slice(0, 8)} updated`);
+          } else if (payload.eventType === 'DELETE') {
+            setOrders(prev => prev.filter(order => order.id !== payload.old.id));
+            toast.info('Order removed');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   if (isLoading) {
     return (
