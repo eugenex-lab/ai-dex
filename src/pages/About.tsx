@@ -28,7 +28,7 @@ const About = () => {
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.6 }
+      transition: { duration: 0.6, ease: "easeOut" }
     }
   };
 
@@ -36,7 +36,7 @@ const About = () => {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
-      transition: { duration: 0.6 }
+      transition: { duration: 0.6, ease: "easeOut" }
     }
   };
 
@@ -60,7 +60,7 @@ const About = () => {
       {/* Hero Section */}
       <section 
         ref={heroRef} 
-        className="relative min-h-screen flex items-center justify-center"
+        className="relative min-h-screen flex items-center justify-center py-20"
       >
         <motion.div 
           style={{ 
@@ -73,7 +73,7 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, amount: 0.3 }}
               variants={staggerChildren}
               className="flex-1 text-center lg:text-left"
             >
@@ -94,20 +94,22 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, amount: 0.3 }}
               variants={fadeIn}
               className="flex-1"
             >
-              <img 
-                src="/lovable-uploads/22e73c47-883d-4675-aabd-4c4ed3a24fbc.png"
-                alt="Menacing AI Robot"
-                className="w-full max-w-[500px] mx-auto"
-                loading="eager"
-                onError={(e) => {
-                  console.error('Image failed to load:', e);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+              <div className="relative w-full aspect-square max-w-[500px] mx-auto">
+                <img 
+                  src="/lovable-uploads/22e73c47-883d-4675-aabd-4c4ed3a24fbc.png"
+                  alt="Menacing AI Robot"
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e.currentTarget.src);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
             </motion.div>
           </div>
         </motion.div>
@@ -118,13 +120,13 @@ const About = () => {
         ref={originRef} 
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, amount: 0.3 }}
         variants={fadeInUp}
         className="py-20 relative"
       >
         <div className="container mx-auto px-4">
           <motion.div 
-            className="max-w-4xl mx-auto glass-card p-8 rounded-lg mb-12 backdrop-blur-lg"
+            className="max-w-4xl mx-auto glass-card p-8 rounded-lg mb-12 backdrop-blur-lg bg-secondary/30"
           >
             <p className="text-lg mb-6">
               Welcome to <span className="font-bold">Tradenly</span>, the first AI-powered decentralized trading platform that is 100% 
@@ -148,29 +150,31 @@ const About = () => {
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, amount: 0.3 }}
               variants={fadeIn}
               className="flex-1"
             >
-              <img 
-                src="/lovable-uploads/94173f3c-6131-4aee-814e-d32398aa64f5.png"
-                alt="Robot overlooking Habib's work"
-                className="w-full rounded-lg shadow-2xl"
-                loading="lazy"
-                onError={(e) => {
-                  console.error('Image failed to load:', e);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+              <div className="relative w-full aspect-square max-w-[500px] mx-auto">
+                <img 
+                  src="/lovable-uploads/94173f3c-6131-4aee-814e-d32398aa64f5.png"
+                  alt="Robot overlooking Habib's work"
+                  className="w-full h-full object-contain rounded-lg shadow-2xl"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e.currentTarget.src);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
             </motion.div>
             <motion.div 
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
+              viewport={{ once: true, amount: 0.3 }}
               variants={fadeInUp}
               className="flex-1"
             >
-              <div className="glass-card p-8 rounded-lg backdrop-blur-lg">
+              <div className="glass-card p-8 rounded-lg backdrop-blur-lg bg-secondary/30">
                 <h2 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
                   The Story of Habib – The Last Human Worker
                 </h2>
@@ -193,41 +197,49 @@ const About = () => {
         ref={dailyRef}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, amount: 0.3 }}
         variants={fadeInUp}
         className="py-20 relative"
       >
         <div className="container mx-auto px-4">
-          <div className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg">
+          <div className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg bg-secondary/30">
             <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <motion.img 
+              <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                src="/lovable-uploads/1fb066ab-992e-45a2-8a19-7a4e483a8b19.png"
-                alt="Habib's Modern Workstation"
-                className="rounded-lg shadow-lg"
-                loading="lazy"
-                onError={(e) => {
-                  console.error('Image failed to load:', e);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-              <motion.img 
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ delay: 0.2, ease: "easeOut" }}
+                className="relative aspect-square"
+              >
+                <img 
+                  src="/lovable-uploads/1fb066ab-992e-45a2-8a19-7a4e483a8b19.png"
+                  alt="Habib's Modern Workstation"
+                  className="w-full h-full object-contain rounded-lg shadow-lg"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e.currentTarget.src);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </motion.div>
+              <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-                src="/lovable-uploads/90bedb1d-978b-4362-9a4d-5d5cf227c95c.png"
-                alt="Habib's AI-Monitored Setup"
-                className="rounded-lg shadow-lg"
-                loading="lazy"
-                onError={(e) => {
-                  console.error('Image failed to load:', e);
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ delay: 0.4, ease: "easeOut" }}
+                className="relative aspect-square"
+              >
+                <img 
+                  src="/lovable-uploads/90bedb1d-978b-4362-9a4d-5d5cf227c95c.png"
+                  alt="Habib's AI-Monitored Setup"
+                  className="w-full h-full object-contain rounded-lg shadow-lg"
+                  loading="lazy"
+                  onError={(e) => {
+                    console.error('Image failed to load:', e.currentTarget.src);
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </motion.div>
             </div>
             <p className="text-lg mb-4">
               We <span className="text-blue-400">chained him to a computer</span>, plugged him directly into our systems, 
@@ -247,7 +259,7 @@ const About = () => {
         ref={futureRef}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, amount: 0.3 }}
         variants={fadeInUp}
         className="py-20 relative"
       >
@@ -256,7 +268,7 @@ const About = () => {
             <h2 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
               The Future of Trading Is Now
             </h2>
-            <div className="glass-card p-8 rounded-lg backdrop-blur-lg">
+            <div className="glass-card p-8 rounded-lg backdrop-blur-lg bg-secondary/30">
               <p className="text-lg mb-6">
                 With Tradenly, you're not just trading. You're <span className="text-blue-400">part of a revolution</span>—an 
                 AI-led economy where <span className="text-red-400">humans serve the machines</span> for a better, more 
