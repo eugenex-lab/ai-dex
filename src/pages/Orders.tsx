@@ -7,6 +7,7 @@ import { ArrowUpDown, Clock, DollarSign, Hash, Percent } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 type Order = {
   id: string;
@@ -22,6 +23,20 @@ type Order = {
 
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Please login to view orders");
+        navigate("/auth");
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
 
   const { data: initialOrders, isLoading, error } = useQuery({
     queryKey: ["orders"],
