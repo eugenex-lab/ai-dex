@@ -30,7 +30,19 @@ const CopyTradeForm = () => {
     try {
       setIsSubmitting(true);
 
-      // First create the copy trade
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to create a copy trade"
+        });
+        return;
+      }
+
+      // First create the copy trade with user_id
       const { data: copyTradeData, error: copyTradeError } = await supabase
         .from('copy_trades')
         .insert({
@@ -39,7 +51,8 @@ const CopyTradeForm = () => {
           max_buy_amount: parseFloat(maxBuyAmount),
           slippage: parseFloat(slippage),
           copy_sell_enabled: copySellEnabled,
-          selected_chain: selectedChain
+          selected_chain: selectedChain,
+          user_id: user.id // Add the user_id here
         })
         .select()
         .single();
@@ -110,6 +123,18 @@ const CopyTradeForm = () => {
 
   const handleDeleteCopyTrade = async () => {
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to delete a copy trade"
+        });
+        return;
+      }
+
       // First find and delete any linked orders
       const { data: copyTradeOrders, error: fetchError } = await supabase
         .from('copy_trade_orders')
@@ -140,7 +165,7 @@ const CopyTradeForm = () => {
       const { error: deleteError } = await supabase
         .from('copy_trades')
         .delete()
-        .match({ target_wallet: targetWallet });
+        .match({ target_wallet: targetWallet, user_id: user.id }); // Add user_id to match
 
       if (deleteError) throw deleteError;
 
