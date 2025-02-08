@@ -54,6 +54,12 @@ export const useCardanoWallet = () => {
         throw new Error(`${walletName} wallet not found`);
       }
 
+      // Check if wallet is already enabled
+      const isEnabled = await wallet.isEnabled().catch(() => false);
+      if (isEnabled) {
+        console.log('Wallet is already enabled, checking API...');
+      }
+
       // Add timeout for wallet connection
       const connectionPromise = wallet.enable();
       const timeoutPromise = new Promise((_, reject) => {
