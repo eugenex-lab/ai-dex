@@ -5,7 +5,7 @@ import { isCardanoWalletAvailable, getWalletInfo, type CardanoWalletName } from 
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false); 
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -18,7 +18,7 @@ export const useCardanoWallet = () => {
         title: `${displayName} Not Found`,
         description: (
           <div>
-            Please install {displayName} wallet first.{' '}
+            Please{" "}}{displayName}{" "}wallet first.{" "}
             <a 
               href={downloadUrl}
               target="_blank"
