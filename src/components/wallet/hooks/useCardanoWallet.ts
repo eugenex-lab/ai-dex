@@ -29,7 +29,7 @@ export const useCardanoWallet = () => {
             </a>
           </div>
         ),
-        variant: "destructive",
+        variant: "destructive"
       });
       return null;
     }
@@ -55,7 +55,7 @@ export const useCardanoWallet = () => {
       toast({
         title: "Connection Failed",
         description: message,
-        variant: "destructive",
+        variant: "destructive"
       });
       return null;
     }
@@ -72,6 +72,6 @@ export const useCardanoWallet = () => {
     disconnect,
     isConnected,
     address,
-    error,
+    error
   };
 };
