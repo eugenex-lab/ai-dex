@@ -9,6 +9,22 @@ interface WalletInfo {
   downloadUrl: string;
 }
 
+interface CardanoWallet {
+  enable: () => Promise<any>;
+  isEnabled: () => Promise<boolean>;
+  apiVersion: () => string;
+  name: string;
+  icon: string;
+}
+
+declare global {
+  interface Window {
+    cardano?: {
+      [key in CardanoWalletName]?: CardanoWallet;
+    };
+  }
+}
+
 const WALLET_INFO: Record<CardanoWalletName, WalletInfo> = {
   eternl: {
     displayName: 'Eternl',
@@ -65,7 +81,7 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
     ];
 
     const hasAllMethods = requiredMethods.every(method => {
-      const hasMethod = typeof wallet[method] === 'function';
+      const hasMethod = typeof wallet[method as keyof CardanoWallet] === 'function';
       if (!hasMethod) {
         console.log(`${walletName} wallet missing required method: ${method}`);
       }
@@ -77,15 +93,17 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
     }
 
     // Check API version compatibility
-    const getApiVersion = wallet.apiVersion;
-    if (typeof getApiVersion === 'function') {
-      const version = getApiVersion();
+    try {
+      const version = wallet.apiVersion();
       console.log(`${walletName} wallet API version:`, version);
       // Ensure minimum CIP-30 version
       if (version < '1.0.0') {
         console.log(`${walletName} wallet API version ${version} is not supported`);
         return false;
       }
+    } catch (error) {
+      console.error(`Error checking API version for ${walletName}:`, error);
+      return false;
     }
 
     return true;
