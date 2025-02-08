@@ -9,9 +9,8 @@ export const useCardanoWallet = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
-  const connectionAttempts = useRef(0);
   const { toast } = useToast();
-  const walletApiRef = useRef<any>(null);
+  const walletApiRef = useRef<CardanoApi | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -25,11 +24,13 @@ export const useCardanoWallet = () => {
   }, []);
 
   const connect = useCallback(async (walletName: CardanoWalletName): Promise<string | null> => {
+    if (isConnecting) return null;
+    
     try {
       setIsConnecting(true);
       setError(null);
       console.log(`Attempting to connect to ${walletName} wallet...`);
-      
+
       // First check if wallet is available
       const isAvailable = await isCardanoWalletAvailable(walletName);
       if (!isAvailable) {
@@ -72,8 +73,7 @@ export const useCardanoWallet = () => {
       setAddress(walletAddress);
       setIsConnected(true);
       setError(null);
-      connectionAttempts.current = 0;
-      
+
       toast({
         title: "Wallet Connected",
         description: `Successfully connected to ${walletName}`,
@@ -114,8 +114,12 @@ export const useCardanoWallet = () => {
     setIsConnected(false);
     setError(null);
     setIsConnecting(false);
-    connectionAttempts.current = 0;
-  }, []);
+
+    toast({
+      title: "Wallet Disconnected",
+      description: "Successfully disconnected from wallet",
+    });
+  }, [toast]);
 
   return {
     connect,

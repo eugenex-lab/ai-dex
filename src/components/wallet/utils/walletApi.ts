@@ -4,81 +4,35 @@ import { WALLET_INFO } from './config/walletConfig';
 import { formatCardanoAddress, isValidCardanoAddress } from './addressUtils';
 
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // 1 second delay between retries
-const CONNECTION_TIMEOUT = 15000; // 15 second timeout
-const ENABLE_TIMEOUT = 10000; // 10 second timeout for enable request
+const RETRY_DELAY = 1000;
+const CONNECTION_TIMEOUT = 15000;
+const ENABLE_TIMEOUT = 10000;
 
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
-  const logStep = (step: string) => console.log(`Getting Cardano address - ${step}`);
+  if (!api) throw new Error('API instance required');
   
   try {
-    logStep('starting');
-
-    const getAddressWithRetry = async (
-      getAddressFn: () => Promise<string[] | string>,
-      addressType: string,
-      attempt: number = 1
-    ): Promise<string | null> => {
-      try {
-        logStep(`attempting ${addressType} (try ${attempt}/${MAX_RETRIES})`);
-        
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Request timeout')), CONNECTION_TIMEOUT);
-        });
-
-        const addressPromise = getAddressFn();
-        const result = await Promise.race([addressPromise, timeoutPromise]);
-        const addresses = Array.isArray(result) ? result : [result];
-
-        for (const addr of addresses) {
-          if (!addr) continue;
-          const formattedAddr = formatCardanoAddress(addr);
-          if (isValidCardanoAddress(formattedAddr)) {
-            logStep(`found valid ${addressType}`);
-            console.log(`Valid Cardano address found: ${formattedAddr}`);
-            return formattedAddr;
-          }
-        }
-
-        if (attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-          return getAddressWithRetry(getAddressFn, addressType, attempt + 1);
-        }
-
-        return null;
-      } catch (error) {
-        console.warn(`Error getting ${addressType} (attempt ${attempt}):`, error);
-        if (attempt < MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-          return getAddressWithRetry(getAddressFn, addressType, attempt + 1);
-        }
-        throw error;
-      }
-    };
-
-    const addressAttempts = [
-      {
-        type: 'used address',
-        fn: () => api.getUsedAddresses(),
-      },
-      {
-        type: 'change address',
-        fn: () => api.getChangeAddress(),
-      },
-      {
-        type: 'reward address',
-        fn: () => api.getRewardAddresses(),
-      }
-    ];
-
-    for (const { type, fn } of addressAttempts) {
-      const address = await getAddressWithRetry(fn, type);
-      if (address) {
+    // Try getting used addresses first
+    const usedAddresses = await api.getUsedAddresses();
+    if (usedAddresses && usedAddresses.length > 0) {
+      const address = formatCardanoAddress(usedAddresses[0]);
+      if (isValidCardanoAddress(address)) {
+        console.log('Found valid used address:', address);
         return address;
       }
     }
 
-    throw new Error('No valid Cardano address found in wallet after all attempts');
+    // Fall back to change address if no used addresses
+    const changeAddress = await api.getChangeAddress();
+    if (changeAddress) {
+      const address = formatCardanoAddress(changeAddress);
+      if (isValidCardanoAddress(address)) {
+        console.log('Found valid change address:', address);
+        return address;
+      }
+    }
+
+    throw new Error('No valid address found');
   } catch (error) {
     console.error('Failed to get Cardano address:', error);
     throw error;
@@ -86,21 +40,31 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
 };
 
 export const enableWallet = async (
-  wallet: any,
+  wallet: WalletApi,
   walletName: CardanoWalletName
 ): Promise<CardanoApi> => {
   try {
+    // Check if already enabled first
+    const isEnabled = await wallet.isEnabled().catch(() => false);
+    if (isEnabled) {
+      console.log(`${walletName} wallet already enabled`);
+      return wallet as unknown as CardanoApi;
+    }
+
+    console.log(`Enabling ${walletName} wallet...`);
+    
+    // Set up timeout for enable request
     const enablePromise = wallet.enable();
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error('Enable request timeout')), ENABLE_TIMEOUT);
     });
 
-    const api = await Promise.race([enablePromise, timeoutPromise]);
+    const api = await Promise.race([enablePromise, timeoutPromise]) as CardanoApi;
 
-    // Verify required CIP-30 methods after enable
+    // Verify required API methods
     const requiredMethods = [
       'getNetworkId',
-      'getUtxos',
+      'getUtxos', 
       'getBalance',
       'getUsedAddresses',
       'getUnusedAddresses',
@@ -117,6 +81,7 @@ export const enableWallet = async (
       }
     }
 
+    console.log(`${walletName} wallet enabled successfully`);
     return api;
   } catch (error) {
     console.error(`Error enabling ${walletName} wallet:`, error);

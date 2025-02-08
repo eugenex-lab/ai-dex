@@ -1,10 +1,7 @@
 
 import { CardanoWalletName } from './types/cardanoTypes';
 
-// Basic CIP-30 required methods that should exist before enable
 const REQUIRED_PRE_METHODS = ['enable', 'isEnabled', 'apiVersion', 'name', 'icon'];
-
-// Methods that should exist after enable
 const REQUIRED_POST_METHODS = [
   'getNetworkId',
   'getUtxos',
@@ -65,11 +62,17 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
       return false;
     }
 
-    console.log(`${walletName} wallet is available`);
+    // Check if already enabled
+    const isEnabled = await wallet.isEnabled().catch(() => false);
+    if (!isEnabled) {
+      console.log(`${walletName} wallet is available but not enabled`);
+      return true; // Return true since we want to show the connect button
+    }
+
+    console.log(`${walletName} wallet is available and ready`);
     return true;
   } catch (error) {
     console.error(`Error checking ${walletName} wallet availability:`, error);
     return false;
   }
 };
-
