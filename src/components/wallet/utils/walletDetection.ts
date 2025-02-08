@@ -16,7 +16,7 @@ function parseVersion(version: string): Version {
 function isVersionSupported(version: string): boolean {
   const parsed = parseVersion(version);
   
-  // Support 0.x.x versions as long as they implement CIP-30
+  // Support 0.x.x versions as long as they implement CIP-30 
   if (parsed.major === 0 && parsed.minor >= 1) {
     return true;
   }
@@ -30,7 +30,7 @@ function isVersionSupported(version: string): boolean {
 }
 
 // Enhanced wallet detection with improved CIP-30 validation
-export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean => {
+export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): Promise<boolean> => {
   try {
     // Check if window.cardano exists
     if (typeof window === 'undefined' || !window.cardano) {
@@ -44,8 +44,8 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       return false;
     }
 
-    // Complete CIP-30 property validation
-    const requiredProperties = [
+    // First verify basic properties before enabling
+    const requiredBaseProperties = [
       'enable',
       'isEnabled',
       'apiVersion',
@@ -53,15 +53,15 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       'icon'
     ];
 
-    const hasAllProperties = requiredProperties.every(prop => {
+    const hasBaseProperties = requiredBaseProperties.every(prop => {
       const hasProp = wallet[prop as keyof WalletApi] !== undefined;
       if (!hasProp) {
-        console.log(`${walletName} wallet missing required property: ${prop}`);
+        console.log(`${walletName} wallet missing required base property: ${prop}`);
       }
       return hasProp;
     });
 
-    if (!hasAllProperties) {
+    if (!hasBaseProperties) {
       return false;
     }
 
@@ -72,14 +72,27 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       return false;
     }
 
-    // Validate version compatibility
     if (!isVersionSupported(version)) {
       console.log(`${walletName} wallet API version ${version} is not in supported range`);
       return false;
     }
 
-    // Log available features for debugging
-    const optionalFeatures = [
+    // Try to enable the wallet first
+    let api;
+    try {
+      const isEnabled = await wallet.isEnabled();
+      if (!isEnabled) {
+        api = await wallet.enable();
+      } else {
+        api = wallet;
+      }
+    } catch (error) {
+      console.error(`Error enabling ${walletName} wallet:`, error);
+      return false;
+    }
+
+    // Now check for required CIP-30 methods after enabling
+    const requiredMethods = [
       'getNetworkId',
       'getUtxos',
       'getCollateral',
@@ -93,12 +106,13 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       'submitTx'
     ];
 
-    optionalFeatures.forEach(feature => {
-      const hasFeature = wallet[feature as keyof WalletApi] !== undefined;
-      console.log(`${walletName} wallet ${hasFeature ? 'has' : 'does not have'} ${feature}`);
+    const hasAllMethods = requiredMethods.every(method => {
+      const hasMethod = typeof api[method] === 'function';
+      console.log(`${walletName} wallet ${hasMethod ? 'has' : 'does not have'} ${method}`);
+      return hasMethod;
     });
 
-    return true;
+    return hasAllMethods;
   } catch (error) {
     console.error(`Error checking ${walletName} wallet availability:`, error);
     return false;

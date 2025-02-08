@@ -24,7 +24,14 @@ const CARDANO_ADDRESS_PREFIXES = {
   }
 } as const;
 
-// Enhanced Cardano address validation with improved format detection
+interface CardanoAddressComponents {
+  networkId: number;
+  paymentPart: Buffer;
+  stakingPart?: Buffer;
+  type: 'base' | 'enterprise' | 'pointer' | 'reward';
+}
+
+// Enhanced address validation with proper format detection
 export const isValidCardanoAddress = (address: string): boolean => {
   if (!address) {
     console.log('Empty address provided for validation');
@@ -32,9 +39,10 @@ export const isValidCardanoAddress = (address: string): boolean => {
   }
   
   try {
+    // Log validation attempt
     console.log(`Address validation result for ${address.slice(0, 10)}...:`, 
       isValidAddressFormat(address));
-
+    
     return isValidAddressFormat(address);
   } catch (error) {
     console.error('Error validating Cardano address:', error);
@@ -49,7 +57,7 @@ function isValidAddressFormat(address: string): boolean {
   const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
   const isMainnetStake = address.startsWith('stake1') && address.length >= 58 && address.length <= 108;
 
-  // Testnet address formats
+  // Testnet address formats  
   const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
   const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
   const isTestnetStake = address.startsWith('stake_test1') && address.length >= 58 && address.length <= 108;
@@ -58,14 +66,7 @@ function isValidAddressFormat(address: string): boolean {
          isTestnetByron || isMainnetStake || isTestnetStake;
 }
 
-interface CardanoAddressComponents {
-  networkId: number;
-  paymentPart: Buffer;
-  stakingPart?: Buffer;
-  type: 'base' | 'enterprise' | 'pointer' | 'reward';
-}
-
-// Enhanced address parsing
+// Enhanced address parsing with proper error handling
 function parseCardanoAddressBytes(bytes: Buffer): CardanoAddressComponents | null {
   try {
     const header = bytes[0];
@@ -128,7 +129,7 @@ export const formatCardanoAddress = (address: string): string => {
         const prefix = CARDANO_ADDRESS_PREFIXES[network][type];
 
         try {
-          // Convert to bech32 format
+          // Convert to bech32 format with proper word limits
           const words = bech32.bech32.toWords(Buffer.concat([
             paymentPart,
             stakingPart || Buffer.alloc(0)
