@@ -40,10 +40,16 @@ export const useWalletConnection = () => {
 
     // Check Phantom connection
     if (typeof window.solana !== 'undefined') {
-      const handlePhantomAccountsChanged = () => {
-        if (window.solana?.publicKey) {
-          setConnectedAddress(window.solana.publicKey.toString());
-        } else {
+      const handlePhantomAccountsChanged = async () => {
+        try {
+          const resp = await window.solana?.connect();
+          if (resp?.publicKey) {
+            setConnectedAddress(resp.publicKey.toString());
+          } else {
+            setConnectedAddress(null);
+          }
+        } catch (err) {
+          console.error('Error checking Phantom connection:', err);
           setConnectedAddress(null);
         }
       };
