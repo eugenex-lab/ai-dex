@@ -45,23 +45,23 @@ interface Window {
     };
   };
   cardano?: {
-    nami?: CardanoWallet;
-    eternl?: CardanoWallet;
-    lace?: CardanoWallet;
-    yoroi?: CardanoWallet;
-    vespr?: CardanoWallet;
-    begin?: CardanoWallet;
-    tokeo?: CardanoWallet;
+    nami?: WalletApi;
+    eternl?: WalletApi;
+    lace?: WalletApi;
+    yoroi?: WalletApi;
+    vespr?: WalletApi;
+    begin?: WalletApi;
+    tokeo?: WalletApi;
   };
 }
 
-interface CardanoWallet {
+// CIP-30 API Spec interfaces
+interface WalletApi {
   enable: () => Promise<CardanoApi>;
   isEnabled: () => Promise<boolean>;
   apiVersion: string;
-  icon: string;
   name: string;
-  identifier: string;
+  icon: string;
 }
 
 interface CardanoApi {
