@@ -1,5 +1,4 @@
 export type PhantomChain = 'solana' | 'ethereum';
-export type CardanoWalletType = 'yoroi' | 'eternl' | 'lace' | 'begin' | 'tokeo' | 'vespr';
 
 export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
   // Check if we're in a browser environment
@@ -132,58 +131,3 @@ export const getChainConnection = async (chain: PhantomChain) => {
     throw error;
   }
 };
-
-export const isCardanoWalletAvailable = (walletType: CardanoWalletType): boolean => {
-  // Check if we're in a browser environment
-  if (typeof window === 'undefined') return false;
-  
-  switch (walletType) {
-    case 'eternl':
-      return !!window.cardano?.eternl;
-    case 'yoroi':
-      return !!window.cardano?.yoroi;
-    case 'lace':
-      return !!window.cardano?.lace;
-    case 'begin':
-      return !!window.cardano?.begin;
-    case 'tokeo':
-      return !!window.cardano?.tokeo;
-    case 'vespr':
-      return !!window.cardano?.vespr;
-    default:
-      return false;
-  }
-};
-
-export const CARDANO_WALLET_INFO = [
-  {
-    id: 'eternl',
-    name: 'Eternl',
-    icon: 'Eternl Icon.png',
-  },
-  {
-    id: 'yoroi',
-    name: 'Yoroi',
-    icon: 'Yoroi Icon.png',
-  },
-  {
-    id: 'lace',
-    name: 'Lace',
-    icon: 'lace icon.jpg',
-  },
-  {
-    id: 'begin',
-    name: 'Begin',
-    icon: 'Begin Icon.png',
-  },
-  {
-    id: 'tokeo',
-    name: 'Tokeo',
-    icon: 'Tokeo Icon.png',
-  },
-  {
-    id: 'vespr',
-    name: 'Vespr',
-    icon: 'Vespr Icon.png'
-  }
-];

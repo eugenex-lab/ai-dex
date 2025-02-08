@@ -7,8 +7,7 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger,
-  DialogDescription, 
+  DialogTrigger 
 } from "@/components/ui/dialog";
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
@@ -26,17 +25,8 @@ const WalletConnectButton = () => {
     handleDisconnect
   } = useWalletConnection();
 
-  const handleWalletSelection = (walletId: string) => {
-    if (['eternl', 'yoroi', 'lace', 'begin', 'tokeo', 'vespr'].includes(walletId)) {
-      // Handle Cardano wallets
-      handleWalletSelect(walletId);
-    } else if (walletId === 'phantom') {
-      // Default to Solana for Phantom
-      handleWalletSelect('phantom', 'solana' as PhantomChain);
-    } else {
-      // Handle other wallets
-      handleWalletSelect(walletId);
-    }
+  const handlePhantomSelect = () => {
+    handleWalletSelect('phantom', 'solana');
     setIsOpen(false);
   };
 
@@ -46,7 +36,7 @@ const WalletConnectButton = () => {
         address={connectedAddress}
         onDisconnect={handleDisconnect}
         isLoading={isLoading}
-        chain={currentChain as PhantomChain}
+        chain={currentChain}
       />
     );
   }
@@ -65,16 +55,20 @@ const WalletConnectButton = () => {
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold mb-2">Connect Wallet</DialogTitle>
-          <DialogDescription>
-            Choose your preferred wallet to connect with the application
-          </DialogDescription>
         </DialogHeader>
         
         <WalletOptions 
-          onSelect={handleWalletSelection}
+          onSelect={(wallet) => {
+            if (wallet === 'phantom') {
+              handlePhantomSelect();
+            } else {
+              handleWalletSelect(wallet);
+            }
+            setIsOpen(false);
+          }}
           isLoading={isLoading}
           loadingWallet={loadingWallet || undefined}
-          selectedChain={currentChain as PhantomChain}
+          selectedChain="solana"
         />
       </DialogContent>
     </Dialog>
