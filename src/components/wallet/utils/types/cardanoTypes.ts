@@ -8,29 +8,16 @@ export interface WalletInfo {
   downloadUrl: string;
 }
 
-// Additional CIP-30 interfaces
-export interface CardanoWallet {
-  enable: () => Promise<any>;
-  getUsedAddresses: () => Promise<string[]>;
-  isEnabled: () => Promise<boolean>;
-  apiVersion: string;
-  name: string;
-  icon: string;
-}
-
+// We'll use the WalletApi interface from window.d.ts instead of defining CardanoWallet
 export interface Cardano {
-  nami?: CardanoWallet;
-  eternl?: CardanoWallet;
-  lace?: CardanoWallet;
-  yoroi?: CardanoWallet;
-  vespr?: CardanoWallet;
-  begin?: CardanoWallet;
-  tokeo?: CardanoWallet;
+  nami?: WalletApi;
+  eternl?: WalletApi; 
+  lace?: WalletApi;
+  yoroi?: WalletApi;
+  vespr?: WalletApi;
+  begin?: WalletApi;
+  tokeo?: WalletApi;
 }
 
-// Window extension for Cardano
-declare global {
-  interface Window {
-    cardano?: Cardano;
-  }
-}
+// Note: Window interface is already declared in src/types/window.d.ts
+// so we don't need to redeclare it here
