@@ -92,7 +92,7 @@ export const getChainConnection = async (chain: PhantomChain) => {
       case 'solana': {
         try {
           // Clear any existing permissions first
-          await provider.request({ method: 'disconnect' });
+          await provider.disconnect();
         } catch (e) {
           console.log('No existing connection to disconnect');
         }
