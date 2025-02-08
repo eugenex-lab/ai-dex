@@ -2,12 +2,18 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useMetaMask } from "./useMetaMask";
+import { usePhantom } from "./usePhantom";
+import { updateWalletConnection, disconnectWallet } from "../utils/walletDatabase";
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWallet, setLoadingWallet] = useState<string | null>(null);
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const { connect: connectMetaMask } = useMetaMask(setConnectedAddress, updateWalletConnection);
+  const { connect: connectPhantom } = usePhantom(setConnectedAddress, updateWalletConnection);
 
   useEffect(() => {
     const checkConnectionStatus = async () => {
@@ -25,39 +31,6 @@ export const useWalletConnection = () => {
       }
     };
 
-    // Check MetaMask connection
-    if (typeof window.ethereum !== 'undefined') {
-      const handleAccountsChanged = (accounts: string[]) => {
-        setConnectedAddress(accounts[0] || null);
-      };
-
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      
-      return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-      };
-    }
-
-    // Check Phantom connection
-    if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
-      const handlePhantomAccountsChanged = () => {
-        if (window.solana?.publicKey) {
-          setConnectedAddress(window.solana.publicKey.toString());
-        } else {
-          setConnectedAddress(null);
-        }
-      };
-
-      // Initial check
-      handlePhantomAccountsChanged();
-
-      window.solana.on('accountChanged', handlePhantomAccountsChanged);
-      
-      return () => {
-        window.solana?.removeListener('accountChanged', handlePhantomAccountsChanged);
-      };
-    }
-
     checkConnectionStatus();
   }, []);
 
@@ -66,55 +39,16 @@ export const useWalletConnection = () => {
     setLoadingWallet(walletType);
 
     try {
+      let address: string | null = null;
+
       if (walletType === 'metamask') {
-        if (typeof window.ethereum === 'undefined') {
-          toast({
-            title: "MetaMask not found",
-            description: "Please install MetaMask extension first",
-            variant: "destructive"
-          });
-          return;
-        }
+        address = await connectMetaMask();
+      } else if (walletType === 'phantom') {
+        address = await connectPhantom();
+      }
 
-        await window.ethereum.request({
-          method: 'wallet_requestPermissions',
-          params: [{ eth_accounts: {} }]
-        });
-
-        const accounts = await window.ethereum.request({ 
-          method: 'eth_requestAccounts'
-        });
-
-        const address = accounts[0];
+      if (address) {
         setConnectedAddress(address);
-
-        await updateWalletConnection(address, walletType);
-      } 
-      else if (walletType === 'phantom') {
-        if (typeof window.solana === 'undefined' || !window.solana.isPhantom) {
-          toast({
-            title: "Phantom not found",
-            description: "Please install Phantom wallet extension first",
-            variant: "destructive"
-          });
-          return;
-        }
-
-        try {
-          // Request connection to Phantom
-          const connection = await window.solana.connect();
-          const address = connection.publicKey.toString();
-          setConnectedAddress(address);
-
-          await updateWalletConnection(address, walletType);
-        } catch (err: any) {
-          console.error('Phantom connection error:', err);
-          toast({
-            title: "Connection Failed",
-            description: err.message || "Failed to connect Phantom wallet",
-            variant: "destructive"
-          });
-        }
       }
     } catch (error: any) {
       console.error('Wallet connection error:', error);
@@ -129,69 +63,11 @@ export const useWalletConnection = () => {
     }
   };
 
-  const updateWalletConnection = async (address: string, walletType: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (user) {
-      await supabase
-        .from('profiles')
-        .update({
-          wallet_address: address,
-          wallet_connection_status: 'connected'
-        })
-        .eq('id', user.id);
-
-      await supabase
-        .from('wallet_connections')
-        .insert({
-          user_id: user.id,
-          wallet_address: address,
-          wallet_type: walletType,
-          status: 'active',
-          network: walletType === 'phantom' ? 'solana' : 'ethereum'
-        });
-
-      toast({
-        title: "Wallet Connected",
-        description: "Your wallet has been successfully connected",
-      });
-    }
-  };
-
   const handleDisconnect = async () => {
     try {
       setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        await supabase
-          .from('wallet_connections')
-          .update({
-            status: 'disconnected',
-            disconnected_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id)
-          .eq('status', 'active');
-
-        await supabase
-          .from('profiles')
-          .update({
-            wallet_address: null,
-            wallet_connection_status: 'disconnected'
-          })
-          .eq('id', user.id);
-
-        // Disconnect from Phantom if it's connected
-        if (window.solana && window.solana.isPhantom) {
-          await window.solana.disconnect();
-        }
-      }
-
+      await disconnectWallet();
       setConnectedAddress(null);
-      toast({
-        title: "Wallet Disconnected",
-        description: "Your wallet has been successfully disconnected",
-      });
     } catch (error: any) {
       console.error('Wallet disconnection error:', error);
       toast({
@@ -212,3 +88,4 @@ export const useWalletConnection = () => {
     handleDisconnect
   };
 };
+
