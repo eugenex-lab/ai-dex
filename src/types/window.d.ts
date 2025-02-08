@@ -6,15 +6,17 @@ interface Window {
     on: (event: string, callback: (params: any) => void) => void;
     removeListener: (event: string, callback: (params: any) => void) => void;
   };
-  solana?: {
-    isPhantom?: boolean;
-    publicKey?: { toString: () => string };
-    connect: () => Promise<{ publicKey: { toString: () => string } }>;
-    disconnect: () => Promise<void>;
-    on: (event: string, callback: (params: any) => void) => void;
-    removeListener: (event: string, callback: (params: any) => void) => void;
-    request?: (request: { method: string; params?: any[] }) => Promise<any>;
-    isConnected?: boolean;
-    connected?: boolean;
+  phantom?: {
+    solana?: {
+      isPhantom?: boolean;
+      publicKey?: { toString: () => string };
+      connect: () => Promise<{ publicKey: { toString: () => string } }>;
+      disconnect: () => Promise<void>;
+      on: (event: string, callback: (params: any) => void) => void;
+      removeListener: (event: string, callback: (params: any) => void) => void;
+      request?: (request: { method: string; params?: any[] }) => Promise<any>;
+      isConnected?: boolean;
+      connected?: boolean;
+    };
   };
 }

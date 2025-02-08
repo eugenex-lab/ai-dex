@@ -1,6 +1,5 @@
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { isPhantomAvailable, getPhantomInstallURL, formatWalletError } from "../utils/walletUtils";
 
@@ -18,8 +17,8 @@ export const usePhantom = (
         
         const handlePhantomAccountsChanged = () => {
           console.log('Phantom account changed event triggered');
-          if (window.solana?.publicKey) {
-            const newAddress = window.solana.publicKey.toString();
+          if (window.phantom?.solana?.publicKey) {
+            const newAddress = window.phantom.solana.publicKey.toString();
             console.log('New Phantom address:', newAddress);
             setConnectedAddress(newAddress);
           } else {
@@ -31,11 +30,11 @@ export const usePhantom = (
         // Initial check
         handlePhantomAccountsChanged();
 
-        window.solana.on('accountChanged', handlePhantomAccountsChanged);
+        window.phantom?.solana?.on('accountChanged', handlePhantomAccountsChanged);
         
         return () => {
           console.log('Cleaning up Phantom wallet listener');
-          window.solana?.removeListener('accountChanged', handlePhantomAccountsChanged);
+          window.phantom?.solana?.removeListener('accountChanged', handlePhantomAccountsChanged);
         };
       }
     };
@@ -77,8 +76,10 @@ export const usePhantom = (
 
     try {
       console.log('Requesting Phantom connection');
-      const connection = await window.solana.connect();
-      const address = connection.publicKey.toString();
+      const connection = await window.phantom?.solana?.connect();
+      const address = connection?.publicKey.toString();
+      if (!address) throw new Error('No address returned from wallet');
+      
       console.log('Phantom connected successfully:', address);
       
       await updateWalletConnection(address, 'phantom');

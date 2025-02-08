@@ -1,14 +1,10 @@
 
-export const isMetaMaskAvailable = () => {
-  return typeof window.ethereum !== 'undefined';
-};
-
 export const isPhantomAvailable = () => {
   // Check if we're in a browser environment
   if (typeof window === 'undefined') return false;
   
   // Check for Phantom provider
-  const provider = window.solana;
+  const provider = window.phantom?.solana;
   
   if (!provider) {
     console.log('Phantom wallet: No provider found');
