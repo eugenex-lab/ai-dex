@@ -18,62 +18,63 @@ export const usePhantom = (
   const [selectedChain, setSelectedChain] = useState<PhantomChain>('solana');
 
   useEffect(() => {
-    const initPhantom = async () => {
-      if (isPhantomAvailable(selectedChain)) {
-        console.log(`Initializing Phantom ${selectedChain} wallet listener`);
-        
-        const handleAccountChange = () => {
-          console.log(`Phantom ${selectedChain} account changed event triggered`);
-          
-          if (selectedChain === 'solana' && window.phantom?.solana?.publicKey) {
-            const newAddress = window.phantom.solana.publicKey.toString();
-            console.log('New Phantom address:', newAddress);
-            setConnectedAddress(newAddress);
-          } else if ((selectedChain === 'ethereum' || selectedChain === 'polygon') && window.phantom?.[selectedChain]?.selectedAddress) {
-            setConnectedAddress(window.phantom[selectedChain]!.selectedAddress!);
-          } else if (selectedChain === 'bitcoin') {
-            // Bitcoin account changes require re-requesting accounts
-            window.phantom?.bitcoin?.request({ method: 'requestAccounts' })
-              .then(accounts => {
-                if (accounts?.[0]?.address) {
-                  setConnectedAddress(accounts[0].address);
-                } else {
-                  setConnectedAddress(null);
-                }
-              })
-              .catch(() => setConnectedAddress(null));
-          } else {
-            console.log('No Phantom address available, setting address to null');
-            setConnectedAddress(null);
-          }
-        };
-
-        // Set up chain-specific event listeners
-        if (selectedChain === 'solana') {
-          window.phantom?.solana?.on('accountChanged', handleAccountChange);
-        } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
-          window.phantom?.[selectedChain]?.on('accountsChanged', handleAccountChange);
-        } else if (selectedChain === 'bitcoin') {
-          window.phantom?.bitcoin?.on('accountsChanged', handleAccountChange);
-        }
-
-        // Initial check
-        handleAccountChange();
-        
-        return () => {
-          console.log(`Cleaning up Phantom ${selectedChain} wallet listener`);
-          if (selectedChain === 'solana') {
-            window.phantom?.solana?.removeListener('accountChanged', handleAccountChange);
-          } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
-            window.phantom?.[selectedChain]?.removeListener('accountsChanged', handleAccountChange);
-          } else if (selectedChain === 'bitcoin') {
-            window.phantom?.bitcoin?.removeListener('accountsChanged', handleAccountChange);
-          }
-        };
+    const setupPhantomListeners = async () => {
+      if (!isPhantomAvailable(selectedChain)) {
+        console.log(`Phantom ${selectedChain} provider not available`);
+        return;
       }
+      
+      const provider = window.phantom?.[selectedChain];
+      if (!provider) return;
+
+      const handleAccountChange = () => {
+        console.log(`Phantom ${selectedChain} account changed event triggered`);
+        
+        // Handle chain-specific account changes
+        if (selectedChain === 'solana' && window.phantom?.solana?.publicKey) {
+          const newAddress = window.phantom.solana.publicKey.toString();
+          console.log('New Phantom address:', newAddress);
+          setConnectedAddress(newAddress);
+        } else if ((selectedChain === 'ethereum' || selectedChain === 'polygon') && provider.selectedAddress) {
+          setConnectedAddress(provider.selectedAddress);
+        } else if (selectedChain === 'bitcoin') {
+          provider.request({ method: 'requestAccounts' })
+            .then(accounts => {
+              if (accounts?.[0]?.address) {
+                setConnectedAddress(accounts[0].address);
+              } else {
+                setConnectedAddress(null);
+              }
+            })
+            .catch(() => setConnectedAddress(null));
+        } else {
+          console.log('No Phantom address available, setting address to null');
+          setConnectedAddress(null);
+        }
+      };
+
+      // Set up chain-specific event listeners
+      if (selectedChain === 'solana') {
+        provider.on('accountChanged', handleAccountChange);
+      } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
+        provider.on('accountsChanged', handleAccountChange);
+      } else if (selectedChain === 'bitcoin') {
+        provider.on('accountsChanged', handleAccountChange);
+      }
+
+      return () => {
+        console.log(`Cleaning up Phantom ${selectedChain} wallet listener`);
+        if (selectedChain === 'solana') {
+          provider.removeListener('accountChanged', handleAccountChange);
+        } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
+          provider.removeListener('accountsChanged', handleAccountChange);
+        } else if (selectedChain === 'bitcoin') {
+          provider.removeListener('accountsChanged', handleAccountChange);
+        }
+      };
     };
 
-    initPhantom();
+    setupPhantomListeners();
   }, [setConnectedAddress, selectedChain]);
 
   const connect = async (chain: PhantomChain = 'solana') => {

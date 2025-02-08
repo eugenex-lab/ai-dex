@@ -70,7 +70,7 @@ export const getChainConnection = async (chain: PhantomChain) => {
   }
 
   const provider = window.phantom[chain];
-  if (!provider || !isPhantomAvailable(chain)) {
+  if (!provider || !provider.isPhantom) {
     throw new Error(`Phantom ${chain} provider not found or not enabled`);
   }
 
@@ -80,6 +80,7 @@ export const getChainConnection = async (chain: PhantomChain) => {
     switch (chain) {
       case 'solana': {
         try {
+          // Clear any existing permissions first
           await provider.request({ method: 'disconnect' });
         } catch (e) {
           console.log('No existing connection to disconnect');
@@ -92,9 +93,10 @@ export const getChainConnection = async (chain: PhantomChain) => {
       case 'ethereum':
       case 'polygon': {
         try {
+          // Clear existing permissions
           await provider.request({ 
-            method: 'wallet_requestPermissions', 
-            params: [{ eth_accounts: {} }] 
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }]
           });
         } catch (e) {
           console.log('No existing permissions to clear');
@@ -108,17 +110,28 @@ export const getChainConnection = async (chain: PhantomChain) => {
       
       case 'bitcoin': {
         try {
+          // Clear existing connection
           await provider.request({ method: 'disconnect' });
         } catch (e) {
           console.log('No existing connection to disconnect');
         }
-        const accounts = await provider.request({ method: 'requestAccounts' });
+        const accounts = await provider.request({ 
+          method: 'requestAccounts',
+          params: []
+        });
+        if (!accounts?.[0]?.address) {
+          throw new Error('No Bitcoin address returned');
+        }
         address = accounts[0].address;
         break;
       }
       
       default:
         throw new Error(`Unsupported chain: ${chain}`);
+    }
+
+    if (!address) {
+      throw new Error('No address returned from wallet');
     }
 
     return {
