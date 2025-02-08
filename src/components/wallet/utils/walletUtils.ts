@@ -18,6 +18,17 @@ export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
     return false;
   }
   
+  // Additional chain-specific checks
+  if (chain === 'bitcoin' && !provider[chain].request) {
+    console.log('Phantom wallet: Bitcoin provider missing request method');
+    return false;
+  }
+
+  if ((chain === 'ethereum' || chain === 'polygon') && !provider[chain].request) {
+    console.log(`Phantom wallet: ${chain} provider missing request method`);
+    return false;
+  }
+  
   console.log(`Phantom wallet: ${chain} provider detected and ready`);
   return true;
 };
@@ -85,7 +96,9 @@ export const getChainConnection = async (chain: PhantomChain) => {
         } catch (e) {
           console.log('No existing connection to disconnect');
         }
-        const response = await provider.request({ method: 'connect' });
+        
+        // Request new connection
+        const response = await provider.connect();
         address = response.publicKey.toString();
         break;
       }
@@ -101,9 +114,15 @@ export const getChainConnection = async (chain: PhantomChain) => {
         } catch (e) {
           console.log('No existing permissions to clear');
         }
+        
+        // Request new connection
         const accounts = await provider.request({ 
           method: 'eth_requestAccounts' 
         });
+        
+        if (!accounts?.[0]) {
+          throw new Error('No account returned');
+        }
         address = accounts[0];
         break;
       }
@@ -115,10 +134,12 @@ export const getChainConnection = async (chain: PhantomChain) => {
         } catch (e) {
           console.log('No existing connection to disconnect');
         }
+        
+        // Request new accounts
         const accounts = await provider.request({ 
-          method: 'requestAccounts',
-          params: []
+          method: 'requestAccounts'
         });
+        
         if (!accounts?.[0]?.address) {
           throw new Error('No Bitcoin address returned');
         }

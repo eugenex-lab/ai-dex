@@ -27,43 +27,42 @@ export const usePhantom = (
       const provider = window.phantom?.[selectedChain];
       if (!provider) return;
 
-      const handleAccountChange = () => {
+      const handleAccountChange = async () => {
         console.log(`Phantom ${selectedChain} account changed event triggered`);
         
-        if (selectedChain === 'solana' && window.phantom?.solana?.publicKey) {
-          const newAddress = window.phantom.solana.publicKey.toString();
-          console.log('New Phantom address:', newAddress);
-          setConnectedAddress(newAddress);
-        } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
-          if (provider.request) {
-            provider.request({ method: 'eth_requestAccounts' })
-              .then((accounts: string[]) => {
-                if (accounts?.[0]) {
-                  setConnectedAddress(accounts[0]);
-                } else {
-                  setConnectedAddress(null);
-                }
-              })
-              .catch(() => setConnectedAddress(null));
+        try {
+          if (selectedChain === 'solana' && window.phantom?.solana?.publicKey) {
+            const newAddress = window.phantom.solana.publicKey.toString();
+            console.log('New Phantom address:', newAddress);
+            setConnectedAddress(newAddress);
+          } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
+            if (provider.request) {
+              const accounts = await provider.request({ method: 'eth_accounts' });
+              if (accounts?.[0]) {
+                setConnectedAddress(accounts[0]);
+              } else {
+                setConnectedAddress(null);
+              }
+            } else {
+              setConnectedAddress(null);
+            }
+          } else if (selectedChain === 'bitcoin') {
+            if (provider.request) {
+              const accounts = await provider.request({ method: 'accounts' });
+              if (accounts?.[0]?.address) {
+                setConnectedAddress(accounts[0].address);
+              } else {
+                setConnectedAddress(null);
+              }
+            } else {
+              setConnectedAddress(null);
+            }
           } else {
+            console.log('No Phantom address available, setting address to null');
             setConnectedAddress(null);
           }
-        } else if (selectedChain === 'bitcoin') {
-          if (provider.request) {
-            provider.request({ method: 'requestAccounts' })
-              .then((response: { address: string }[]) => {
-                if (response?.[0]?.address) {
-                  setConnectedAddress(response[0].address);
-                } else {
-                  setConnectedAddress(null);
-                }
-              })
-              .catch(() => setConnectedAddress(null));
-          } else {
-            setConnectedAddress(null);
-          }
-        } else {
-          console.log('No Phantom address available, setting address to null');
+        } catch (error) {
+          console.error('Error handling account change:', error);
           setConnectedAddress(null);
         }
       };
@@ -76,6 +75,9 @@ export const usePhantom = (
       } else if (selectedChain === 'bitcoin') {
         provider.on('accountsChanged', handleAccountChange);
       }
+
+      // Don't automatically trigger connection - wait for user action
+      // This prevents auto-connection to previously connected wallets
 
       return () => {
         console.log(`Cleaning up Phantom ${selectedChain} wallet listener`);
