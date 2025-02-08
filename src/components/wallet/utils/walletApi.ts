@@ -24,6 +24,13 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
           const addresses = Array.isArray(result) ? result : [result];
 
           for (const addr of addresses) {
+            // First try direct validation if already in bech32 format
+            if (isValidCardanoAddress(addr)) {
+              logStep(`found valid ${addressType}`);
+              return addr;
+            }
+            
+            // Then try formatting if hex encoded
             const formatted = formatCardanoAddress(addr);
             if (isValidCardanoAddress(formatted)) {
               logStep(`found valid ${addressType}`);
@@ -61,7 +68,10 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
 
     for (const { type, fn } of addressAttempts) {
       const address = await getAddressWithRetry(fn, type);
-      if (address) return address;
+      if (address) {
+        console.log('Wallet address:', address);
+        return address;
+      }
     }
 
     throw new Error('No valid Cardano address found in wallet after all attempts');

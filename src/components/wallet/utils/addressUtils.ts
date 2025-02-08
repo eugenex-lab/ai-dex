@@ -2,6 +2,28 @@
 import { Buffer } from 'buffer/';
 import * as bech32 from 'bech32';
 
+const CARDANO_NETWORK_IDS = {
+  mainnet: 1,
+  testnet: 0
+} as const;
+
+const CARDANO_ADDRESS_PREFIXES = {
+  mainnet: {
+    base: 'addr1',
+    stake: 'stake1',
+    pointer: 'addr1_pointer',
+    enterprise: 'addr1v',
+    reward: 'stake1'
+  },
+  testnet: {
+    base: 'addr_test1',
+    stake: 'stake_test1',
+    pointer: 'addr_test1_pointer',
+    enterprise: 'addr_test1v',
+    reward: 'stake_test1'
+  }
+} as const;
+
 // Enhanced Cardano address validation with improved format detection
 export const isValidCardanoAddress = (address: string): boolean => {
   if (!address) {
@@ -26,6 +48,46 @@ export const isValidCardanoAddress = (address: string): boolean => {
   }
 };
 
+interface CardanoAddressComponents {
+  networkId: number;
+  paymentPart: Buffer;
+  stakingPart?: Buffer;
+  type: 'base' | 'enterprise' | 'pointer' | 'reward';
+}
+
+function parseCardanoAddressBytes(bytes: Buffer): CardanoAddressComponents | null {
+  try {
+    // First byte contains header info
+    const header = bytes[0];
+    const networkId = header & 0x0f;
+    const addressType = (header & 0xf0) >> 4;
+    
+    // Extract payment part (always present)
+    const paymentPart = bytes.slice(1, 29);
+    
+    // Check if we have staking part
+    let stakingPart: Buffer | undefined;
+    let type: CardanoAddressComponents['type'] = 'base';
+    
+    if (bytes.length > 29) {
+      stakingPart = bytes.slice(29, 57);
+      type = addressType === 0 ? 'base' : 
+             addressType === 6 ? 'enterprise' : 
+             addressType === 4 ? 'pointer' : 'reward';
+    }
+
+    return {
+      networkId,
+      paymentPart,
+      stakingPart,
+      type
+    };
+  } catch (error) {
+    console.error('Error parsing Cardano address bytes:', error);
+    return null;
+  }
+}
+
 // Enhanced address formatting with proper CIP-30 compliance
 export const formatCardanoAddress = (address: string): string => {
   try {
@@ -34,7 +96,6 @@ export const formatCardanoAddress = (address: string): string => {
       return '';
     }
 
-    // Log initial address for debugging
     console.log('Formatting address input:', address);
     
     // If already in valid bech32 format, return as is
@@ -46,12 +107,27 @@ export const formatCardanoAddress = (address: string): string => {
     if (address.match(/^[0-9a-fA-F]+$/)) {
       try {
         const bytes = Buffer.from(address, 'hex');
-        // Try to decode as bech32 if it's a properly encoded address
+        const components = parseCardanoAddressBytes(bytes);
+        
+        if (!components) {
+          throw new Error('Failed to parse address components');
+        }
+
+        const { networkId, paymentPart, stakingPart, type } = components;
+        const network = networkId === CARDANO_NETWORK_IDS.mainnet ? 'mainnet' : 'testnet';
+        const prefix = CARDANO_ADDRESS_PREFIXES[network][type];
+
+        // Convert to bech32 format
+        const words = bech32.bech32.toWords(Buffer.concat([
+          paymentPart,
+          stakingPart || Buffer.alloc(0)
+        ]));
+
         try {
-          const words = bech32.bech32.toWords(bytes);
-          const encoded = bech32.bech32.encode('addr', words);
+          const encoded = bech32.bech32.encode(prefix, words);
+          console.log('Successfully converted hex to bech32 address:', encoded);
+          
           if (isValidCardanoAddress(encoded)) {
-            console.log('Successfully converted hex to bech32 address:', encoded);
             return encoded;
           }
         } catch (error) {
@@ -66,7 +142,6 @@ export const formatCardanoAddress = (address: string): string => {
     if (address.startsWith('\\x')) {
       try {
         const bytes = Buffer.from(address.slice(2), 'hex');
-        // Try to extract bech32 address from CBOR bytes
         const extracted = bytes.toString('ascii').replace(/[^\x20-\x7E]/g, '');
         if (isValidCardanoAddress(extracted)) {
           return extracted;
