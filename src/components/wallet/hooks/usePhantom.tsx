@@ -30,23 +30,38 @@ export const usePhantom = (
       const handleAccountChange = () => {
         console.log(`Phantom ${selectedChain} account changed event triggered`);
         
-        // Handle chain-specific account changes
         if (selectedChain === 'solana' && window.phantom?.solana?.publicKey) {
           const newAddress = window.phantom.solana.publicKey.toString();
           console.log('New Phantom address:', newAddress);
           setConnectedAddress(newAddress);
-        } else if ((selectedChain === 'ethereum' || selectedChain === 'polygon') && provider.selectedAddress) {
-          setConnectedAddress(provider.selectedAddress);
+        } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
+          if (provider.request) {
+            provider.request({ method: 'eth_requestAccounts' })
+              .then((accounts: string[]) => {
+                if (accounts?.[0]) {
+                  setConnectedAddress(accounts[0]);
+                } else {
+                  setConnectedAddress(null);
+                }
+              })
+              .catch(() => setConnectedAddress(null));
+          } else {
+            setConnectedAddress(null);
+          }
         } else if (selectedChain === 'bitcoin') {
-          provider.request({ method: 'requestAccounts' })
-            .then(accounts => {
-              if (accounts?.[0]?.address) {
-                setConnectedAddress(accounts[0].address);
-              } else {
-                setConnectedAddress(null);
-              }
-            })
-            .catch(() => setConnectedAddress(null));
+          if (provider.request) {
+            provider.request({ method: 'requestAccounts' })
+              .then((response: { address: string }[]) => {
+                if (response?.[0]?.address) {
+                  setConnectedAddress(response[0].address);
+                } else {
+                  setConnectedAddress(null);
+                }
+              })
+              .catch(() => setConnectedAddress(null));
+          } else {
+            setConnectedAddress(null);
+          }
         } else {
           console.log('No Phantom address available, setting address to null');
           setConnectedAddress(null);
