@@ -1,16 +1,16 @@
 
-import 'vite/modulepreload-polyfill';
-import { Buffer } from 'buffer';
-import { createRoot } from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import App from './App.tsx';
-import './index.css';
-
 // Polyfills for Mesh SDK
+import { Buffer } from 'buffer';
 window.global = window;
 window.Buffer = Buffer;
 globalThis.global = window;
 globalThis.Buffer = Buffer;
+
+import 'vite/modulepreload-polyfill';
+import { createRoot } from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import App from './App.tsx';
+import './index.css';
 
 // Create a client
 const queryClient = new QueryClient({

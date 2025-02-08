@@ -13,8 +13,7 @@ import {
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
-
-type PhantomChain = 'solana' | 'ethereum' | 'polygon' | 'bitcoin';
+import { type PhantomChain } from "./utils/walletUtils";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +32,7 @@ const WalletConnectButton = () => {
       handleWalletSelect(walletId);
     } else if (walletId === 'phantom') {
       // Default to Solana for Phantom
-      handleWalletSelect('phantom', 'solana' as PhantomChain);
+      handleWalletSelect('phantom', 'solana');
     } else {
       // Handle other wallets
       handleWalletSelect(walletId);
@@ -75,7 +74,7 @@ const WalletConnectButton = () => {
           onSelect={handleWalletSelection}
           isLoading={isLoading}
           loadingWallet={loadingWallet || undefined}
-          selectedChain={currentChain as PhantomChain}
+          selectedChain={currentChain}
         />
       </DialogContent>
     </Dialog>
