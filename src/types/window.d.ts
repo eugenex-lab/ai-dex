@@ -57,11 +57,14 @@ interface Window {
 
 // CIP-30 API Spec interfaces
 interface WalletApi {
+  apiVersion: string;
   enable: () => Promise<CardanoApi>;
   isEnabled: () => Promise<boolean>;
-  apiVersion: string;
   name: string;
   icon: string;
+  experimental?: {
+    [key: string]: unknown;
+  };
 }
 
 interface CardanoApi {
@@ -69,9 +72,14 @@ interface CardanoApi {
   getUtxos: () => Promise<string[] | undefined>;
   getBalance: () => Promise<string>;
   getUsedAddresses: () => Promise<string[]>;
+  getUnusedAddresses: () => Promise<string[]>;
   getChangeAddress: () => Promise<string>;
   getRewardAddresses: () => Promise<string[]>;
-  signTx: (tx: string, partial?: boolean) => Promise<string>;
+  signTx: (tx: string, partialSign?: boolean) => Promise<string>;
   signData: (addr: string, payload: string) => Promise<string>;
   submitTx: (tx: string) => Promise<string>;
+  getCollateral?: () => Promise<string[]>;
+  experimental?: {
+    [key: string]: unknown;
+  };
 }
