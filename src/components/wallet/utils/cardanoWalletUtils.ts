@@ -1,4 +1,3 @@
-
 // Note: importing buffer with trailing slash is important for browser compatibility  
 import { Buffer } from 'buffer/';
 
@@ -7,22 +6,6 @@ export type CardanoWalletName = 'eternl' | 'nami' | 'lace' | 'yoroi' | 'vespr' |
 interface WalletInfo {
   displayName: string;
   downloadUrl: string;
-}
-
-interface CardanoWallet {
-  enable: () => Promise<any>;
-  isEnabled: () => Promise<boolean>;
-  apiVersion: () => string;
-  name: string;
-  icon: string;
-}
-
-declare global {
-  interface Window {
-    cardano?: {
-      [key in CardanoWalletName]?: CardanoWallet;
-    };
-  }
 }
 
 const WALLET_INFO: Record<CardanoWalletName, WalletInfo> = {
@@ -81,7 +64,7 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
     ];
 
     const hasAllMethods = requiredMethods.every(method => {
-      const hasMethod = typeof wallet[method as keyof CardanoWallet] === 'function';
+      const hasMethod = typeof wallet[method as keyof WalletApi] === 'function';
       if (!hasMethod) {
         console.log(`${walletName} wallet missing required method: ${method}`);
       }
@@ -94,10 +77,14 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
 
     // Check API version compatibility
     try {
-      const version = wallet.apiVersion();
+      const version = wallet.apiVersion;
+      if (typeof version !== 'string') {
+        return false;
+      }
       console.log(`${walletName} wallet API version:`, version);
-      // Ensure minimum CIP-30 version
-      if (version < '1.0.0') {
+      // Parse version string and compare
+      const [major] = version.split('.').map(Number);
+      if (major < 1) {
         console.log(`${walletName} wallet API version ${version} is not supported`);
         return false;
       }
