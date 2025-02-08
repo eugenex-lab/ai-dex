@@ -79,13 +79,12 @@ export const getChainConnection = async (chain: PhantomChain) => {
     
     switch (chain) {
       case 'solana': {
-        // Force disconnect before connecting to ensure fresh connection
         try {
           await provider.request({ method: 'disconnect' });
         } catch (e) {
           console.log('No existing connection to disconnect');
         }
-        const response = await provider.connect();
+        const response = await provider.request({ method: 'connect' });
         address = response.publicKey.toString();
         break;
       }
@@ -93,11 +92,16 @@ export const getChainConnection = async (chain: PhantomChain) => {
       case 'ethereum':
       case 'polygon': {
         try {
-          await provider.request({ method: 'wallet_requestPermissions', params: [{ eth_accounts: {} }] });
+          await provider.request({ 
+            method: 'wallet_requestPermissions', 
+            params: [{ eth_accounts: {} }] 
+          });
         } catch (e) {
           console.log('No existing permissions to clear');
         }
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+        const accounts = await provider.request({ 
+          method: 'eth_requestAccounts' 
+        });
         address = accounts[0];
         break;
       }
