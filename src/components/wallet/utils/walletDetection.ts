@@ -66,7 +66,7 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       return false;
     }
 
-    // Check API version compatibility (as a property, not a method)
+    // Check API version compatibility
     const version = wallet.apiVersion;
     if (typeof version !== 'string') {
       console.log(`${walletName} wallet has invalid API version type`);
@@ -79,7 +79,7 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       return false;
     }
 
-    // Additional capability checks for specific wallet features
+    // Log available features for debugging
     const optionalFeatures = [
       'getNetworkId',
       'getUtxos',
@@ -94,7 +94,6 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       'submitTx'
     ];
 
-    // Log available features for debugging
     optionalFeatures.forEach(feature => {
       const hasFeature = wallet[feature as keyof WalletApi] !== undefined;
       console.log(`${walletName} wallet ${hasFeature ? 'has' : 'does not have'} ${feature}`);

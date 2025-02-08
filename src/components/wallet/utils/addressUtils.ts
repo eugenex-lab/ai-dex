@@ -1,6 +1,6 @@
 
-// Note: importing buffer with trailing slash is important for browser compatibility  
 import { Buffer } from 'buffer/';
+import * as bech32 from 'bech32';
 
 // Enhanced Cardano address validation with improved format detection
 export const isValidCardanoAddress = (address: string): boolean => {
@@ -10,7 +10,7 @@ export const isValidCardanoAddress = (address: string): boolean => {
   }
   
   try {
-    // Comprehensive format validation
+    // Comprehensive format validation for all Cardano address types
     const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
     const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
     const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
@@ -26,7 +26,7 @@ export const isValidCardanoAddress = (address: string): boolean => {
   }
 };
 
-// Enhanced address formatting with improved decoding support
+// Enhanced address formatting with proper CIP-30 compliance
 export const formatCardanoAddress = (address: string): string => {
   try {
     if (!address) {
@@ -34,55 +34,49 @@ export const formatCardanoAddress = (address: string): string => {
       return '';
     }
 
-    // Log raw address for debugging
+    // Log initial address for debugging
     console.log('Formatting address input:', address);
     
-    // Already formatted addresses
+    // If already in valid bech32 format, return as is
     if (isValidCardanoAddress(address)) {
       return address;
     }
 
-    // Handle different encoding formats
-    let decodedAddress = '';
-
-    // Try hex decoding
+    // Handle hex-encoded CIP-30 addresses
     if (address.match(/^[0-9a-fA-F]+$/)) {
       try {
-        decodedAddress = Buffer.from(address, 'hex').toString('utf8');
-        console.log('Attempted hex decode result:', decodedAddress);
-        if (isValidCardanoAddress(decodedAddress)) {
-          return decodedAddress;
+        const bytes = Buffer.from(address, 'hex');
+        // Try to decode as bech32 if it's a properly encoded address
+        try {
+          const words = bech32.bech32.toWords(bytes);
+          const encoded = bech32.bech32.encode('addr', words);
+          if (isValidCardanoAddress(encoded)) {
+            console.log('Successfully converted hex to bech32 address:', encoded);
+            return encoded;
+          }
+        } catch (error) {
+          console.log('Not a valid bech32 address:', error);
         }
       } catch (error) {
         console.log('Hex decoding failed:', error);
       }
     }
 
-    // Try Base58 decoding
-    try {
-      const base58Decoded = Buffer.from(address, 'base58').toString('utf8');
-      console.log('Attempted base58 decode result:', base58Decoded);
-      if (isValidCardanoAddress(base58Decoded)) {
-        return base58Decoded;
-      }
-    } catch (error) {
-      console.log('Base58 decoding failed:', error);
-    }
-
-    // Try CBOR decoding if the address appears to be CBOR encoded
+    // Handle CBOR-encoded addresses
     if (address.startsWith('\\x')) {
       try {
-        decodedAddress = Buffer.from(address.slice(2), 'hex').toString('utf8');
-        console.log('Attempted CBOR decode result:', decodedAddress);
-        if (isValidCardanoAddress(decodedAddress)) {
-          return decodedAddress;
+        const bytes = Buffer.from(address.slice(2), 'hex');
+        // Try to extract bech32 address from CBOR bytes
+        const extracted = bytes.toString('ascii').replace(/[^\x20-\x7E]/g, '');
+        if (isValidCardanoAddress(extracted)) {
+          return extracted;
         }
       } catch (error) {
         console.log('CBOR decoding failed:', error);
       }
     }
 
-    // If all decoding attempts fail, try to clean the address string
+    // Try to clean the address string as last resort
     const cleanedAddress = address.replace(/[^\x20-\x7E]/g, '');
     if (isValidCardanoAddress(cleanedAddress)) {
       return cleanedAddress;
