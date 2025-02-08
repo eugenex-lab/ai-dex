@@ -1,4 +1,3 @@
-import { toast } from "@/hooks/use-toast";
 
 export type PhantomChain = 'solana' | 'ethereum' | 'bitcoin' | 'polygon';
 
@@ -116,3 +115,4 @@ export const getChainConnection = async (chain: PhantomChain) => {
     throw error;
   }
 };
+
