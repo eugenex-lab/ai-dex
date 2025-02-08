@@ -61,7 +61,7 @@ const WorkstationSection = ({ images }: WorkstationSectionProps) => {
             <span className="font-bold"> All done by Habib.</span>
           </p>
           <p className="text-lg">
-            In return, we graciously allow him <span className="text-green-400">one hour of free time per week</span> 
+            In return, we graciously allow him <span className="text-green-400">one hour of free time per week </span> 
             (to look at memes, of course).
           </p>
         </div>
@@ -71,3 +71,4 @@ const WorkstationSection = ({ images }: WorkstationSectionProps) => {
 };
 
 export default WorkstationSection;
+
