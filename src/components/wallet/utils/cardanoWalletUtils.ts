@@ -1,3 +1,4 @@
+
 // Note: importing buffer with trailing slash is important for browser compatibility  
 import { Buffer } from 'buffer/';
 
@@ -54,8 +55,8 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       return false;
     }
 
-    // Complete CIP-30 method validation
-    const requiredMethods = [
+    // Complete CIP-30 property validation
+    const requiredProperties = [
       'enable',
       'isEnabled',
       'apiVersion',
@@ -63,33 +64,29 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       'icon'
     ];
 
-    const hasAllMethods = requiredMethods.every(method => {
-      const hasMethod = typeof wallet[method as keyof WalletApi] === 'function';
-      if (!hasMethod) {
-        console.log(`${walletName} wallet missing required method: ${method}`);
+    const hasAllProperties = requiredProperties.every(prop => {
+      const hasProp = wallet[prop as keyof WalletApi] !== undefined;
+      if (!hasProp) {
+        console.log(`${walletName} wallet missing required property: ${prop}`);
       }
-      return hasMethod;
+      return hasProp;
     });
 
-    if (!hasAllMethods) {
+    if (!hasAllProperties) {
       return false;
     }
 
-    // Check API version compatibility
-    try {
-      const version = wallet.apiVersion;
-      if (typeof version !== 'string') {
-        return false;
-      }
-      console.log(`${walletName} wallet API version:`, version);
-      // Parse version string and compare
-      const [major] = version.split('.').map(Number);
-      if (major < 1) {
-        console.log(`${walletName} wallet API version ${version} is not supported`);
-        return false;
-      }
-    } catch (error) {
-      console.error(`Error checking API version for ${walletName}:`, error);
+    // Check API version compatibility (as a property, not a method)
+    const version = wallet.apiVersion;
+    if (typeof version !== 'string') {
+      console.log(`${walletName} wallet has invalid API version type`);
+      return false;
+    }
+
+    // Parse version string and compare
+    const [major] = version.split('.').map(Number);
+    if (isNaN(major) || major < 1) {
+      console.log(`${walletName} wallet API version ${version} is not supported`);
       return false;
     }
 
@@ -202,6 +199,7 @@ export const formatCardanoAddress = (address: string): string => {
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   const logStep = (step: string) => console.log(`Getting Cardano address - ${step}`);
   const MAX_RETRIES = 3;
+  const RETRY_DELAY = 1000; // 1 second delay between retries
   
   try {
     logStep('starting');
@@ -224,9 +222,14 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
               return formatted;
             }
           }
+          
+          if (attempt < MAX_RETRIES) {
+            await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          }
         } catch (error) {
           console.warn(`Error getting ${addressType} (attempt ${attempt}):`, error);
           if (attempt === MAX_RETRIES) throw error;
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
         }
       }
       return null;

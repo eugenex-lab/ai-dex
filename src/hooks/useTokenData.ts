@@ -8,6 +8,66 @@ export const useTokenData = (symbol: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY = 5000; // 5 seconds
+
+  const connectWebSocket = (cleanedSymbol: string) => {
+    if (ws?.readyState === WebSocket.OPEN) {
+      return;
+    }
+
+    console.log('useTokenData: Setting up WebSocket for symbol:', cleanedSymbol);
+    const wsConnection = new WebSocket(`wss://stream.binance.us:9443/ws/${cleanedSymbol.toLowerCase()}@ticker`);
+    
+    wsConnection.onopen = () => {
+      console.log('useTokenData: WebSocket connected for symbol:', cleanedSymbol);
+      setRetryCount(0); // Reset retry count on successful connection
+    };
+    
+    wsConnection.onmessage = (event) => {
+      try {
+        const tickerData = JSON.parse(event.data);
+        setData(prevData => {
+          if (!prevData) return prevData;
+          
+          const updatedData = {
+            ...prevData,
+            price: parseFloat(tickerData.c),
+            priceChange: {
+              ...prevData.priceChange,
+              "24h": parseFloat(tickerData.P)
+            }
+          };
+          return updatedData;
+        });
+      } catch (err) {
+        console.error('useTokenData: Error processing WebSocket message:', err);
+      }
+    };
+
+    wsConnection.onerror = (error) => {
+      console.error('useTokenData: WebSocket error:', error);
+      wsConnection.close();
+    };
+
+    wsConnection.onclose = () => {
+      console.log('useTokenData: WebSocket closed');
+      // Attempt to reconnect if we haven't exceeded max retries
+      if (retryCount < MAX_RETRIES) {
+        console.log(`useTokenData: Attempting reconnect ${retryCount + 1}/${MAX_RETRIES} in ${RETRY_DELAY}ms`);
+        setTimeout(() => {
+          setRetryCount(prev => prev + 1);
+          connectWebSocket(cleanedSymbol);
+        }, RETRY_DELAY);
+      } else {
+        setError('WebSocket connection failed after max retries. Using fallback polling.');
+        // Implement fallback polling here if needed
+      }
+    };
+
+    setWs(wsConnection);
+  };
 
   useEffect(() => {
     const cleanedSymbol = cleanSymbol(symbol);
@@ -42,40 +102,12 @@ export const useTokenData = (symbol: string) => {
       setWs(null);
     }
 
+    // Reset retry count when symbol changes
+    setRetryCount(0);
+
     // Fetch initial data before setting up WebSocket
     fetchData().then(() => {
-      // Create new WebSocket connection
-      const wsConnection = new WebSocket(`wss://stream.binance.us:9443/ws/${cleanedSymbol.toLowerCase()}@ticker`);
-      console.log('useTokenData: Setting up WebSocket for symbol:', cleanedSymbol);
-      
-      wsConnection.onopen = () => {
-        console.log('useTokenData: WebSocket connected for symbol:', cleanedSymbol);
-      };
-      
-      wsConnection.onmessage = (event) => {
-        const tickerData = JSON.parse(event.data);
-        setData(prevData => {
-          if (!prevData) return prevData;
-          
-          const updatedData = {
-            ...prevData,
-            price: parseFloat(tickerData.c),
-            priceChange: {
-              ...prevData.priceChange,
-              "24h": parseFloat(tickerData.P)
-            }
-          };
-          console.log('useTokenData: Updating data from WebSocket:', updatedData);
-          return updatedData;
-        });
-      };
-
-      wsConnection.onerror = (error) => {
-        console.error('useTokenData: WebSocket error:', error);
-        setError('WebSocket connection error. Please refresh the page.');
-      };
-
-      setWs(wsConnection);
+      connectWebSocket(cleanedSymbol);
     });
 
     // Cleanup function
