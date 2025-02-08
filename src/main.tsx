@@ -1,7 +1,7 @@
 
 // Polyfills for Mesh SDK
 import { Buffer } from 'buffer';
-window.global = window;
+window.global = window;  
 window.Buffer = Buffer;
 globalThis.global = window;
 globalThis.Buffer = Buffer;
