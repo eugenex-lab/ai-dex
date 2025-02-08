@@ -28,9 +28,9 @@ const WalletConnectButton = () => {
     isLoading,
     loadingWallet,
     connectedAddress,
+    currentChain,
     handleWalletSelect,
-    handleDisconnect,
-    currentChain
+    handleDisconnect
   } = useWalletConnection();
 
   const handlePhantomSelect = () => {

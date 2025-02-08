@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Copy, LogOut, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { type PhantomChain } from "./utils/walletUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,13 +10,14 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
-interface ConnectedWalletProps {
+export interface ConnectedWalletProps {
   address: string;
   onDisconnect: () => void;
   isLoading: boolean;
+  chain?: PhantomChain;
 }
 
-const ConnectedWallet = ({ address, onDisconnect, isLoading }: ConnectedWalletProps) => {
+const ConnectedWallet = ({ address, onDisconnect, isLoading, chain }: ConnectedWalletProps) => {
   const { toast } = useToast();
   const displayAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
@@ -35,7 +37,7 @@ const ConnectedWallet = ({ address, onDisconnect, isLoading }: ConnectedWalletPr
           className="gap-2 min-w-[180px] h-11"
         >
           <Wallet className="h-4 w-4" />
-          {displayAddress}
+          {displayAddress} {chain && `(${chain})`}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[200px]">

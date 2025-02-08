@@ -5,11 +5,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
 import { usePhantom } from "./usePhantom";
 import { updateWalletConnection, disconnectWallet } from "../utils/walletDatabase";
+import { type PhantomChain } from "../utils/walletUtils";
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWallet, setLoadingWallet] = useState<string | null>(null);
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+  const [currentChain, setCurrentChain] = useState<PhantomChain>('solana');
   const { toast } = useToast();
 
   const { connect: connectMetaMask } = useMetaMask(setConnectedAddress, updateWalletConnection);
@@ -34,7 +36,7 @@ export const useWalletConnection = () => {
     checkConnectionStatus();
   }, []);
 
-  const handleWalletSelect = async (walletType: string) => {
+  const handleWalletSelect = async (walletType: string, chain?: PhantomChain) => {
     setIsLoading(true);
     setLoadingWallet(walletType);
 
@@ -44,7 +46,10 @@ export const useWalletConnection = () => {
       if (walletType === 'metamask') {
         address = await connectMetaMask();
       } else if (walletType === 'phantom') {
-        address = await connectPhantom();
+        address = await connectPhantom(chain);
+        if (chain) {
+          setCurrentChain(chain);
+        }
       }
 
       if (address) {
@@ -68,6 +73,7 @@ export const useWalletConnection = () => {
       setIsLoading(true);
       await disconnectWallet();
       setConnectedAddress(null);
+      setCurrentChain('solana');
     } catch (error: any) {
       console.error('Wallet disconnection error:', error);
       toast({
@@ -84,6 +90,7 @@ export const useWalletConnection = () => {
     isLoading,
     loadingWallet,
     connectedAddress,
+    currentChain,
     handleWalletSelect,
     handleDisconnect
   };

@@ -2,6 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { type PhantomChain } from "./utils/walletUtils";
 
 interface WalletOption {
   id: string;
@@ -9,10 +10,11 @@ interface WalletOption {
   icon: string;
 }
 
-interface WalletOptionsProps {
+export interface WalletOptionsProps {
   onSelect: (wallet: string) => void;
   isLoading?: boolean;
   loadingWallet?: string;
+  selectedChain?: PhantomChain;
 }
 
 const WALLET_OPTIONS: WalletOption[] = [
@@ -58,7 +60,7 @@ const WALLET_OPTIONS: WalletOption[] = [
   }
 ];
 
-const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProps) => {
+const WalletOptions = ({ onSelect, isLoading, loadingWallet, selectedChain }: WalletOptionsProps) => {
   const [walletIcons, setWalletIcons] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -104,11 +106,12 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/placeholder.svg';
-                console.error(`Failed to load image for ${wallet.name}`); // Debug log
+                console.error(`Failed to load image for ${wallet.name}`);
               }}
             />
           </div>
           <p className="text-sm font-medium text-center">{wallet.name}</p>
+          {selectedChain && <p className="text-xs text-gray-500">{selectedChain}</p>}
         </Card>
       ))}
     </div>
