@@ -4,12 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
 import { usePhantom } from "./usePhantom";
-import { useCardanoWallet } from "./useCardanoWallet";
+import { useCardanoWallet } from "./useCardanoWallet";  // Import Cardano hook
 import { updateWalletConnection, disconnectWallet } from "../utils/walletDatabase";
 import { type PhantomChain } from "../utils/walletUtils";
-import { type CardanoWalletName } from "../utils/cardanoWalletUtils";
-
-export type SupportedWalletType = 'metamask' | 'phantom' | CardanoWalletName;
+import type { CardanoWalletType } from '../types/cardano';
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -41,7 +39,7 @@ export const useWalletConnection = () => {
     checkConnectionStatus();
   }, []);
 
-  const handleWalletSelect = async (walletType: SupportedWalletType, chain?: PhantomChain) => {
+  const handleWalletSelect = async (walletType: string, chain?: PhantomChain) => {
     setIsLoading(true);
     setLoadingWallet(walletType);
     setCurrentChain(null);
@@ -59,17 +57,18 @@ export const useWalletConnection = () => {
         }
         address = await connectPhantom(chain);
         setCurrentChain(chain);
-      } else {
+      } else if (['eternl', 'yoroi', 'lace', 'begin', 'tokeo', 'vespr'].includes(walletType)) {
         // Handle Cardano wallets
-        address = await connectCardano(walletType);
-        if (address) {
+        const result = await connectCardano(walletType as CardanoWalletType);
+        if (result) {
+          address = result.address;
           setCurrentChain('cardano');
+          await updateWalletConnection(address, `cardano-${walletType}`);
         }
       }
 
       if (address) {
         setConnectedAddress(address);
-        await updateWalletConnection(address, `${walletType}-${currentChain || 'cardano'}`);
       }
     } catch (error: any) {
       console.error('Wallet connection error:', error);
