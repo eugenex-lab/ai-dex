@@ -61,16 +61,7 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       'isEnabled',
       'apiVersion',
       'name',
-      'icon',
-      'getNetworkId',
-      'getUtxos',
-      'getBalance',
-      'getUsedAddresses',
-      'getChangeAddress',
-      'getRewardAddresses',
-      'signTx',
-      'signData',
-      'submitTx'
+      'icon'
     ];
 
     const hasAllMethods = requiredMethods.every(method => {
@@ -86,8 +77,9 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
     }
 
     // Check API version compatibility
-    if (typeof wallet.apiVersion === 'function') {
-      const version = wallet.apiVersion();
+    const getApiVersion = wallet.apiVersion;
+    if (typeof getApiVersion === 'function') {
+      const version = getApiVersion();
       console.log(`${walletName} wallet API version:`, version);
       // Ensure minimum CIP-30 version
       if (version < '1.0.0') {
