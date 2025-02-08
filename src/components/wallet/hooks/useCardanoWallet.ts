@@ -9,7 +9,7 @@ export const useCardanoWallet = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const getWallet = useCallback((walletName: CardanoWalletName): CardanoWallet | null => {
+  const getWallet = useCallback((walletName: CardanoWalletName): any => {
     const wallet = (window as any)[walletName];
     
     if (!isCardanoWalletAvailable(walletName)) {
