@@ -1,5 +1,5 @@
 
-import { Buffer } from 'buffer';
+import { Buffer } from 'buffer/';  // Note the trailing slash - this is important
 
 export type CardanoWalletName = 'eternl' | 'nami' | 'lace' | 'yoroi' | 'vespr' | 'begin' | 'tokeo';
 
@@ -71,6 +71,7 @@ export const formatCardanoAddress = (address: string): string => {
     
     // For non-standard formats, try to convert from hex
     if (address.match(/^[0-9a-fA-F]+$/)) {
+      // Using the browser-compatible Buffer
       return Buffer.from(address, 'hex').toString('utf8');
     }
     
