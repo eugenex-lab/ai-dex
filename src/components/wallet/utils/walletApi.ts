@@ -7,7 +7,6 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000; // 1 second delay between retries
 const CONNECTION_TIMEOUT = 10000; // 10 second timeout
 
-// Enhanced address retrieval with improved error handling and retry logic
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   const logStep = (step: string) => console.log(`Getting Cardano address - ${step}`);
   
@@ -35,7 +34,7 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
         for (const addr of addresses) {
           if (!addr) continue;
 
-          // Handle hex-encoded addresses
+          // Validate and format address
           const formattedAddr = formatCardanoAddress(addr);
           if (isValidCardanoAddress(formattedAddr)) {
             logStep(`found valid ${addressType}`);
@@ -43,7 +42,7 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
           }
         }
 
-        // If no valid address found and retries remaining, wait and retry
+        // Retry if no valid address found
         if (attempt < MAX_RETRIES) {
           await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
           return getAddressWithRetry(getAddressFn, addressType, attempt + 1);

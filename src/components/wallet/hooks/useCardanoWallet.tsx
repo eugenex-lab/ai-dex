@@ -1,13 +1,8 @@
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  isCardanoWalletAvailable, 
-  getWalletInfo, 
-  getCardanoAddress,
-  isValidCardanoAddress,
-  type CardanoWalletName 
-} from '../utils/cardanoWalletUtils';
+import { isCardanoWalletAvailable, getWalletInfo, getCardanoAddress, isValidCardanoAddress } from '../utils/cardanoWalletUtils';
+import type { CardanoWalletName } from '../utils/types/cardanoTypes';
 
 const WALLET_CONNECTION_TIMEOUT = 15000; // 15 seconds
 const CONNECTION_RETRY_DELAY = 1000; // 1 second
@@ -20,11 +15,23 @@ export const useCardanoWallet = () => {
   const [isConnecting, setIsConnecting] = useState(false);
   const connectionAttempts = useRef(0);
   const { toast } = useToast();
+  const walletApiRef = useRef<any>(null);
 
-  const getWallet = useCallback((walletName: CardanoWalletName): WalletApi | null => {
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (walletApiRef.current) {
+        setIsConnected(false);
+        setAddress(null);
+        walletApiRef.current = null;
+      }
+    };
+  }, []);
+
+  const getWallet = useCallback(async (walletName: CardanoWalletName) => {
     console.log(`Checking availability of ${walletName} wallet...`);
     
-    if (!isCardanoWalletAvailable(walletName)) {
+    if (!await isCardanoWalletAvailable(walletName)) {
       const { displayName, downloadUrl } = getWalletInfo(walletName);
       toast({
         title: `${displayName} Not Found`,
@@ -56,32 +63,56 @@ export const useCardanoWallet = () => {
       setError(null);
       console.log(`Attempting to connect to ${walletName} wallet...`);
       
-      const wallet = getWallet(walletName);
+      const wallet = await getWallet(walletName);
       if (!wallet) {
-        throw new Error(`${walletName} wallet not found`);
+        throw new Error(`${walletName} wallet not available`);
       }
 
-      // Check if wallet is already enabled
-      const isEnabled = await wallet.isEnabled().catch(() => false);
-      if (isEnabled) {
-        console.log('Wallet is already enabled, checking API...');
+      // Check CIP-30 compliance before enabling
+      const requiredMethods = [
+        'enable',
+        'isEnabled',
+        'apiVersion',
+        'name',
+        'icon'
+      ];
+
+      for (const method of requiredMethods) {
+        if (typeof wallet[method] !== 'function' && method !== 'icon') {
+          throw new Error(`${walletName} wallet missing required CIP-30 method: ${method}`);
+        }
       }
 
-      // Implement retry logic for wallet connection
-      const connectWithRetry = async (): Promise<CardanoApi> => {
+      // Properly enable wallet and get API instance
+      const connectWithRetry = async (): Promise<any> => {
         while (connectionAttempts.current < MAX_CONNECTION_RETRIES) {
           try {
-            // Add timeout for wallet connection
             const connectionPromise = wallet.enable();
             const timeoutPromise = new Promise((_, reject) => {
               setTimeout(() => reject(new Error('Connection timeout')), WALLET_CONNECTION_TIMEOUT);
             });
 
-            console.log('Enabling wallet API...');
-            const api = await Promise.race([connectionPromise, timeoutPromise]) as CardanoApi;
-            if (!api) {
-              throw new Error('Failed to enable wallet API');
+            console.log('Requesting wallet connection...');
+            const api = await Promise.race([connectionPromise, timeoutPromise]);
+            
+            // Verify required API methods
+            const requiredApiMethods = [
+              'getNetworkId',
+              'getUtxos',
+              'getBalance',
+              'getUsedAddresses',
+              'getChangeAddress',
+              'getRewardAddresses',
+              'signTx',
+              'submitTx'
+            ];
+
+            for (const method of requiredApiMethods) {
+              if (typeof api[method] !== 'function') {
+                throw new Error(`Wallet API missing required method: ${method}`);
+              }
             }
+
             return api;
           } catch (error) {
             connectionAttempts.current++;
@@ -96,12 +127,12 @@ export const useCardanoWallet = () => {
       };
 
       const api = await connectWithRetry();
+      walletApiRef.current = api;
 
-      // Get the wallet address with enhanced error handling
+      // Get wallet address with proper validation
       console.log('Getting wallet address...');
       const walletAddress = await getCardanoAddress(api);
-      console.log('Wallet address:', walletAddress);
-
+      
       if (!isValidCardanoAddress(walletAddress)) {
         throw new Error('Invalid Cardano address format');
       }
@@ -123,6 +154,7 @@ export const useCardanoWallet = () => {
       setError(message);
       setIsConnected(false);
       setAddress(null);
+      walletApiRef.current = null;
       
       toast({
         title: "Connection Failed",
@@ -136,6 +168,17 @@ export const useCardanoWallet = () => {
   }, [getWallet, toast]);
 
   const disconnect = useCallback(async () => {
+    if (walletApiRef.current) {
+      try {
+        // Some wallets may have a disconnect method
+        if (typeof walletApiRef.current.disconnect === 'function') {
+          await walletApiRef.current.disconnect();
+        }
+      } catch (error) {
+        console.warn('Error disconnecting wallet:', error);
+      }
+    }
+    walletApiRef.current = null;
     setAddress(null);
     setIsConnected(false);
     setError(null);
