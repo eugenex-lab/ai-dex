@@ -7,12 +7,12 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogTrigger 
+  DialogTrigger,
+  DialogDescription, 
 } from "@/components/ui/dialog";
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
-import { type PhantomChain } from "./utils/walletUtils";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,8 +25,17 @@ const WalletConnectButton = () => {
     handleDisconnect
   } = useWalletConnection();
 
-  const handlePhantomSelect = () => {
-    handleWalletSelect('phantom', 'solana');
+  const handleWalletSelection = (walletId: string) => {
+    if (['eternl', 'yoroi', 'lace', 'begin', 'tokeo', 'vespr'].includes(walletId)) {
+      // Handle Cardano wallets
+      handleWalletSelect(walletId);
+    } else if (walletId === 'phantom') {
+      // Default to Solana for Phantom
+      handleWalletSelect('phantom', 'solana');
+    } else {
+      // Handle other wallets
+      handleWalletSelect(walletId);
+    }
     setIsOpen(false);
   };
 
@@ -55,20 +64,16 @@ const WalletConnectButton = () => {
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold mb-2">Connect Wallet</DialogTitle>
+          <DialogDescription>
+            Choose your preferred wallet to connect with the application
+          </DialogDescription>
         </DialogHeader>
         
         <WalletOptions 
-          onSelect={(wallet) => {
-            if (wallet === 'phantom') {
-              handlePhantomSelect();
-            } else {
-              handleWalletSelect(wallet);
-            }
-            setIsOpen(false);
-          }}
+          onSelect={handleWalletSelection}
           isLoading={isLoading}
           loadingWallet={loadingWallet || undefined}
-          selectedChain="solana"
+          selectedChain={currentChain as PhantomChain}
         />
       </DialogContent>
     </Dialog>

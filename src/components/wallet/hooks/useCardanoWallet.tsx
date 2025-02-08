@@ -30,7 +30,18 @@ export const useCardanoWallet = () => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
+      // Check if wallet is available
+      const wallets = await BrowserWallet.getInstalledWallets();
+      const selectedWallet = wallets.find(w => w.name === walletType);
+      
+      if (!selectedWallet) {
+        throw new Error(`${walletType} wallet not installed`);
+      }
+
+      // Enable the wallet
       const wallet = await BrowserWallet.enable(walletType);
+      
+      // Get wallet info
       const [address] = await wallet.getUsedAddresses();
       const networkId = await wallet.getNetworkId();
 
@@ -70,7 +81,6 @@ export const useCardanoWallet = () => {
   const disconnect = useCallback(async () => {
     if (state.wallet) {
       try {
-        // Clear the wallet state instead of calling disconnect
         resetState();
         
         toast({
@@ -98,6 +108,7 @@ export const useCardanoWallet = () => {
     }
   }, [state.wallet, state.connected]);
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (state.wallet) {
