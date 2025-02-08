@@ -13,7 +13,6 @@ function parseVersion(version: string): Version {
   return { major, minor, patch };
 }
 
-// Check if version is in supported range
 function isVersionSupported(version: string): boolean {
   const parsed = parseVersion(version);
   
@@ -30,7 +29,7 @@ function isVersionSupported(version: string): boolean {
   return false;
 }
 
-// Enhanced wallet detection with improved CIP-30 validation and error handling
+// Enhanced wallet detection with improved CIP-30 validation
 export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean => {
   try {
     // Check if window.cardano exists

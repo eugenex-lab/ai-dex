@@ -32,21 +32,31 @@ export const isValidCardanoAddress = (address: string): boolean => {
   }
   
   try {
-    // Comprehensive format validation for all Cardano address types
-    const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
-    const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
-    const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
-    const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
-    const isStakeAddress = address.startsWith('stake') && address.length >= 58 && address.length <= 108;
+    console.log(`Address validation result for ${address.slice(0, 10)}...:`, 
+      isValidAddressFormat(address));
 
-    const isValid = isMainnetShelley || isTestnetShelley || isMainnetByron || isTestnetByron || isStakeAddress;
-    console.log(`Address validation result for ${address.slice(0, 10)}...: ${isValid}`);
-    return isValid;
+    return isValidAddressFormat(address);
   } catch (error) {
     console.error('Error validating Cardano address:', error);
     return false;
   }
 };
+
+// Improved address format validation
+function isValidAddressFormat(address: string): boolean {
+  // Mainnet address formats
+  const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
+  const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
+  const isMainnetStake = address.startsWith('stake1') && address.length >= 58 && address.length <= 108;
+
+  // Testnet address formats
+  const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
+  const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
+  const isTestnetStake = address.startsWith('stake_test1') && address.length >= 58 && address.length <= 108;
+
+  return isMainnetShelley || isTestnetShelley || isMainnetByron || 
+         isTestnetByron || isMainnetStake || isTestnetStake;
+}
 
 interface CardanoAddressComponents {
   networkId: number;
@@ -55,9 +65,9 @@ interface CardanoAddressComponents {
   type: 'base' | 'enterprise' | 'pointer' | 'reward';
 }
 
+// Enhanced address parsing
 function parseCardanoAddressBytes(bytes: Buffer): CardanoAddressComponents | null {
   try {
-    // First byte contains header info
     const header = bytes[0];
     const networkId = header & 0x0f;
     const addressType = (header & 0xf0) >> 4;
@@ -117,13 +127,13 @@ export const formatCardanoAddress = (address: string): string => {
         const network = networkId === CARDANO_NETWORK_IDS.mainnet ? 'mainnet' : 'testnet';
         const prefix = CARDANO_ADDRESS_PREFIXES[network][type];
 
-        // Convert to bech32 format
-        const words = bech32.bech32.toWords(Buffer.concat([
-          paymentPart,
-          stakingPart || Buffer.alloc(0)
-        ]));
-
         try {
+          // Convert to bech32 format
+          const words = bech32.bech32.toWords(Buffer.concat([
+            paymentPart,
+            stakingPart || Buffer.alloc(0)
+          ]));
+
           const encoded = bech32.bech32.encode(prefix, words);
           console.log('Successfully converted hex to bech32 address:', encoded);
           
