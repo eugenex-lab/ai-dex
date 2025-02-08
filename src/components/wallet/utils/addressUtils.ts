@@ -45,7 +45,14 @@ export const isValidCardanoAddress = (address: string): boolean => {
       try {
         // Attempt CBOR decoding first
         const decoded = cborDecode(Buffer.from(address, 'hex'));
-        address = decoded.toString('ascii').replace(/[^\x20-\x7E]/g, '');
+        if (decoded instanceof Uint8Array) {
+          address = Buffer.from(decoded).toString('ascii').replace(/[^\x20-\x7E]/g, '');
+        } else if (typeof decoded === 'string') {
+          address = decoded.replace(/[^\x20-\x7E]/g, '');
+        } else {
+          console.log('Invalid CBOR decoded value type');
+          return false;
+        }
       } catch (error) {
         console.log('CBOR decoding failed, trying direct bech32 conversion');
       }
@@ -134,9 +141,15 @@ export const formatCardanoAddress = (address: string): string => {
       try {
         // Try CBOR decoding first
         const decoded = cborDecode(Buffer.from(address, 'hex'));
-        const extracted = decoded.toString('ascii').replace(/[^\x20-\x7E]/g, '');
-        if (isValidCardanoAddress(extracted)) {
-          return extracted;
+        if (decoded instanceof Uint8Array || typeof decoded === 'string') {
+          const extractedAddress = decoded instanceof Uint8Array ? 
+            Buffer.from(decoded).toString('ascii') : 
+            decoded;
+          const cleanedAddress = extractedAddress.replace(/[^\x20-\x7E]/g, '');
+          
+          if (isValidCardanoAddress(cleanedAddress)) {
+            return cleanedAddress;
+          }
         }
       } catch (error) {
         // If CBOR fails, try direct conversion
