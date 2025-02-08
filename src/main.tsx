@@ -9,6 +9,8 @@ import './index.css';
 // Polyfills for Mesh SDK
 window.global = window;
 window.Buffer = Buffer;
+globalThis.global = window;
+globalThis.Buffer = Buffer;
 
 // Create a client
 const queryClient = new QueryClient({
