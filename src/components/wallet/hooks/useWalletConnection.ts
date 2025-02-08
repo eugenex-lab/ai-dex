@@ -39,25 +39,22 @@ export const useWalletConnection = () => {
     }
 
     // Check Phantom connection
-    if (typeof window.solana !== 'undefined') {
-      const handlePhantomAccountsChanged = async () => {
-        try {
-          const connection = await window.solana?.connect();
-          if (connection?.publicKey) {
-            setConnectedAddress(connection.publicKey.toString());
-          } else {
-            setConnectedAddress(null);
-          }
-        } catch (err) {
-          console.error('Error handling Phantom connection:', err);
+    if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+      const handlePhantomAccountsChanged = () => {
+        if (window.solana?.publicKey) {
+          setConnectedAddress(window.solana.publicKey.toString());
+        } else {
           setConnectedAddress(null);
         }
       };
 
+      // Initial check
+      handlePhantomAccountsChanged();
+
       window.solana.on('accountChanged', handlePhantomAccountsChanged);
       
       return () => {
-        window.solana.removeListener('accountChanged', handlePhantomAccountsChanged);
+        window.solana?.removeListener('accountChanged', handlePhantomAccountsChanged);
       };
     }
 
@@ -94,7 +91,7 @@ export const useWalletConnection = () => {
         await updateWalletConnection(address, walletType);
       } 
       else if (walletType === 'phantom') {
-        if (typeof window.solana === 'undefined') {
+        if (typeof window.solana === 'undefined' || !window.solana.isPhantom) {
           toast({
             title: "Phantom not found",
             description: "Please install Phantom wallet extension first",
@@ -104,12 +101,14 @@ export const useWalletConnection = () => {
         }
 
         try {
+          // Request connection to Phantom
           const connection = await window.solana.connect();
           const address = connection.publicKey.toString();
           setConnectedAddress(address);
 
           await updateWalletConnection(address, walletType);
         } catch (err: any) {
+          console.error('Phantom connection error:', err);
           toast({
             title: "Connection Failed",
             description: err.message || "Failed to connect Phantom wallet",

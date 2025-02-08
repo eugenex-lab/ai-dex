@@ -8,6 +8,7 @@ interface Window {
   };
   solana?: {
     isPhantom?: boolean;
+    publicKey?: { toString: () => string };
     connect: () => Promise<{ publicKey: { toString: () => string } }>;
     disconnect: () => Promise<void>;
     on: (event: string, callback: (params: any) => void) => void;
