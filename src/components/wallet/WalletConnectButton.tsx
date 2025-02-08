@@ -13,17 +13,9 @@ import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
 import { type PhantomChain } from "./utils/walletUtils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedChain, setSelectedChain] = useState<PhantomChain>('solana');
   const {
     isLoading,
     loadingWallet,
@@ -34,7 +26,7 @@ const WalletConnectButton = () => {
   } = useWalletConnection();
 
   const handlePhantomSelect = () => {
-    handleWalletSelect('phantom', selectedChain);
+    handleWalletSelect('phantom', 'solana');
     setIsOpen(false);
   };
 
@@ -65,24 +57,6 @@ const WalletConnectButton = () => {
           <DialogTitle className="text-xl font-semibold mb-2">Connect Wallet</DialogTitle>
         </DialogHeader>
         
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2">Select Chain</label>
-          <Select
-            value={selectedChain}
-            onValueChange={(value) => setSelectedChain(value as PhantomChain)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select chain" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="solana">Solana</SelectItem>
-              <SelectItem value="ethereum">Ethereum</SelectItem>
-              <SelectItem value="bitcoin">Bitcoin</SelectItem>
-              <SelectItem value="polygon">Polygon</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         <WalletOptions 
           onSelect={(wallet) => {
             if (wallet === 'phantom') {
@@ -94,7 +68,7 @@ const WalletConnectButton = () => {
           }}
           isLoading={isLoading}
           loadingWallet={loadingWallet || undefined}
-          selectedChain={selectedChain}
+          selectedChain="solana"
         />
       </DialogContent>
     </Dialog>

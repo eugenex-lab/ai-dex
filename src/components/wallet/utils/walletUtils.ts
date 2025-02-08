@@ -1,5 +1,4 @@
-
-export type PhantomChain = 'solana' | 'ethereum' | 'bitcoin' | 'polygon';
+export type PhantomChain = 'solana' | 'ethereum';
 
 export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
   // Check if we're in a browser environment
@@ -18,13 +17,7 @@ export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
     return false;
   }
   
-  // Additional chain-specific checks
-  if (chain === 'bitcoin' && !provider[chain].request) {
-    console.log('Phantom wallet: Bitcoin provider missing request method');
-    return false;
-  }
-
-  if ((chain === 'ethereum' || chain === 'polygon') && !provider[chain].request) {
+  if (chain === 'ethereum' && !provider[chain].request) {
     console.log(`Phantom wallet: ${chain} provider missing request method`);
     return false;
   }
@@ -88,69 +81,41 @@ export const getChainConnection = async (chain: PhantomChain) => {
   try {
     let address: string;
     
-    switch (chain) {
-      case 'solana': {
-        try {
-          // Clear any existing permissions using request method
-          await provider.request({ method: 'disconnect' });
-        } catch (e) {
-          console.log('No existing connection to disconnect');
-        }
-        
-        // Request new connection
-        const response = await provider.request({ 
-          method: 'connect'
-        });
-        address = response.publicKey.toString();
-        break;
+    if (chain === 'solana') {
+      try {
+        // Clear any existing permissions using request method
+        await provider.request({ method: 'disconnect' });
+      } catch (e) {
+        console.log('No existing connection to disconnect');
       }
       
-      case 'ethereum':
-      case 'polygon': {
-        try {
-          // Clear existing permissions
-          await provider.request({ 
-            method: 'wallet_requestPermissions',
-            params: [{ eth_accounts: {} }]
-          });
-        } catch (e) {
-          console.log('No existing permissions to clear');
-        }
-        
-        // Request new connection
-        const accounts = await provider.request({ 
-          method: 'eth_requestAccounts' 
+      // Request new connection
+      const response = await provider.request({ 
+        method: 'connect'
+      });
+      address = response.publicKey.toString();
+    } else if (chain === 'ethereum') {
+      try {
+        // Clear existing permissions
+        await provider.request({ 
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }]
         });
-        
-        if (!accounts?.[0]) {
-          throw new Error('No account returned');
-        }
-        address = accounts[0];
-        break;
+      } catch (e) {
+        console.log('No existing permissions to clear');
       }
       
-      case 'bitcoin': {
-        try {
-          // Clear existing connection
-          await provider.request({ method: 'disconnect' });
-        } catch (e) {
-          console.log('No existing connection to disconnect');
-        }
-        
-        // Request new accounts
-        const accounts = await provider.request({ 
-          method: 'requestAccounts'
-        });
-        
-        if (!accounts?.[0]?.address) {
-          throw new Error('No Bitcoin address returned');
-        }
-        address = accounts[0].address;
-        break;
-      }
+      // Request new connection
+      const accounts = await provider.request({ 
+        method: 'eth_requestAccounts' 
+      });
       
-      default:
-        throw new Error(`Unsupported chain: ${chain}`);
+      if (!accounts?.[0]) {
+        throw new Error('No account returned');
+      }
+      address = accounts[0];
+    } else {
+      throw new Error(`Unsupported chain: ${chain}`);
     }
 
     if (!address) {
