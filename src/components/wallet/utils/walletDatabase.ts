@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -75,18 +74,9 @@ export const disconnectWallet = async () => {
 
       if (profileError) throw profileError;
 
-      // Disconnect all chains
+      // Disconnect chains based on availability
       if (window.phantom?.solana?.isConnected) {
         await window.phantom.solana.disconnect();
-      }
-      if (window.phantom?.ethereum?.isConnected) {
-        await window.phantom.ethereum.request({ method: 'eth_requestAccounts' });
-      }
-      if (window.phantom?.bitcoin?.isConnected) {
-        await window.phantom.bitcoin.request({ method: 'disconnect' });
-      }
-      if (window.phantom?.polygon?.isConnected) {
-        await window.phantom.polygon.request({ method: 'eth_requestAccounts' });
       }
 
       toast({

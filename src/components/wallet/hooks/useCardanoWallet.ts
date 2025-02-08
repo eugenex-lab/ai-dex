@@ -1,50 +1,34 @@
 
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { isCardanoWalletAvailable, getWalletInfo, type CardanoWalletName } from '../utils/cardanoWalletUtils';
 
-// CIP-30 API types
-export type CardanoWallet = {
-  enable: () => Promise<CardanoApi>;
-  isEnabled: () => Promise<boolean>;
-  apiVersion: string;
-  name: string;
-  icon: string;
-};
-
-export type CardanoApi = {
-  getNetworkId: () => Promise<number>;
-  getUtxos: () => Promise<string[] | undefined>;
-  getCollateral: () => Promise<string[] | undefined>;
-  getBalance: () => Promise<string>;
-  getUsedAddresses: () => Promise<string[]>;
-  getUnusedAddresses: () => Promise<string[]>;
-  getChangeAddress: () => Promise<string>;
-  getRewardAddresses: () => Promise<string[]>;
-  signTx: (tx: string, partialSign?: boolean) => Promise<string>;
-  signData: (addr: string, payload: string) => Promise<string>;
-  submitTx: (tx: string) => Promise<string>;
-};
-
-type UseCardanoWalletReturn = {
-  connect: (walletName: string) => Promise<string | null>;
-  disconnect: () => Promise<void>;
-  isConnected: boolean;
-  address: string | null;
-  error: string | null;
-};
-
-export const useCardanoWallet = (): UseCardanoWalletReturn => {
+export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const getWallet = useCallback((walletName: string): CardanoWallet | null => {
+  const getWallet = useCallback((walletName: CardanoWalletName): CardanoWallet | null => {
     const wallet = (window as any)[walletName];
-    if (!wallet?.cardano) {
+    
+    if (!isCardanoWalletAvailable(walletName)) {
+      const { displayName, downloadUrl } = getWalletInfo(walletName);
       toast({
-        title: "Wallet Not Found",
-        description: `Please install ${walletName} wallet`,
+        title: `${displayName} Not Found`,
+        description: (
+          <div>
+            Please install {displayName} wallet first.{' '}
+            <a 
+              href={downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-primary"
+            >
+              Download here
+            </a>
+          </div>
+        ),
         variant: "destructive",
       });
       return null;
@@ -52,7 +36,7 @@ export const useCardanoWallet = (): UseCardanoWalletReturn => {
     return wallet.cardano;
   }, [toast]);
 
-  const connect = useCallback(async (walletName: string): Promise<string | null> => {
+  const connect = useCallback(async (walletName: CardanoWalletName): Promise<string | null> => {
     try {
       const wallet = getWallet(walletName);
       if (!wallet) return null;
