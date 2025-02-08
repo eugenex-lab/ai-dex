@@ -1,5 +1,6 @@
 
-import { Buffer } from 'buffer/';  // Note the trailing slash - this is important
+// Note: importing buffer with trailing slash is important for browser compatibility
+import { Buffer } from 'buffer/';
 
 export type CardanoWalletName = 'eternl' | 'nami' | 'lace' | 'yoroi' | 'vespr' | 'begin' | 'tokeo';
 
