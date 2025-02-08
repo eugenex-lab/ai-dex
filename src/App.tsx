@@ -21,6 +21,7 @@ import Arbitrage from "./pages/Arbitrage";
 import CopyTrade from "./pages/CopyTrade";
 import AIAnalysis from "./pages/AIAnalysis";
 import Alerts from "./pages/Alerts";
+import { Toaster } from "@/components/ui/toaster";
 
 // Scroll to top component
 function ScrollToTop() {
@@ -62,6 +63,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <Toaster />
       </div>
     </Router>
   );
