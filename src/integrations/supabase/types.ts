@@ -458,6 +458,8 @@ export type Database = {
           created_at: string | null
           disconnected_at: string | null
           id: string
+          network: string | null
+          public_key: string | null
           status: string | null
           user_id: string | null
           wallet_address: string
@@ -468,6 +470,8 @@ export type Database = {
           created_at?: string | null
           disconnected_at?: string | null
           id?: string
+          network?: string | null
+          public_key?: string | null
           status?: string | null
           user_id?: string | null
           wallet_address: string
@@ -478,6 +482,8 @@ export type Database = {
           created_at?: string | null
           disconnected_at?: string | null
           id?: string
+          network?: string | null
+          public_key?: string | null
           status?: string | null
           user_id?: string | null
           wallet_address?: string

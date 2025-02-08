@@ -10,34 +10,52 @@ export const useWalletConnection = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    const checkConnectionStatus = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('wallet_address, wallet_connection_status')
+          .eq('id', user.id)
+          .single();
+
+        if (profile?.wallet_address && profile.wallet_connection_status === 'connected') {
+          setConnectedAddress(profile.wallet_address);
+        }
+      }
+    };
+
+    // Check MetaMask connection
     if (typeof window.ethereum !== 'undefined') {
       const handleAccountsChanged = (accounts: string[]) => {
         setConnectedAddress(accounts[0] || null);
       };
 
       window.ethereum.on('accountsChanged', handleAccountsChanged);
-
-      const checkConnectionStatus = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('wallet_address, wallet_connection_status')
-            .eq('id', user.id)
-            .single();
-
-          if (profile?.wallet_address && profile.wallet_connection_status === 'connected') {
-            setConnectedAddress(profile.wallet_address);
-          }
-        }
-      };
-
-      checkConnectionStatus();
-
+      
       return () => {
         window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
       };
     }
+
+    // Check Phantom connection
+    if (typeof window.solana !== 'undefined') {
+      const handlePhantomAccountsChanged = () => {
+        if (window.solana?.publicKey) {
+          setConnectedAddress(window.solana.publicKey.toString());
+        } else {
+          setConnectedAddress(null);
+        }
+      };
+
+      window.solana.on('accountChanged', handlePhantomAccountsChanged);
+      
+      return () => {
+        window.solana.removeListener('accountChanged', handlePhantomAccountsChanged);
+      };
+    }
+
+    checkConnectionStatus();
   }, []);
 
   const handleWalletSelect = async (walletType: string) => {
@@ -67,29 +85,29 @@ export const useWalletConnection = () => {
         const address = accounts[0];
         setConnectedAddress(address);
 
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (user) {
-          await supabase
-            .from('profiles')
-            .update({
-              wallet_address: address,
-              wallet_connection_status: 'connected'
-            })
-            .eq('id', user.id);
-
-          await supabase
-            .from('wallet_connections')
-            .insert({
-              user_id: user.id,
-              wallet_address: address,
-              wallet_type: walletType,
-              status: 'active'
-            });
-
+        await updateWalletConnection(address, walletType);
+      } 
+      else if (walletType === 'phantom') {
+        if (typeof window.solana === 'undefined') {
           toast({
-            title: "Wallet Connected",
-            description: "Your wallet has been successfully connected",
+            title: "Phantom not found",
+            description: "Please install Phantom wallet extension first",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        try {
+          const resp = await window.solana.connect();
+          const address = resp.publicKey.toString();
+          setConnectedAddress(address);
+
+          await updateWalletConnection(address, walletType);
+        } catch (err: any) {
+          toast({
+            title: "Connection Failed",
+            description: err.message || "Failed to connect Phantom wallet",
+            variant: "destructive"
           });
         }
       }
@@ -103,6 +121,35 @@ export const useWalletConnection = () => {
     } finally {
       setIsLoading(false);
       setLoadingWallet(null);
+    }
+  };
+
+  const updateWalletConnection = async (address: string, walletType: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (user) {
+      await supabase
+        .from('profiles')
+        .update({
+          wallet_address: address,
+          wallet_connection_status: 'connected'
+        })
+        .eq('id', user.id);
+
+      await supabase
+        .from('wallet_connections')
+        .insert({
+          user_id: user.id,
+          wallet_address: address,
+          wallet_type: walletType,
+          status: 'active',
+          network: walletType === 'phantom' ? 'solana' : 'ethereum'
+        });
+
+      toast({
+        title: "Wallet Connected",
+        description: "Your wallet has been successfully connected",
+      });
     }
   };
 
@@ -128,6 +175,11 @@ export const useWalletConnection = () => {
             wallet_connection_status: 'disconnected'
           })
           .eq('id', user.id);
+
+        // Disconnect from Phantom if it's connected
+        if (window.solana && window.solana.isPhantom) {
+          await window.solana.disconnect();
+        }
       }
 
       setConnectedAddress(null);

@@ -6,4 +6,11 @@ interface Window {
     on: (event: string, callback: (params: any) => void) => void;
     removeListener: (event: string, callback: (params: any) => void) => void;
   };
+  solana?: {
+    isPhantom?: boolean;
+    connect: () => Promise<{ publicKey: { toString: () => string } }>;
+    disconnect: () => Promise<void>;
+    on: (event: string, callback: (params: any) => void) => void;
+    removeListener: (event: string, callback: (params: any) => void) => void;
+  };
 }
