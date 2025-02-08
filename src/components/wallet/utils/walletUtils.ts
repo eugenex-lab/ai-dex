@@ -83,36 +83,38 @@ export const getChainConnection = async (chain: PhantomChain) => {
   }
 
   try {
-    let response;
+    let address: string;
+    
     switch (chain) {
-      case 'solana':
-        response = await provider.connect();
-        return {
-          address: response.publicKey.toString(),
-          chain
-        };
+      case 'solana': {
+        const response = await provider.connect();
+        address = response.publicKey.toString();
+        break;
+      }
       
       case 'ethereum':
-      case 'polygon':
+      case 'polygon': {
         const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        return {
-          address: accounts[0],
-          chain
-        };
+        address = accounts[0];
+        break;
+      }
       
-      case 'bitcoin':
-        const btcAccounts = await provider.request({ method: 'requestAccounts' });
-        return {
-          address: btcAccounts[0].address,
-          chain
-        };
+      case 'bitcoin': {
+        const accounts = await provider.request({ method: 'requestAccounts' });
+        address = accounts[0].address;
+        break;
+      }
       
       default:
         throw new Error(`Unsupported chain: ${chain}`);
     }
+
+    return {
+      address,
+      chain
+    };
   } catch (error) {
     console.error(`Error connecting to ${chain}:`, error);
     throw error;
   }
 };
-
