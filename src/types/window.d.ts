@@ -18,5 +18,30 @@ interface Window {
       isConnected?: boolean;
       connected?: boolean;
     };
+    ethereum?: {
+      isPhantom?: boolean;
+      selectedAddress?: string;
+      chainId?: string;
+      isConnected?: boolean;
+      request: (request: { method: string; params?: any[] }) => Promise<any>;
+      on: (event: string, callback: (params: any) => void) => void;
+      removeListener: (event: string, callback: (params: any) => void) => void;
+    };
+    bitcoin?: {
+      isPhantom?: boolean;
+      isConnected?: boolean;
+      request: (request: { method: string; params?: any[] }) => Promise<any>;
+      on: (event: string, callback: (params: any) => void) => void;
+      removeListener: (event: string, callback: (params: any) => void) => void;
+    };
+    polygon?: {
+      isPhantom?: boolean;
+      selectedAddress?: string;
+      chainId?: string;
+      isConnected?: boolean;
+      request: (request: { method: string; params?: any[] }) => Promise<any>;
+      on: (event: string, callback: (params: any) => void) => void;
+      removeListener: (event: string, callback: (params: any) => void) => void;
+    };
   };
 }

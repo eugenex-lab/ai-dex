@@ -1,22 +1,34 @@
 
-export const isPhantomAvailable = () => {
+import { toast } from "@/hooks/use-toast";
+
+export type PhantomChain = 'solana' | 'ethereum' | 'bitcoin' | 'polygon';
+
+export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
   // Check if we're in a browser environment
   if (typeof window === 'undefined') return false;
   
   // Check for Phantom provider
-  const provider = window.phantom?.solana;
+  const provider = window.phantom;
   
   if (!provider) {
     console.log('Phantom wallet: No provider found');
     return false;
   }
   
-  if (!provider.isPhantom) {
-    console.log('Phantom wallet: Provider is not Phantom');
+  // Check chain-specific provider
+  const chainProvider = provider[chain];
+  
+  if (!chainProvider) {
+    console.log(`Phantom wallet: No ${chain} provider found`);
     return false;
   }
   
-  console.log('Phantom wallet: Provider detected and ready');
+  if (!chainProvider.isPhantom) {
+    console.log(`Phantom wallet: Provider is not Phantom for ${chain}`);
+    return false;
+  }
+  
+  console.log(`Phantom wallet: ${chain} provider detected and ready`);
   return true;
 };
 
@@ -62,3 +74,46 @@ export const formatWalletError = (error: any): string => {
   return 'Failed to connect wallet. Please try again.';
 };
 
+export const getChainConnection = async (chain: PhantomChain) => {
+  if (!window.phantom) {
+    throw new Error('Phantom wallet not installed');
+  }
+
+  const provider = window.phantom[chain];
+  if (!provider) {
+    throw new Error(`Phantom ${chain} provider not found`);
+  }
+
+  try {
+    let response;
+    switch (chain) {
+      case 'solana':
+        response = await provider.connect();
+        return {
+          address: response.publicKey.toString(),
+          chain
+        };
+      
+      case 'ethereum':
+      case 'polygon':
+        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+        return {
+          address: accounts[0],
+          chain
+        };
+      
+      case 'bitcoin':
+        const btcAccounts = await provider.request({ method: 'requestAccounts' });
+        return {
+          address: btcAccounts[0].address,
+          chain
+        };
+      
+      default:
+        throw new Error(`Unsupported chain: ${chain}`);
+    }
+  } catch (error) {
+    console.error(`Error connecting to ${chain}:`, error);
+    throw error;
+  }
+};
