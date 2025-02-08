@@ -68,15 +68,12 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
       
       for (const wallet of WALLET_OPTIONS) {
         try {
-          const { data } = await supabase
+          const { data: { publicUrl } } = supabase
             .storage
             .from('wallet-icons')
-            .download(wallet.icon);
+            .getPublicUrl(wallet.icon);
             
-          if (data) {
-            const url = URL.createObjectURL(data);
-            iconUrls[wallet.id] = url;
-          }
+          iconUrls[wallet.id] = publicUrl;
         } catch (error) {
           console.error(`Failed to load icon for ${wallet.name}:`, error);
           iconUrls[wallet.id] = '/placeholder.svg';
@@ -87,15 +84,6 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
     };
 
     loadWalletIcons();
-
-    // Cleanup URLs on unmount
-    return () => {
-      Object.values(walletIcons).forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-    };
   }, []);
 
   return (
