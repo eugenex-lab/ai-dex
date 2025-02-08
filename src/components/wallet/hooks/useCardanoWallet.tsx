@@ -4,9 +4,6 @@ import { BrowserWallet } from '@meshsdk/core';
 import { useToast } from '@/hooks/use-toast';
 import type { CardanoWalletType, CardanoWalletState } from '../types/cardano';
 
-const NETWORK_MAINNET = 1;
-const NETWORK_TESTNET = 0;
-
 export const useCardanoWallet = () => {
   const { toast } = useToast();
   const [state, setState] = useState<CardanoWalletState>({
@@ -73,7 +70,7 @@ export const useCardanoWallet = () => {
   const disconnect = useCallback(async () => {
     if (state.wallet) {
       try {
-        await state.wallet.disconnect();
+        // Clear the wallet state instead of calling disconnect
         resetState();
         
         toast({
@@ -104,10 +101,10 @@ export const useCardanoWallet = () => {
   useEffect(() => {
     return () => {
       if (state.wallet) {
-        state.wallet.disconnect().catch(console.error);
+        resetState();
       }
     };
-  }, [state.wallet]);
+  }, [state.wallet, resetState]);
 
   return {
     ...state,
