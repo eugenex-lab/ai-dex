@@ -1,16 +1,19 @@
 
 // Polyfills for Mesh SDK
 import { Buffer } from 'buffer';
+import process from 'process';
 import 'vite/modulepreload-polyfill';
 
 if (typeof window !== 'undefined') {
   window.global = window;
   window.Buffer = Buffer;
+  window.process = process;
 }
 
 if (typeof globalThis !== 'undefined') {
   globalThis.global = globalThis;
   globalThis.Buffer = Buffer;
+  globalThis.process = process;
 }
 
 import { createRoot } from 'react-dom/client';
