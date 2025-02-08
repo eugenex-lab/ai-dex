@@ -16,6 +16,7 @@ export const useCardanoWallet = () => {
   useEffect(() => {
     return () => {
       if (walletApiRef.current) {
+        // Simply reset states and clear reference instead of calling disconnect
         setIsConnected(false);
         setAddress(null);
         walletApiRef.current = null;
@@ -99,16 +100,8 @@ export const useCardanoWallet = () => {
     }
   }, [toast]);
 
-  const disconnect = useCallback(async () => {
-    if (walletApiRef.current) {
-      try {
-        if (typeof walletApiRef.current.disconnect === 'function') {
-          await walletApiRef.current.disconnect();
-        }
-      } catch (error) {
-        console.warn('Error disconnecting wallet:', error);
-      }
-    }
+  const disconnect = useCallback(() => {
+    // Simply cleanup state and references
     walletApiRef.current = null;
     setAddress(null);
     setIsConnected(false);
