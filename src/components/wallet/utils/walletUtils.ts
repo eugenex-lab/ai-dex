@@ -20,6 +20,27 @@ export const isPhantomAvailable = () => {
   return true;
 };
 
+export const isMetaMaskAvailable = () => {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') return false;
+  
+  // Check for Ethereum provider
+  const provider = window.ethereum;
+  
+  if (!provider) {
+    console.log('MetaMask wallet: No provider found');
+    return false;
+  }
+  
+  if (!provider.isMetaMask) {
+    console.log('MetaMask wallet: Provider is not MetaMask');
+    return false;
+  }
+  
+  console.log('MetaMask wallet: Provider detected and ready');
+  return true;
+};
+
 export const getDisplayAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
@@ -40,3 +61,4 @@ export const formatWalletError = (error: any): string => {
   }
   return 'Failed to connect wallet. Please try again.';
 };
+
