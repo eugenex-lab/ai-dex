@@ -1,12 +1,18 @@
 
 // Polyfills for Mesh SDK
 import { Buffer } from 'buffer';
-window.global = window;  
-window.Buffer = Buffer;
-globalThis.global = window;
-globalThis.Buffer = Buffer;
-
 import 'vite/modulepreload-polyfill';
+
+if (typeof window !== 'undefined') {
+  window.global = window;
+  window.Buffer = Buffer;
+}
+
+if (typeof globalThis !== 'undefined') {
+  globalThis.global = globalThis;
+  globalThis.Buffer = Buffer;
+}
+
 import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App.tsx';

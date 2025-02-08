@@ -32,7 +32,7 @@ const WalletConnectButton = () => {
       handleWalletSelect(walletId);
     } else if (walletId === 'phantom') {
       // Default to Solana for Phantom
-      handleWalletSelect('phantom', 'solana');
+      handleWalletSelect('phantom', 'solana' as PhantomChain);
     } else {
       // Handle other wallets
       handleWalletSelect(walletId);
@@ -46,7 +46,7 @@ const WalletConnectButton = () => {
         address={connectedAddress}
         onDisconnect={handleDisconnect}
         isLoading={isLoading}
-        chain={currentChain}
+        chain={currentChain as PhantomChain}
       />
     );
   }
@@ -74,7 +74,7 @@ const WalletConnectButton = () => {
           onSelect={handleWalletSelection}
           isLoading={isLoading}
           loadingWallet={loadingWallet || undefined}
-          selectedChain={currentChain}
+          selectedChain={currentChain as PhantomChain}
         />
       </DialogContent>
     </Dialog>
