@@ -40,26 +40,63 @@ const WALLET_INFO: Record<CardanoWalletName, WalletInfo> = {
   },
 };
 
-// Enhanced wallet detection with full CIP-30 validation
+// Enhanced wallet detection with improved CIP-30 validation and error handling
 export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean => {
   try {
-    const wallet = window.cardano?.[walletName];
+    // Check if window.cardano exists
+    if (typeof window === 'undefined' || !window.cardano) {
+      console.log('Cardano object not found in window');
+      return false;
+    }
+
+    const wallet = window.cardano[walletName];
     if (!wallet) {
       console.log(`${walletName} wallet not found`);
       return false;
     }
 
-    // Verify required CIP-30 methods
-    const requiredMethods = ['enable', 'isEnabled', 'apiVersion', 'name', 'icon'];
-    const hasAllMethods = requiredMethods.every((method) => {
-      const hasMethod = typeof wallet[method] === 'function' || wallet[method] !== undefined;
+    // Complete CIP-30 method validation
+    const requiredMethods = [
+      'enable',
+      'isEnabled',
+      'apiVersion',
+      'name',
+      'icon',
+      'getNetworkId',
+      'getUtxos',
+      'getBalance',
+      'getUsedAddresses',
+      'getChangeAddress',
+      'getRewardAddresses',
+      'signTx',
+      'signData',
+      'submitTx'
+    ];
+
+    const hasAllMethods = requiredMethods.every(method => {
+      const hasMethod = typeof wallet[method] === 'function';
       if (!hasMethod) {
         console.log(`${walletName} wallet missing required method: ${method}`);
       }
       return hasMethod;
     });
 
-    return hasAllMethods;
+    if (!hasAllMethods) {
+      return false;
+    }
+
+    // Check API version compatibility
+    if (typeof wallet.apiVersion === 'function') {
+      const version = wallet.apiVersion();
+      console.log(`${walletName} wallet API version:`, version);
+      // Ensure minimum CIP-30 version
+      if (version < '1.0.0') {
+        console.log(`${walletName} wallet API version ${version} is not supported`);
+        return false;
+      }
+    }
+
+    return true;
   } catch (error) {
     console.error(`Error checking ${walletName} wallet availability:`, error);
     return false;
@@ -70,59 +107,93 @@ export const getWalletInfo = (walletName: CardanoWalletName): WalletInfo => {
   return WALLET_INFO[walletName];
 };
 
-// Enhanced Cardano address validation
+// Enhanced Cardano address validation with improved format detection
 export const isValidCardanoAddress = (address: string): boolean => {
-  if (!address) return false;
+  if (!address) {
+    console.log('Empty address provided for validation');
+    return false;
+  }
   
-  // Basic validation for different address types
-  const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
-  const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
-  const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
-  const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
+  try {
+    // Comprehensive format validation
+    const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
+    const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
+    const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
+    const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
+    const isStakeAddress = address.startsWith('stake') && address.length >= 58 && address.length <= 108;
 
-  return isMainnetShelley || isTestnetShelley || isMainnetByron || isTestnetByron;
+    const isValid = isMainnetShelley || isTestnetShelley || isMainnetByron || isTestnetByron || isStakeAddress;
+    console.log(`Address validation result for ${address.slice(0, 10)}...: ${isValid}`);
+    return isValid;
+  } catch (error) {
+    console.error('Error validating Cardano address:', error);
+    return false;
+  }
 };
 
-// Enhanced address formatting with proper error handling
+// Enhanced address formatting with improved decoding support
 export const formatCardanoAddress = (address: string): string => {
   try {
     if (!address) {
       console.log('Empty address provided to formatter');
       return '';
     }
+
+    // Log raw address for debugging
+    console.log('Formatting address input:', address);
     
     // Already formatted addresses
-    if (address.startsWith('addr1') || address.startsWith('addr_test1') || 
-        address.startsWith('Ae2') || address.startsWith('2cWKMJemoBa')) {
+    if (isValidCardanoAddress(address)) {
       return address;
     }
-    
-    // Handle hex encoded addresses
+
+    // Handle different encoding formats
+    let decodedAddress = '';
+
+    // Try hex decoding
     if (address.match(/^[0-9a-fA-F]+$/)) {
       try {
-        const decoded = Buffer.from(address, 'hex').toString();
-        if (isValidCardanoAddress(decoded)) {
-          return decoded;
+        decodedAddress = Buffer.from(address, 'hex').toString('utf8');
+        console.log('Attempted hex decode result:', decodedAddress);
+        if (isValidCardanoAddress(decodedAddress)) {
+          return decodedAddress;
         }
-        console.warn('Decoded hex address is not valid:', decoded);
-      } catch (hexError) {
-        console.error('Error decoding hex address:', hexError);
+      } catch (error) {
+        console.log('Hex decoding failed:', error);
       }
     }
 
-    // Attempt UTF-8 decoding if needed
+    // Try Base58 decoding
     try {
-      if (typeof address === 'string' && !isValidCardanoAddress(address)) {
-        const decoded = Buffer.from(address).toString('utf8');
-        if (isValidCardanoAddress(decoded)) {
-          return decoded;
-        }
+      const base58Decoded = Buffer.from(address, 'base58').toString('utf8');
+      console.log('Attempted base58 decode result:', base58Decoded);
+      if (isValidCardanoAddress(base58Decoded)) {
+        return base58Decoded;
       }
-    } catch (utf8Error) {
-      console.error('Error decoding UTF-8 address:', utf8Error);
+    } catch (error) {
+      console.log('Base58 decoding failed:', error);
     }
 
-    console.warn('Unable to format address, returning original:', address);
+    // Try CBOR decoding if the address appears to be CBOR encoded
+    if (address.startsWith('\\x')) {
+      try {
+        decodedAddress = Buffer.from(address.slice(2), 'hex').toString('utf8');
+        console.log('Attempted CBOR decode result:', decodedAddress);
+        if (isValidCardanoAddress(decodedAddress)) {
+          return decodedAddress;
+        }
+      } catch (error) {
+        console.log('CBOR decoding failed:', error);
+      }
+    }
+
+    // If all decoding attempts fail, try to clean the address string
+    const cleanedAddress = address.replace(/[^\x20-\x7E]/g, '');
+    if (isValidCardanoAddress(cleanedAddress)) {
+      return cleanedAddress;
+    }
+
+    console.warn('All address decoding attempts failed. Original address:', address);
     return address;
   } catch (error) {
     console.error('Error in formatCardanoAddress:', error);
@@ -130,63 +201,62 @@ export const formatCardanoAddress = (address: string): string => {
   }
 };
 
-// Enhanced address retrieval with better error handling and fallbacks
+// Enhanced address retrieval with improved error handling and retry logic
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   const logStep = (step: string) => console.log(`Getting Cardano address - ${step}`);
+  const MAX_RETRIES = 3;
   
   try {
     logStep('starting');
 
-    // Try getting used addresses first
-    try {
-      logStep('checking used addresses');
-      const usedAddresses = await api.getUsedAddresses();
-      if (usedAddresses && usedAddresses.length > 0) {
-        for (const addr of usedAddresses) {
-          const formatted = formatCardanoAddress(addr);
-          if (isValidCardanoAddress(formatted)) {
-            logStep('found valid used address');
-            return formatted;
+    // Function to attempt getting address with retry logic
+    const getAddressWithRetry = async (
+      getAddressFn: () => Promise<string[] | string>,
+      addressType: string
+    ): Promise<string | null> => {
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          logStep(`attempting ${addressType} (try ${attempt}/${MAX_RETRIES})`);
+          const result = await getAddressFn();
+          const addresses = Array.isArray(result) ? result : [result];
+
+          for (const addr of addresses) {
+            const formatted = formatCardanoAddress(addr);
+            if (isValidCardanoAddress(formatted)) {
+              logStep(`found valid ${addressType}`);
+              return formatted;
+            }
           }
+        } catch (error) {
+          console.warn(`Error getting ${addressType} (attempt ${attempt}):`, error);
+          if (attempt === MAX_RETRIES) throw error;
         }
       }
-    } catch (error) {
-      console.warn('Error getting used addresses:', error);
-    }
+      return null;
+    };
 
-    // Try change address next
-    try {
-      logStep('checking change address');
-      const changeAddress = await api.getChangeAddress();
-      if (changeAddress) {
-        const formatted = formatCardanoAddress(changeAddress);
-        if (isValidCardanoAddress(formatted)) {
-          logStep('found valid change address');
-          return formatted;
-        }
+    // Try each address type with retry logic
+    const addressAttempts = [
+      {
+        type: 'used address',
+        fn: () => api.getUsedAddresses()
+      },
+      {
+        type: 'change address',
+        fn: () => api.getChangeAddress()
+      },
+      {
+        type: 'reward address',
+        fn: () => api.getRewardAddresses()
       }
-    } catch (error) {
-      console.warn('Error getting change address:', error);
+    ];
+
+    for (const { type, fn } of addressAttempts) {
+      const address = await getAddressWithRetry(fn, type);
+      if (address) return address;
     }
 
-    // Try reward addresses as last resort
-    try {
-      logStep('checking reward addresses');
-      const rewardAddresses = await api.getRewardAddresses();
-      if (rewardAddresses && rewardAddresses.length > 0) {
-        for (const addr of rewardAddresses) {
-          const formatted = formatCardanoAddress(addr);
-          if (isValidCardanoAddress(formatted)) {
-            logStep('found valid reward address');
-            return formatted;
-          }
-        }
-      }
-    } catch (error) {
-      console.warn('Error getting reward addresses:', error);
-    }
-
-    throw new Error('No valid Cardano address found in wallet');
+    throw new Error('No valid Cardano address found in wallet after all attempts');
   } catch (error) {
     console.error('Failed to get Cardano address:', error);
     throw error;

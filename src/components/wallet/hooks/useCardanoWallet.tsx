@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { 
   isCardanoWalletAvailable, 
@@ -10,15 +10,20 @@ import {
 } from '../utils/cardanoWalletUtils';
 
 const WALLET_CONNECTION_TIMEOUT = 15000; // 15 seconds
+const CONNECTION_RETRY_DELAY = 1000; // 1 second
+const MAX_CONNECTION_RETRIES = 3;
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const connectionAttempts = useRef(0);
   const { toast } = useToast();
 
   const getWallet = useCallback((walletName: CardanoWalletName): WalletApi | null => {
+    console.log(`Checking availability of ${walletName} wallet...`);
+    
     if (!isCardanoWalletAvailable(walletName)) {
       const { displayName, downloadUrl } = getWalletInfo(walletName);
       toast({
@@ -40,6 +45,8 @@ export const useCardanoWallet = () => {
       });
       return null;
     }
+
+    console.log(`${walletName} wallet is available`);
     return window.cardano?.[walletName] || null;
   }, [toast]);
 
@@ -60,20 +67,37 @@ export const useCardanoWallet = () => {
         console.log('Wallet is already enabled, checking API...');
       }
 
-      // Add timeout for wallet connection
-      const connectionPromise = wallet.enable();
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Connection timeout')), WALLET_CONNECTION_TIMEOUT);
-      });
+      // Implement retry logic for wallet connection
+      const connectWithRetry = async (): Promise<CardanoApi> => {
+        while (connectionAttempts.current < MAX_CONNECTION_RETRIES) {
+          try {
+            // Add timeout for wallet connection
+            const connectionPromise = wallet.enable();
+            const timeoutPromise = new Promise((_, reject) => {
+              setTimeout(() => reject(new Error('Connection timeout')), WALLET_CONNECTION_TIMEOUT);
+            });
 
-      // Enable the wallet API with timeout
-      console.log('Enabling wallet API...');
-      const api = await Promise.race([connectionPromise, timeoutPromise]) as CardanoApi;
-      if (!api) {
-        throw new Error('Failed to enable wallet API');
-      }
+            console.log('Enabling wallet API...');
+            const api = await Promise.race([connectionPromise, timeoutPromise]) as CardanoApi;
+            if (!api) {
+              throw new Error('Failed to enable wallet API');
+            }
+            return api;
+          } catch (error) {
+            connectionAttempts.current++;
+            if (connectionAttempts.current >= MAX_CONNECTION_RETRIES) {
+              throw error;
+            }
+            console.log(`Connection attempt ${connectionAttempts.current} failed, retrying...`);
+            await new Promise(resolve => setTimeout(resolve, CONNECTION_RETRY_DELAY));
+          }
+        }
+        throw new Error('Max connection attempts reached');
+      };
 
-      // Get the wallet address
+      const api = await connectWithRetry();
+
+      // Get the wallet address with enhanced error handling
       console.log('Getting wallet address...');
       const walletAddress = await getCardanoAddress(api);
       console.log('Wallet address:', walletAddress);
@@ -85,6 +109,7 @@ export const useCardanoWallet = () => {
       setAddress(walletAddress);
       setIsConnected(true);
       setError(null);
+      connectionAttempts.current = 0;
       
       toast({
         title: "Wallet Connected",
@@ -115,6 +140,7 @@ export const useCardanoWallet = () => {
     setIsConnected(false);
     setError(null);
     setIsConnecting(false);
+    connectionAttempts.current = 0;
   }, []);
 
   return {
