@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -58,7 +59,7 @@ export const useWalletConnection = () => {
         setCurrentChain(chain);
       } else if (['eternl', 'nami', 'lace', 'yoroi', 'vespr', 'begin', 'tokeo'].includes(walletType)) {
         address = await connectCardano(walletType as CardanoWalletName);
-        setCurrentChain('cardano');
+        setCurrentChain('cardano' as PhantomChain);
       }
 
       if (address) {
