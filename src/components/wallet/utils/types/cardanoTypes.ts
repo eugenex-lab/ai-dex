@@ -8,16 +8,37 @@ export interface WalletInfo {
   downloadUrl: string;
 }
 
-// We'll use the WalletApi interface from window.d.ts instead of defining CardanoWallet
-export interface Cardano {
-  nami?: WalletApi;
-  eternl?: WalletApi; 
-  lace?: WalletApi;
-  yoroi?: WalletApi;
-  vespr?: WalletApi;
-  begin?: WalletApi;
-  tokeo?: WalletApi;
+// CardanoWallet API interface
+export interface CardanoWallet {
+  enable: () => Promise<CardanoApi>;
+  isEnabled: () => Promise<boolean>;
+  apiVersion: string;
+  name: string;
+  icon: string;
 }
 
-// Note: Window interface is already declared in src/types/window.d.ts
-// so we don't need to redeclare it here
+// Main Cardano interface
+export interface Cardano {
+  nami?: CardanoWallet;
+  eternl?: CardanoWallet;
+  lace?: CardanoWallet;
+  yoroi?: CardanoWallet;
+  vespr?: CardanoWallet;
+  begin?: CardanoWallet;
+  tokeo?: CardanoWallet;
+}
+
+// CardanoApi interface for enabled wallet
+export interface CardanoApi {
+  getNetworkId: () => Promise<number>;
+  getUtxos: () => Promise<string[]>;
+  getBalance: () => Promise<string>;
+  getUsedAddresses: () => Promise<string[]>;
+  getUnusedAddresses: () => Promise<string[]>;
+  getChangeAddress: () => Promise<string>;
+  getRewardAddresses: () => Promise<string[]>;
+  signTx: (tx: string, partialSign?: boolean) => Promise<string>;
+  signData: (addr: string, payload: string) => Promise<string>;
+  submitTx: (tx: string) => Promise<string>;
+  experimental?: unknown;
+}

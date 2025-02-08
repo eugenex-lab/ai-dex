@@ -2,7 +2,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { isCardanoWalletAvailable, getWalletInfo, getCardanoAddress, enableWallet } from '../utils/cardanoWalletUtils';
-import type { CardanoWalletName } from '../utils/types/cardanoTypes';
+import type { CardanoWalletName, CardanoApi } from '../utils/types/cardanoTypes';
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
@@ -16,7 +16,6 @@ export const useCardanoWallet = () => {
   useEffect(() => {
     return () => {
       if (walletApiRef.current) {
-        // Simply reset states and clear reference instead of calling disconnect
         setIsConnected(false);
         setAddress(null);
         walletApiRef.current = null;
@@ -62,8 +61,8 @@ export const useCardanoWallet = () => {
         throw new Error(`${walletName} wallet not found`);
       }
 
-      // Enable wallet and get API
-      console.log('Enabling wallet API...');
+      // Enable wallet with direct enable call
+      console.log('Enabling wallet...');
       const api = await enableWallet(wallet, walletName);
       walletApiRef.current = api;
 
@@ -101,7 +100,6 @@ export const useCardanoWallet = () => {
   }, [toast]);
 
   const disconnect = useCallback(() => {
-    // Simply cleanup state and references
     walletApiRef.current = null;
     setAddress(null);
     setIsConnected(false);

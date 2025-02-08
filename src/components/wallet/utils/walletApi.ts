@@ -1,12 +1,7 @@
 
-import { CardanoWalletName, WalletInfo } from './types/cardanoTypes';
+import { CardanoWalletName, WalletInfo, CardanoApi } from './types/cardanoTypes';
 import { WALLET_INFO } from './config/walletConfig';
 import { formatCardanoAddress, isValidCardanoAddress } from './addressUtils';
-
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000;
-const CONNECTION_TIMEOUT = 15000;
-const ENABLE_TIMEOUT = 10000;
 
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   if (!api) throw new Error('API instance required');
@@ -40,7 +35,7 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
 };
 
 export const enableWallet = async (
-  wallet: WalletApi,
+  wallet: CardanoWallet,
   walletName: CardanoWalletName
 ): Promise<CardanoApi> => {
   try {
@@ -53,29 +48,11 @@ export const enableWallet = async (
 
     console.log(`Enabling ${walletName} wallet...`);
     
-    // Set up timeout for enable request
-    const enablePromise = wallet.enable();
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Enable request timeout')), ENABLE_TIMEOUT);
-    });
-
-    const api = await Promise.race([enablePromise, timeoutPromise]) as CardanoApi;
-
-    // Verify required API methods
-    const requiredMethods = [
-      'getNetworkId',
-      'getUtxos', 
-      'getBalance',
-      'getUsedAddresses',
-      'getUnusedAddresses',
-      'getChangeAddress',
-      'getRewardAddresses',
-      'signTx',
-      'signData',
-      'submitTx'
-    ];
-
-    for (const method of requiredMethods) {
+    // Simple enable call to trigger wallet popup
+    const api = await wallet.enable();
+    
+    // Verify required API methods after enable
+    for (const method of REQUIRED_METHODS) {
       if (typeof api[method] !== 'function') {
         throw new Error(`${walletName} wallet API missing required method: ${method}`);
       }

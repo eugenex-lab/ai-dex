@@ -1,8 +1,7 @@
 
 import { CardanoWalletName } from './types/cardanoTypes';
 
-const REQUIRED_PRE_METHODS = ['enable', 'isEnabled', 'apiVersion', 'name', 'icon'];
-const REQUIRED_POST_METHODS = [
+const REQUIRED_METHODS = [
   'getNetworkId',
   'getUtxos',
   'getBalance',
@@ -45,14 +44,6 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
     if (!wallet) {
       console.log(`${walletName} wallet not found`);
       return false;
-    }
-
-    // Check required pre-enable methods
-    for (const method of REQUIRED_PRE_METHODS) {
-      if (typeof wallet[method as keyof typeof wallet] === 'undefined') {
-        console.log(`${walletName} wallet missing required pre-enable method: ${method}`);
-        return false;
-      }
     }
 
     // Check API version compatibility
