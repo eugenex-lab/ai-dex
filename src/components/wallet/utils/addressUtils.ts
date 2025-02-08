@@ -1,6 +1,7 @@
 
 import { Buffer } from 'buffer/';
 import * as bech32 from 'bech32';
+import { decode as cborDecode } from 'cbor-web';
 
 const CARDANO_NETWORK_IDS = {
   mainnet: 1,
@@ -39,10 +40,18 @@ export const isValidCardanoAddress = (address: string): boolean => {
   }
   
   try {
-    // Log validation attempt
-    console.log(`Address validation result for ${address.slice(0, 10)}...:`, 
-      isValidAddressFormat(address));
-    
+    // Handle hex-encoded addresses first
+    if (address.match(/^[0-9a-fA-F]+$/)) {
+      try {
+        // Attempt CBOR decoding first
+        const decoded = cborDecode(Buffer.from(address, 'hex'));
+        address = decoded.toString('ascii').replace(/[^\x20-\x7E]/g, '');
+      } catch (error) {
+        console.log('CBOR decoding failed, trying direct bech32 conversion');
+      }
+    }
+
+    // Now validate the address format
     return isValidAddressFormat(address);
   } catch (error) {
     console.error('Error validating Cardano address:', error);
@@ -52,18 +61,26 @@ export const isValidCardanoAddress = (address: string): boolean => {
 
 // Improved address format validation
 function isValidAddressFormat(address: string): boolean {
-  // Mainnet address formats
-  const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
-  const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
-  const isMainnetStake = address.startsWith('stake1') && address.length >= 58 && address.length <= 108;
+  try {
+    // Mainnet address formats
+    const isMainnetShelley = address.startsWith('addr1') && address.length >= 58 && address.length <= 108;
+    const isMainnetByron = address.startsWith('Ae2') && address.length >= 58 && address.length <= 108;
+    const isMainnetStake = address.startsWith('stake1') && address.length >= 58 && address.length <= 108;
 
-  // Testnet address formats  
-  const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
-  const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
-  const isTestnetStake = address.startsWith('stake_test1') && address.length >= 58 && address.length <= 108;
+    // Testnet address formats  
+    const isTestnetShelley = address.startsWith('addr_test1') && address.length >= 58 && address.length <= 108;
+    const isTestnetByron = address.startsWith('2cWKMJemoBa') && address.length >= 58 && address.length <= 108;
+    const isTestnetStake = address.startsWith('stake_test1') && address.length >= 58 && address.length <= 108;
 
-  return isMainnetShelley || isTestnetShelley || isMainnetByron || 
-         isTestnetByron || isMainnetStake || isTestnetStake;
+    const isValid = isMainnetShelley || isTestnetShelley || isMainnetByron || 
+                   isTestnetByron || isMainnetStake || isTestnetStake;
+
+    console.log(`Address validation result for ${address.slice(0, 10)}...:`, isValid);
+    return isValid;
+  } catch (error) {
+    console.error('Error in address format validation:', error);
+    return false;
+  }
 }
 
 // Enhanced address parsing with proper error handling
@@ -107,9 +124,7 @@ export const formatCardanoAddress = (address: string): string => {
       return '';
     }
 
-    console.log('Formatting address input:', address);
-    
-    // If already in valid bech32 format, return as is
+    // If already in valid format, return as is
     if (isValidCardanoAddress(address)) {
       return address;
     }
@@ -117,48 +132,39 @@ export const formatCardanoAddress = (address: string): string => {
     // Handle hex-encoded CIP-30 addresses
     if (address.match(/^[0-9a-fA-F]+$/)) {
       try {
-        const bytes = Buffer.from(address, 'hex');
-        const components = parseCardanoAddressBytes(bytes);
-        
-        if (!components) {
-          throw new Error('Failed to parse address components');
+        // Try CBOR decoding first
+        const decoded = cborDecode(Buffer.from(address, 'hex'));
+        const extracted = decoded.toString('ascii').replace(/[^\x20-\x7E]/g, '');
+        if (isValidCardanoAddress(extracted)) {
+          return extracted;
         }
-
-        const { networkId, paymentPart, stakingPart, type } = components;
-        const network = networkId === CARDANO_NETWORK_IDS.mainnet ? 'mainnet' : 'testnet';
-        const prefix = CARDANO_ADDRESS_PREFIXES[network][type];
-
+      } catch (error) {
+        // If CBOR fails, try direct conversion
         try {
-          // Convert to bech32 format with proper word limits
+          const bytes = Buffer.from(address, 'hex');
+          const components = parseCardanoAddressBytes(bytes);
+          
+          if (!components) {
+            throw new Error('Failed to parse address components');
+          }
+
+          const { networkId, paymentPart, stakingPart, type } = components;
+          const network = networkId === CARDANO_NETWORK_IDS.mainnet ? 'mainnet' : 'testnet';
+          const prefix = CARDANO_ADDRESS_PREFIXES[network][type];
+
+          // Convert to bech32 format
           const words = bech32.bech32.toWords(Buffer.concat([
             paymentPart,
             stakingPart || Buffer.alloc(0)
           ]));
 
-          const encoded = bech32.bech32.encode(prefix, words);
-          console.log('Successfully converted hex to bech32 address:', encoded);
-          
+          const encoded = bech32.bech32.encode(prefix, words, 1000);
           if (isValidCardanoAddress(encoded)) {
             return encoded;
           }
         } catch (error) {
-          console.log('Not a valid bech32 address:', error);
+          console.log('Direct conversion failed:', error);
         }
-      } catch (error) {
-        console.log('Hex decoding failed:', error);
-      }
-    }
-
-    // Handle CBOR-encoded addresses
-    if (address.startsWith('\\x')) {
-      try {
-        const bytes = Buffer.from(address.slice(2), 'hex');
-        const extracted = bytes.toString('ascii').replace(/[^\x20-\x7E]/g, '');
-        if (isValidCardanoAddress(extracted)) {
-          return extracted;
-        }
-      } catch (error) {
-        console.log('CBOR decoding failed:', error);
       }
     }
 

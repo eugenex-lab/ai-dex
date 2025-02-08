@@ -77,7 +77,7 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
       return false;
     }
 
-    // Try to enable the wallet first
+    // Try to enable the wallet first to get the API instance
     let api;
     try {
       const isEnabled = await wallet.isEnabled();
@@ -106,9 +106,12 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
       'submitTx'
     ];
 
+    // Only check for methods after wallet is enabled
     const hasAllMethods = requiredMethods.every(method => {
       const hasMethod = typeof api[method] === 'function';
-      console.log(`${walletName} wallet ${hasMethod ? 'has' : 'does not have'} ${method}`);
+      if (!hasMethod) {
+        console.log(`${walletName} wallet does not have ${method} (checking after enable)`);
+      }
       return hasMethod;
     });
 
