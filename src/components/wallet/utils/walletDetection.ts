@@ -1,6 +1,35 @@
 
 import { CardanoWalletName } from './types/cardanoTypes';
 
+// Parse version string into components
+interface Version {
+  major: number;
+  minor: number;
+  patch: number;
+}
+
+function parseVersion(version: string): Version {
+  const [major = 0, minor = 0, patch = 0] = version.split('.').map(Number);
+  return { major, minor, patch };
+}
+
+// Check if version is in supported range
+function isVersionSupported(version: string): boolean {
+  const parsed = parseVersion(version);
+  
+  // Support 0.x.x versions as long as they implement CIP-30
+  if (parsed.major === 0 && parsed.minor >= 1) {
+    return true;
+  }
+  
+  // Support all 1.x.x and above versions
+  if (parsed.major >= 1) {
+    return true;
+  }
+
+  return false;
+}
+
 // Enhanced wallet detection with improved CIP-30 validation and error handling
 export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean => {
   try {
@@ -44,12 +73,32 @@ export const isCardanoWalletAvailable = (walletName: CardanoWalletName): boolean
       return false;
     }
 
-    // Parse version string and compare
-    const [major] = version.split('.').map(Number);
-    if (isNaN(major) || major < 1) {
-      console.log(`${walletName} wallet API version ${version} is not supported`);
+    // Validate version compatibility
+    if (!isVersionSupported(version)) {
+      console.log(`${walletName} wallet API version ${version} is not in supported range`);
       return false;
     }
+
+    // Additional capability checks for specific wallet features
+    const optionalFeatures = [
+      'getNetworkId',
+      'getUtxos',
+      'getCollateral',
+      'getBalance',
+      'getUsedAddresses',
+      'getUnusedAddresses',
+      'getChangeAddress',
+      'getRewardAddresses',
+      'signTx',
+      'signData',
+      'submitTx'
+    ];
+
+    // Log available features for debugging
+    optionalFeatures.forEach(feature => {
+      const hasFeature = wallet[feature as keyof WalletApi] !== undefined;
+      console.log(`${walletName} wallet ${hasFeature ? 'has' : 'does not have'} ${feature}`);
+    });
 
     return true;
   } catch (error) {
