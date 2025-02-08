@@ -1,7 +1,23 @@
 
 import { CardanoWalletName } from './types/cardanoTypes';
 
-// Parse version string into components
+// Basic CIP-30 required methods that should exist before enable
+const REQUIRED_PRE_METHODS = ['enable', 'isEnabled', 'apiVersion', 'name', 'icon'];
+
+// Methods that should exist after enable
+const REQUIRED_POST_METHODS = [
+  'getNetworkId',
+  'getUtxos',
+  'getBalance',
+  'getUsedAddresses',
+  'getUnusedAddresses',
+  'getChangeAddress',
+  'getRewardAddresses',
+  'signTx',
+  'signData',
+  'submitTx'
+];
+
 interface Version {
   major: number;
   minor: number;
@@ -15,23 +31,13 @@ function parseVersion(version: string): Version {
 
 function isVersionSupported(version: string): boolean {
   const parsed = parseVersion(version);
-  
-  // Support 0.x.x versions as long as they implement CIP-30 
-  if (parsed.major === 0 && parsed.minor >= 1) {
-    return true;
-  }
-  
-  // Support all 1.x.x and above versions
-  if (parsed.major >= 1) {
-    return true;
-  }
-
-  return false;
+  return parsed.major >= 1 || (parsed.major === 0 && parsed.minor >= 1);
 }
 
-// Enhanced wallet detection with improved CIP-30 validation
 export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): Promise<boolean> => {
   try {
+    console.log(`Checking availability of ${walletName} wallet...`);
+    
     // Check if window.cardano exists
     if (typeof window === 'undefined' || !window.cardano) {
       console.log('Cardano object not found in window');
@@ -44,80 +50,26 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
       return false;
     }
 
-    // First verify basic properties before enabling
-    const requiredBaseProperties = [
-      'enable',
-      'isEnabled',
-      'apiVersion',
-      'name',
-      'icon'
-    ];
-
-    const hasBaseProperties = requiredBaseProperties.every(prop => {
-      const hasProp = wallet[prop as keyof WalletApi] !== undefined;
-      if (!hasProp) {
-        console.log(`${walletName} wallet missing required base property: ${prop}`);
+    // Check required pre-enable methods
+    for (const method of REQUIRED_PRE_METHODS) {
+      if (typeof wallet[method as keyof typeof wallet] === 'undefined') {
+        console.log(`${walletName} wallet missing required pre-enable method: ${method}`);
+        return false;
       }
-      return hasProp;
-    });
-
-    if (!hasBaseProperties) {
-      return false;
     }
 
     // Check API version compatibility
     const version = wallet.apiVersion;
-    if (typeof version !== 'string') {
-      console.log(`${walletName} wallet has invalid API version type`);
+    if (typeof version !== 'string' || !isVersionSupported(version)) {
+      console.log(`${walletName} wallet API version ${version} not supported`);
       return false;
     }
 
-    if (!isVersionSupported(version)) {
-      console.log(`${walletName} wallet API version ${version} is not in supported range`);
-      return false;
-    }
-
-    // Try to enable the wallet first to get the API instance
-    let api;
-    try {
-      const isEnabled = await wallet.isEnabled();
-      if (!isEnabled) {
-        api = await wallet.enable();
-      } else {
-        api = wallet;
-      }
-    } catch (error) {
-      console.error(`Error enabling ${walletName} wallet:`, error);
-      return false;
-    }
-
-    // Now check for required CIP-30 methods after enabling
-    const requiredMethods = [
-      'getNetworkId',
-      'getUtxos',
-      'getCollateral',
-      'getBalance',
-      'getUsedAddresses',
-      'getUnusedAddresses',
-      'getChangeAddress',
-      'getRewardAddresses',
-      'signTx',
-      'signData',
-      'submitTx'
-    ];
-
-    // Only check for methods after wallet is enabled
-    const hasAllMethods = requiredMethods.every(method => {
-      const hasMethod = typeof api[method] === 'function';
-      if (!hasMethod) {
-        console.log(`${walletName} wallet does not have ${method} (checking after enable)`);
-      }
-      return hasMethod;
-    });
-
-    return hasAllMethods;
+    console.log(`${walletName} wallet is available`);
+    return true;
   } catch (error) {
     console.error(`Error checking ${walletName} wallet availability:`, error);
     return false;
   }
 };
+
