@@ -8,20 +8,12 @@ export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
   // Check for Phantom provider
   const provider = window.phantom;
   
-  if (!provider) {
-    console.log('Phantom wallet: No provider found');
-    return false;
-  }
-  
-  // Check chain-specific provider
-  const chainProvider = provider[chain];
-  
-  if (!chainProvider) {
+  if (!provider?.[chain]) {
     console.log(`Phantom wallet: No ${chain} provider found`);
     return false;
   }
   
-  if (!chainProvider.isPhantom) {
+  if (!provider[chain].isPhantom) {
     console.log(`Phantom wallet: Provider is not Phantom for ${chain}`);
     return false;
   }
@@ -78,8 +70,8 @@ export const getChainConnection = async (chain: PhantomChain) => {
   }
 
   const provider = window.phantom[chain];
-  if (!provider) {
-    throw new Error(`Phantom ${chain} provider not found`);
+  if (!provider || !isPhantomAvailable(chain)) {
+    throw new Error(`Phantom ${chain} provider not found or not enabled`);
   }
 
   try {
@@ -87,6 +79,12 @@ export const getChainConnection = async (chain: PhantomChain) => {
     
     switch (chain) {
       case 'solana': {
+        // Force disconnect before connecting to ensure fresh connection
+        try {
+          await provider.disconnect();
+        } catch (e) {
+          console.log('No existing connection to disconnect');
+        }
         const response = await provider.connect();
         address = response.publicKey.toString();
         break;
@@ -94,12 +92,22 @@ export const getChainConnection = async (chain: PhantomChain) => {
       
       case 'ethereum':
       case 'polygon': {
+        try {
+          await provider.request({ method: 'wallet_requestPermissions', params: [{ eth_accounts: {} }] });
+        } catch (e) {
+          console.log('No existing permissions to clear');
+        }
         const accounts = await provider.request({ method: 'eth_requestAccounts' });
         address = accounts[0];
         break;
       }
       
       case 'bitcoin': {
+        try {
+          await provider.request({ method: 'disconnect' });
+        } catch (e) {
+          console.log('No existing connection to disconnect');
+        }
         const accounts = await provider.request({ method: 'requestAccounts' });
         address = accounts[0].address;
         break;

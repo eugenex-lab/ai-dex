@@ -11,10 +11,10 @@ export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWallet, setLoadingWallet] = useState<string | null>(null);
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
-  const [currentChain, setCurrentChain] = useState<PhantomChain>('solana');
+  const [currentChain, setCurrentChain] = useState<PhantomChain | null>(null);
   const { toast } = useToast();
 
-  const { connect: connectMetaMask } = useMetaMask(setConnectedAddress, updateWalletConnection);
+  const { connect: connectMetaMask, getChainInfo } = useMetaMask(setConnectedAddress, updateWalletConnection);
   const { connect: connectPhantom } = usePhantom(setConnectedAddress, updateWalletConnection);
 
   useEffect(() => {
@@ -39,17 +39,21 @@ export const useWalletConnection = () => {
   const handleWalletSelect = async (walletType: string, chain?: PhantomChain) => {
     setIsLoading(true);
     setLoadingWallet(walletType);
+    setCurrentChain(null);
 
     try {
       let address: string | null = null;
 
       if (walletType === 'metamask') {
         address = await connectMetaMask();
+        const chainInfo = await getChainInfo();
+        setCurrentChain(chainInfo.chain as PhantomChain);
       } else if (walletType === 'phantom') {
-        address = await connectPhantom(chain);
-        if (chain) {
-          setCurrentChain(chain);
+        if (!chain) {
+          throw new Error('Chain must be specified for Phantom wallet');
         }
+        address = await connectPhantom(chain);
+        setCurrentChain(chain);
       }
 
       if (address) {
@@ -62,6 +66,8 @@ export const useWalletConnection = () => {
         description: error.message || "Failed to connect wallet. Please try again.",
         variant: "destructive"
       });
+      setConnectedAddress(null);
+      setCurrentChain(null);
     } finally {
       setIsLoading(false);
       setLoadingWallet(null);
@@ -73,7 +79,7 @@ export const useWalletConnection = () => {
       setIsLoading(true);
       await disconnectWallet();
       setConnectedAddress(null);
-      setCurrentChain('solana');
+      setCurrentChain(null);
     } catch (error: any) {
       console.error('Wallet disconnection error:', error);
       toast({
