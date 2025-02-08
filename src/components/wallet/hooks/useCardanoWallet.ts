@@ -18,7 +18,7 @@ export const useCardanoWallet = () => {
         title: `${displayName} Not Found`,
         description: (
           <div>
-            {`Please install ${displayName} wallet first. `}
+            {["Please install ", displayName, " wallet first. "]}
             <a 
               href={downloadUrl}
               target="_blank"
