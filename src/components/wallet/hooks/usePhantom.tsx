@@ -35,22 +35,11 @@ export const usePhantom = (
             const newAddress = window.phantom.solana.publicKey.toString();
             console.log('New Phantom address:', newAddress);
             setConnectedAddress(newAddress);
-          } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
+          } else if (selectedChain === 'ethereum') {
             if (provider.request) {
               const accounts = await provider.request({ method: 'eth_accounts' });
               if (accounts?.[0]) {
                 setConnectedAddress(accounts[0]);
-              } else {
-                setConnectedAddress(null);
-              }
-            } else {
-              setConnectedAddress(null);
-            }
-          } else if (selectedChain === 'bitcoin') {
-            if (provider.request) {
-              const accounts = await provider.request({ method: 'accounts' });
-              if (accounts?.[0]?.address) {
-                setConnectedAddress(accounts[0].address);
               } else {
                 setConnectedAddress(null);
               }
@@ -70,22 +59,15 @@ export const usePhantom = (
       // Set up chain-specific event listeners
       if (selectedChain === 'solana') {
         provider.on('accountChanged', handleAccountChange);
-      } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
-        provider.on('accountsChanged', handleAccountChange);
-      } else if (selectedChain === 'bitcoin') {
+      } else if (selectedChain === 'ethereum') {
         provider.on('accountsChanged', handleAccountChange);
       }
-
-      // Don't automatically trigger connection - wait for user action
-      // This prevents auto-connection to previously connected wallets
 
       return () => {
         console.log(`Cleaning up Phantom ${selectedChain} wallet listener`);
         if (selectedChain === 'solana') {
           provider.removeListener('accountChanged', handleAccountChange);
-        } else if (selectedChain === 'ethereum' || selectedChain === 'polygon') {
-          provider.removeListener('accountsChanged', handleAccountChange);
-        } else if (selectedChain === 'bitcoin') {
+        } else if (selectedChain === 'ethereum') {
           provider.removeListener('accountsChanged', handleAccountChange);
         }
       };
