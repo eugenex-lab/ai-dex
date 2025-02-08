@@ -1,10 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 export const updateWalletConnection = async (address: string, walletType: string) => {
   const { data: { user } } = await supabase.auth.getUser();
-  const { toast } = useToast();
   
   if (user) {
     await supabase
@@ -34,7 +33,6 @@ export const updateWalletConnection = async (address: string, walletType: string
 
 export const disconnectWallet = async () => {
   const { data: { user } } = await supabase.auth.getUser();
-  const { toast } = useToast();
   
   if (user) {
     await supabase
@@ -64,4 +62,3 @@ export const disconnectWallet = async () => {
     });
   }
 };
-
