@@ -7,7 +7,6 @@ interface WalletOption {
   id: string;
   name: string;
   icon: string;
-  comingSoon?: boolean;
 }
 
 interface WalletOptionsProps {
@@ -20,7 +19,7 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: 'metamask',
     name: 'MetaMask',
-    icon: 'metamask.png',
+    icon: 'Metamask Icon.png',
   },
   {
     id: 'phantom',
@@ -30,32 +29,32 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: 'yoroi',
     name: 'Yoroi',
-    icon: 'yoroi.png',
+    icon: 'Yoroi Icon.png',
   },
   {
     id: 'eternl',
     name: 'Eternl',
-    icon: 'eternl.png',
+    icon: 'Eternl Icon.png',
   },
   {
     id: 'lace',
     name: 'Lace',
-    icon: 'lace.png',
+    icon: 'lace icon.jpg',
   },
   {
     id: 'begin',
     name: 'Begin',
-    icon: 'begin.png',
+    icon: 'Begin Icon.png',
   },
   {
     id: 'tokeo',
     name: 'Tokeo',
-    icon: 'tokeo.png',
+    icon: 'Tokeo Icon.png',
   },
   {
     id: 'vespr',
     name: 'Vespr',
-    icon: 'vespr.png'
+    icon: 'Vespr Icon.png'
   }
 ];
 
@@ -74,6 +73,7 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
             .getPublicUrl(wallet.icon);
             
           iconUrls[wallet.id] = publicUrl;
+          console.log(`Loaded icon for ${wallet.name}:`, publicUrl); // Debug log
         } catch (error) {
           console.error(`Failed to load icon for ${wallet.name}:`, error);
           iconUrls[wallet.id] = '/placeholder.svg';
@@ -91,10 +91,10 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
       {WALLET_OPTIONS.map((wallet) => (
         <Card
           key={wallet.id}
-          className={`relative p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            !wallet.comingSoon && !isLoading ? 'hover:scale-105 hover:border-primary/50' : ''
-          } ${isLoading && loadingWallet === wallet.id ? 'animate-pulse' : ''}`}
-          onClick={() => !wallet.comingSoon && !isLoading && onSelect(wallet.id)}
+          className={`relative p-3 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all duration-200 hover:shadow-lg 
+            ${!isLoading ? 'hover:scale-105 hover:border-primary/50' : ''} 
+            ${isLoading && loadingWallet === wallet.id ? 'animate-pulse' : ''}`}
+          onClick={() => !isLoading && onSelect(wallet.id)}
         >
           <div className="w-8 h-8 flex items-center justify-center">
             <img 
@@ -104,6 +104,7 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet }: WalletOptionsProp
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.src = '/placeholder.svg';
+                console.error(`Failed to load image for ${wallet.name}`); // Debug log
               }}
             />
           </div>
