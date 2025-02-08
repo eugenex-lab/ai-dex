@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { type PhantomChain } from "./utils/walletUtils";
+import { CARDANO_WALLET_INFO } from "./utils/walletUtils";
 
 interface WalletOption {
   id: string;
@@ -28,36 +29,7 @@ const WALLET_OPTIONS: WalletOption[] = [
     name: 'Phantom',
     icon: 'phantom.png',
   },
-  {
-    id: 'yoroi',
-    name: 'Yoroi',
-    icon: 'Yoroi Icon.png',
-  },
-  {
-    id: 'eternl',
-    name: 'Eternl',
-    icon: 'Eternl Icon.png',
-  },
-  {
-    id: 'lace',
-    name: 'Lace',
-    icon: 'lace icon.jpg',
-  },
-  {
-    id: 'begin',
-    name: 'Begin',
-    icon: 'Begin Icon.png',
-  },
-  {
-    id: 'tokeo',
-    name: 'Tokeo',
-    icon: 'Tokeo Icon.png',
-  },
-  {
-    id: 'vespr',
-    name: 'Vespr',
-    icon: 'Vespr Icon.png'
-  }
+  ...CARDANO_WALLET_INFO
 ];
 
 const WalletOptions = ({ onSelect, isLoading, loadingWallet, selectedChain }: WalletOptionsProps) => {
@@ -75,7 +47,7 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet, selectedChain }: Wa
             .getPublicUrl(wallet.icon);
             
           iconUrls[wallet.id] = publicUrl;
-          console.log(`Loaded icon for ${wallet.name}:`, publicUrl); // Debug log
+          console.log(`Loaded icon for ${wallet.name}:`, publicUrl);
         } catch (error) {
           console.error(`Failed to load icon for ${wallet.name}:`, error);
           iconUrls[wallet.id] = '/placeholder.svg';
@@ -111,7 +83,9 @@ const WalletOptions = ({ onSelect, isLoading, loadingWallet, selectedChain }: Wa
             />
           </div>
           <p className="text-sm font-medium text-center">{wallet.name}</p>
-          {selectedChain && <p className="text-xs text-gray-500">{selectedChain}</p>}
+          {selectedChain && ['phantom', 'metamask'].includes(wallet.id) && (
+            <p className="text-xs text-gray-500">{selectedChain}</p>
+          )}
         </Card>
       ))}
     </div>

@@ -1,4 +1,3 @@
-
 interface Window {
   ethereum?: {
     isMetaMask?: boolean;
@@ -43,5 +42,13 @@ interface Window {
       on: (event: string, callback: (params: any) => void) => void;
       removeListener: (event: string, callback: (params: any) => void) => void;
     };
+  };
+  cardano?: {
+    eternl?: any;
+    yoroi?: any;
+    lace?: any;
+    begin?: any;
+    tokeo?: any;
+    vespr?: any;
   };
 }
