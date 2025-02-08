@@ -1,126 +1,77 @@
 
-import { useState, useCallback, useEffect } from 'react';
-import { BrowserWallet } from '@meshsdk/core';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import type { CardanoWalletType, CardanoWalletState } from '../types/cardano';
+import { isCardanoWalletAvailable, getWalletInfo, type CardanoWalletName } from '../utils/cardanoWalletUtils';
 
 export const useCardanoWallet = () => {
+  const [address, setAddress] = useState<string | null>(null);
+  const [isConnected, setIsConnected] = useState(false); 
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const [state, setState] = useState<CardanoWalletState>({
-    wallet: null,
-    connected: false,
-    address: null,
-    networkId: null,
-    loading: false,
-    error: null,
-  });
 
-  const resetState = useCallback(() => {
-    setState({
-      wallet: null,
-      connected: false,
-      address: null,
-      networkId: null,
-      loading: false,
-      error: null,
-    });
-  }, []);
-
-  const connect = useCallback(async (walletType: CardanoWalletType) => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+  const getWallet = useCallback((walletName: CardanoWalletName): any => {
+    const wallet = (window as any)[walletName];
     
-    try {
-      // Check if wallet is available
-      const wallets = await BrowserWallet.getInstalledWallets();
-      const selectedWallet = wallets.find(w => w.name === walletType);
-      
-      if (!selectedWallet) {
-        throw new Error(`${walletType} wallet not installed`);
-      }
-
-      // Enable the wallet
-      const wallet = await BrowserWallet.enable(walletType);
-      
-      // Get wallet info
-      const [address] = await wallet.getUsedAddresses();
-      const networkId = await wallet.getNetworkId();
-
-      setState({
-        wallet,
-        connected: true,
-        address,
-        networkId,
-        loading: false,
-        error: null,
-      });
-
+    if (!isCardanoWalletAvailable(walletName)) {
+      const { displayName, downloadUrl } = getWalletInfo(walletName);
       toast({
-        title: "Wallet Connected",
-        description: `Successfully connected to ${walletType}`,
-      });
-
-      return { address, networkId };
-    } catch (error: any) {
-      console.error('Cardano wallet connection error:', error);
-      setState(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message || 'Failed to connect wallet',
-      }));
-
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Failed to connect wallet",
+        title: `${displayName} Not Found`,
+        description: (
+          <div>
+            <span>Please install {displayName} wallet first. </span>
+            <a 
+              href={downloadUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-primary"
+            >
+              Download here
+            </a>
+          </div>
+        ),
         variant: "destructive"
       });
-      
-      throw error;
-    }
-  }, [toast]);
-
-  const disconnect = useCallback(async () => {
-    if (state.wallet) {
-      try {
-        resetState();
-        
-        toast({
-          title: "Wallet Disconnected",
-          description: "Successfully disconnected wallet",
-        });
-      } catch (error: any) {
-        console.error('Cardano wallet disconnection error:', error);
-        toast({
-          title: "Disconnection Failed",
-          description: error.message || "Failed to disconnect wallet",
-          variant: "destructive"
-        });
-      }
-    }
-  }, [state.wallet, resetState, toast]);
-
-  const getBalance = useCallback(async () => {
-    if (!state.wallet || !state.connected) return null;
-    try {
-      return await state.wallet.getBalance();
-    } catch (error) {
-      console.error('Failed to get balance:', error);
       return null;
     }
-  }, [state.wallet, state.connected]);
+    return wallet.cardano;
+  }, [toast]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (state.wallet) {
-        resetState();
-      }
-    };
-  }, [state.wallet, resetState]);
+  const connect = useCallback(async (walletName: CardanoWalletName): Promise<string | null> => {
+    try {
+      const wallet = getWallet(walletName);
+      if (!wallet) return null;
+
+      const api = await wallet.enable();
+      const [address] = await api.getUsedAddresses();
+      
+      setAddress(address);
+      setIsConnected(true);
+      setError(null);
+      
+      return address;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to connect wallet";
+      setError(message);
+      toast({
+        title: "Connection Failed",
+        description: message,
+        variant: "destructive"
+      });
+      return null;
+    }
+  }, [getWallet, toast]);
+
+  const disconnect = useCallback(async () => {
+    setAddress(null);
+    setIsConnected(false);
+    setError(null);
+  }, []);
 
   return {
-    ...state,
     connect,
     disconnect,
-    getBalance,
+    isConnected,
+    address,
+    error
   };
 };
