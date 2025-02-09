@@ -31,11 +31,16 @@ export interface JupiterToken {
   verified?: boolean;
 }
 
+export interface JupiterFee {
+  amount: number;
+  mint: string;
+  pct: number;
+}
+
 export interface SwapResult {
   swapTransaction: any;
-  routeInfo: any;
+  routeInfo: RouteInfo;
   signature?: string;
 }
 
-// Re-export Jupiter core types
-export type { MarketInfo, RouteInfo } from '@jup-ag/core';
+export type { RouteInfo, SwapMode } from '@jup-ag/core';

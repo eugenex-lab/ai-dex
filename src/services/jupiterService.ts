@@ -1,10 +1,10 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Jupiter, RouteInfo, TOKEN_LIST_URL } from '@jup-ag/core';
+import JSBI from 'jsbi';
+import { Jupiter, RouteInfo, TOKEN_LIST_URL, SwapMode } from '@jup-ag/core';
 import { JupiterToken, SwapResult } from '@/types/jupiter';
 import { toast } from '@/hooks/use-toast';
 
-// Constants
 export const JUPITER_FEE_RECIPIENT = new PublicKey('8iB1cjU7PtkxW3yemjtDLAWVt645vtW1NUduyH6AuWFS');
 export const PLATFORM_FEE_BPS = 100; // 1% = 100 basis points
 
@@ -63,10 +63,11 @@ export const getRoutes = async (
   swapMode: SwapMode
 ): Promise<RouteInfo[]> => {
   try {
+    const amountBigInt = JSBI.BigInt(amount.toString());
     const routes = await jupiter.computeRoutes({
       inputMint,
       outputMint,
-      amount,
+      amount: amountBigInt,
       slippageBps,
       swapMode,
       forceFetch: true

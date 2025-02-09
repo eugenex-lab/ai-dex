@@ -27,7 +27,7 @@ export const computeRoutes = async (
     console.log('Computing routes with params:', {
       inputMint,
       outputMint,
-      amount: JSBI.BigInt(amount),
+      amount,
       slippageBps,
       swapMode
     });
@@ -36,7 +36,7 @@ export const computeRoutes = async (
       jupiter,
       new PublicKey(inputMint),
       new PublicKey(outputMint),
-      JSBI.BigInt(amount),
+      amount,
       slippageBps,
       swapMode
     );
