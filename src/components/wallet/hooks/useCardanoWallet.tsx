@@ -15,11 +15,9 @@ export const useCardanoWallet = () => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (walletApiRef.current) {
-        setIsConnected(false);
-        setAddress(null);
-        walletApiRef.current = null;
-      }
+      walletApiRef.current = null;
+      setIsConnected(false);
+      setAddress(null);
     };
   }, []);
 
@@ -61,8 +59,8 @@ export const useCardanoWallet = () => {
         throw new Error(`${walletName} wallet not found`);
       }
 
-      // Enable wallet with direct enable call
-      console.log('Enabling wallet...');
+      // Always request new enable() to trigger wallet popup
+      console.log('Requesting wallet connection...');
       const api = await enableWallet(wallet, walletName);
       walletApiRef.current = api;
 

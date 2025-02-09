@@ -53,14 +53,18 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
       return false;
     }
 
-    // Check if already enabled
-    const isEnabled = await wallet.isEnabled().catch(() => false);
-    if (!isEnabled) {
-      console.log(`${walletName} wallet is available but not enabled`);
-      return true; // Return true since we want to show the connect button
+    // Only check if the wallet exists and has required methods - don't check enabled state
+    const hasRequiredMethods = REQUIRED_METHODS.every(method => 
+      typeof wallet[method] === 'function' || 
+      (wallet.enable && typeof wallet.enable === 'function')
+    );
+
+    if (!hasRequiredMethods) {
+      console.log(`${walletName} wallet missing required methods`);
+      return false;
     }
 
-    console.log(`${walletName} wallet is available and ready`);
+    console.log(`${walletName} wallet is available`);
     return true;
   } catch (error) {
     console.error(`Error checking ${walletName} wallet availability:`, error);

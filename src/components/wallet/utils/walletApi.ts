@@ -83,33 +83,20 @@ export const enableWallet = async (
   walletName: CardanoWalletName
 ): Promise<CardanoApiResponse> => {
   try {
-    // Check if already enabled first
-    const isEnabled = await wallet.isEnabled().catch(() => false);
-    if (isEnabled) {
-      console.log(`${walletName} wallet already enabled`);
-      // Get fresh API instance even when already enabled
-      const api = await wallet.enable();
-      if (!validateApi(api)) {
-        throw new Error(`${walletName} wallet API is missing required methods`);
-      }
-      // Normalize API structure
-      return 'cardano' in api ? api : { cardano: api };
-    }
-
     console.log(`Enabling ${walletName} wallet...`);
     
-    // Get API response from enable call
+    // Always request a fresh enable() call to trigger wallet popup
     const api = await wallet.enable();
     
-    // Validate API structure 
+    // Validate the API structure
     if (!validateApi(api)) {
       throw new Error(`${walletName} wallet API is missing required methods`);
     }
 
-    // Normalize API structure
+    // Return normalized API structure
     const normalizedApi = 'cardano' in api ? api : { cardano: api };
-
     console.log(`${walletName} wallet enabled successfully`);
+    
     return normalizedApi;
   } catch (error) {
     console.error(`Error enabling ${walletName} wallet:`, error);
@@ -120,4 +107,3 @@ export const enableWallet = async (
 export const getWalletInfo = (walletName: CardanoWalletName): WalletInfo => {
   return WALLET_INFO[walletName];
 };
-
