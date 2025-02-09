@@ -1,4 +1,4 @@
-export type PhantomChain = 'solana' | 'ethereum' | 'cardano';
+export type PhantomChain = 'solana' | 'ethereum';
 
 export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
   // Check if we're in a browser environment
@@ -95,26 +95,6 @@ export const getChainConnection = async (chain: PhantomChain) => {
       });
       address = response.publicKey.toString();
     } else if (chain === 'ethereum') {
-      try {
-        // Clear existing permissions
-        await provider.request({ 
-          method: 'wallet_requestPermissions',
-          params: [{ eth_accounts: {} }]
-        });
-      } catch (e) {
-        console.log('No existing permissions to clear');
-      }
-      
-      // Request new connection
-      const accounts = await provider.request({ 
-        method: 'eth_requestAccounts' 
-      });
-      
-      if (!accounts?.[0]) {
-        throw new Error('No account returned');
-      }
-      address = accounts[0];
-    } else if (chain === 'cardano') {
       try {
         // Clear existing permissions
         await provider.request({ 
