@@ -1,12 +1,12 @@
 
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
 import { 
-  TOKEN_PROGRAM_ID, 
-  ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction as createATA,
   getAssociatedTokenAddress,
-  createCloseAccountInstruction
-} from '@solana/spl-token';
+  createCloseAccountInstruction,
+  TOKEN_PROGRAM_ID, 
+  ASSOCIATED_TOKEN_PROGRAM_ID,
+} from '@solana/spl-token-2';
 import { toast } from '@/hooks/use-toast';
 
 export class WalletService {

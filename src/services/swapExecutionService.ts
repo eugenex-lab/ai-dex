@@ -4,7 +4,6 @@ import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletService } from '@/services/walletService';
 import { toast } from '@/hooks/use-toast';
-import JSBI from 'jsbi';
 
 export const executeJupiterSwap = async (
   jupiter: Jupiter,
@@ -46,6 +45,7 @@ export const executeJupiterSwap = async (
       .insert({
         type: 'swap',
         side: 'buy',
+        pair: `${inputMint}-${bestRoute.marketInfos[0].outputMint.toString()}`,
         price: Number(bestRoute.outAmount) / Number(bestRoute.inAmount),
         amount: Number(bestRoute.inAmount),
         total: Number(bestRoute.outAmount),
@@ -98,7 +98,7 @@ export const executeJupiterSwap = async (
 
       // Record fees if applicable
       const platformFee = bestRoute.marketInfos[0]?.platformFee;
-      if (platformFee?.amount) {
+      if (platformFee) {
         const { error: feeError } = await supabase
           .from('collected_fees')
           .insert({

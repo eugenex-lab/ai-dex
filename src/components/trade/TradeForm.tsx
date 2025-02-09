@@ -1,5 +1,5 @@
 
-import { Token } from "@/utils/tokenData";
+import { JupiterToken } from "@/services/jupiterTokenService";
 import { LimitOrderForm } from "./forms/LimitOrderForm";
 import { DipTradeForm } from "./forms/DipTradeForm";
 import { MarketTradeForm } from "./forms/MarketTradeForm";
@@ -11,8 +11,8 @@ interface TradeFormProps {
   setAmount: (value: string) => void;
   receiveAmount: string;
   setReceiveAmount: (value: string) => void;
-  fromToken: Token;
-  toToken: Token;
+  fromToken?: JupiterToken;
+  toToken?: JupiterToken;
   onFromTokenSelect: () => void;
   onToTokenSelect: () => void;
 }

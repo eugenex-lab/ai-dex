@@ -1,16 +1,14 @@
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { JupiterToken } from "@/services/jupiterTokenService";
 
 interface TokenSectionProps {
   label: string;
   showButtons?: boolean;
   amount: string;
   setAmount: (amount: string) => void;
-  token?: {
-    icon: string;
-    symbol: string;
-  };
+  token?: JupiterToken;
   onTokenSelect: () => void;
 }
 
@@ -64,7 +62,7 @@ export const TokenSection = ({
           >
             {token ? (
               <>
-                <img src={token.icon} alt={token.symbol} className="w-5 h-5" />
+                {token.logoURI && <img src={token.logoURI} alt={token.symbol || ""} className="w-5 h-5" />}
                 {token.symbol}
               </>
             ) : (
