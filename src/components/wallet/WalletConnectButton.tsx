@@ -16,7 +16,6 @@ import { useCardanoWallet } from "./hooks/useCardanoWallet";
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const {
-    isLoading,
     isConnecting,
     address,
     currentWallet,
@@ -34,7 +33,7 @@ const WalletConnectButton = () => {
       <ConnectedWallet
         address={address}
         onDisconnect={disconnect}
-        isLoading={isLoading}
+        isLoading={isConnecting}
         chain="cardano"
       />
     );

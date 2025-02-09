@@ -3,6 +3,11 @@ import { useState, useCallback } from 'react';
 import { BrowserWallet } from '@meshsdk/core';
 import { useToast } from '@/hooks/use-toast';
 
+// Add polyfill
+if (typeof (window as any).global === 'undefined') {
+  (window as any).global = window;
+}
+
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
   const [currentWallet, setCurrentWallet] = useState<string | null>(null);
@@ -71,8 +76,8 @@ export const useCardanoWallet = () => {
     disconnect,
     isConnected,
     isConnecting,
-    address,
-    error,
-    currentWallet,
+    address: address || '',
+    error: error || '',
+    currentWallet: currentWallet || '',
   };
 };
