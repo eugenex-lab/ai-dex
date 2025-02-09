@@ -1,14 +1,28 @@
 
-// Polyfills for @meshsdk/core
+// Define window.global before any imports to ensure it's available
 if (typeof window !== 'undefined') {
+  // Polyfill window.global
   window.global = window;
-  // Process polyfill with proper typing
-  window.process = {
-    env: { NODE_ENV: 'production' },
-    // Add minimal required process properties
-    argv: [],
+  
+  // Polyfill process with minimum required properties
+  const process = {
     version: '',
     versions: {},
+    platform: '',
+    env: { NODE_ENV: 'production' },
+    argv: [],
+    argv0: '',
+    execArgv: [],
+    pid: 0,
+    ppid: 0,
+    exitCode: 0,
+    title: 'browser',
+    arch: '',
+    execPath: '',
+    debugPort: 0,
+    stdin: null,
+    stdout: null,
+    stderr: null,
     on: () => {},
     addListener: () => {},
     once: () => {},
@@ -24,9 +38,13 @@ if (typeof window !== 'undefined') {
     chdir: () => {},
     umask: () => 0,
     nextTick: (fn: () => void) => setTimeout(fn, 0),
-  } as NodeJS.Process;
+  };
+
+  // Apply process polyfill
+  window.process = process as unknown as NodeJS.Process;
 }
 
+// Only import Buffer after global is defined
 import { Buffer } from 'buffer';
 window.Buffer = Buffer;
 
