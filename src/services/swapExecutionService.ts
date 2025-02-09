@@ -44,7 +44,6 @@ export const executeJupiterSwap = async (
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        pair: `${inputMint}/${bestRoute.marketInfos[0].outputMint}`,
         type: 'swap',
         side: 'buy',
         price: Number(bestRoute.outAmount) / Number(bestRoute.inAmount),
@@ -53,7 +52,7 @@ export const executeJupiterSwap = async (
         status: 'open',
         order_type: 'market',
         input_mint: inputMint,
-        output_mint: bestRoute.marketInfos[0].outputMint,
+        output_mint: bestRoute.marketInfos[0].outputMint.toString(),
         input_amount: Number(bestRoute.inAmount),
         output_amount: Number(bestRoute.outAmount),
         min_output_amount: Number(bestRoute.otherAmountThreshold),
@@ -98,14 +97,14 @@ export const executeJupiterSwap = async (
       }
 
       // Record fees if applicable
-      const otherInfo = bestRoute.marketInfos[0]?.platformFee;
-      if (otherInfo?.feeAccount && otherInfo?.amount) {
+      const platformFee = bestRoute.marketInfos[0]?.platformFee;
+      if (platformFee?.amount) {
         const { error: feeError } = await supabase
           .from('collected_fees')
           .insert({
             order_id: order.id,
-            fee_amount: Number(otherInfo.amount),
-            recipient_address: otherInfo.feeAccount.toString(),
+            fee_amount: Number(platformFee.amount),
+            recipient_address: platformFee.feeAccount?.toString() || userPublicKey,
             transaction_signature: signature,
             status: 'confirmed'
           });

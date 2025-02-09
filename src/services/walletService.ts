@@ -6,7 +6,7 @@ import {
   createAssociatedTokenAccountInstruction as createATA,
   getAssociatedTokenAddress,
   createCloseAccountInstruction
-} from '@solana/spl-token-v2';
+} from '@solana/spl-token';
 import { toast } from '@/hooks/use-toast';
 
 export class WalletService {
