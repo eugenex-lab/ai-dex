@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { ArrowDown, Search, Check } from "lucide-react";
+import { ArrowDown, Search, Settings } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { tokens } from "@/utils/tokenData";
@@ -69,6 +69,14 @@ const TradeSection = () => {
             >
               50%
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6"
+              onClick={() => setShowSlippage(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
         </div>
         <div className="bg-background/40 rounded-lg p-3 space-y-2">
@@ -136,18 +144,6 @@ const TradeSection = () => {
             ~$0
           </div>
         </div>
-      </div>
-
-      {/* Settings Button */}
-      <div className="flex justify-between items-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-sm text-muted-foreground hover:text-foreground"
-          onClick={() => setShowSlippage(true)}
-        >
-          Slippage: {slippage}%
-        </Button>
       </div>
 
       {/* Swap Button */}
