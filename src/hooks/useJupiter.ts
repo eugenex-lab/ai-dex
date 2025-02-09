@@ -134,7 +134,6 @@ export const useJupiter = ({
             transaction_signature: signature,
             status: 'filled',
             execution_context: {
-              // Convert route info to plain object for JSON storage
               route: JSON.parse(JSON.stringify(routeInfo)),
               timestamp: new Date().toISOString()
             }
@@ -145,14 +144,14 @@ export const useJupiter = ({
           console.error('Failed to update order:', updateError);
         }
 
-        // Record collected fee if available in route info
-        if (routeInfo.amount && routeInfo.recipient) {
+        // Check if fee info exists in route metadata
+        if (routeInfo.feeAccount && routeInfo.platformFee) {
           const { error: feeError } = await supabase
             .from('collected_fees')
             .insert({
               order_id: order.id,
-              fee_amount: Number(routeInfo.amount),
-              recipient_address: routeInfo.recipient.toString(),
+              fee_amount: Number(routeInfo.platformFee),
+              recipient_address: routeInfo.feeAccount.toString(),
               transaction_signature: signature,
               status: 'confirmed'
             });
