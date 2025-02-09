@@ -14,7 +14,7 @@ export interface ConnectedWalletProps {
   address: string;
   onDisconnect: () => void;
   isLoading: boolean;
-  chain?: PhantomChain | 'cardano';
+  chain?: PhantomChain;
 }
 
 const ConnectedWallet = ({ address, onDisconnect, isLoading, chain }: ConnectedWalletProps) => {

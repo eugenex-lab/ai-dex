@@ -44,4 +44,42 @@ interface Window {
       removeListener: (event: string, callback: (params: any) => void) => void;
     };
   };
+  cardano?: {
+    nami?: WalletApi;
+    eternl?: WalletApi;
+    lace?: WalletApi;
+    yoroi?: WalletApi;
+    vespr?: WalletApi;
+    begin?: WalletApi;
+    tokeo?: WalletApi;
+  };
+}
+
+// CIP-30 API Spec interfaces
+interface WalletApi {
+  apiVersion: string;
+  enable: () => Promise<CardanoApi>;
+  isEnabled: () => Promise<boolean>;
+  name: string;
+  icon: string;
+  experimental?: {
+    [key: string]: unknown;
+  };
+}
+
+interface CardanoApi {
+  getNetworkId: () => Promise<number>;
+  getUtxos: () => Promise<string[] | undefined>;
+  getBalance: () => Promise<string>;
+  getUsedAddresses: () => Promise<string[]>;
+  getUnusedAddresses: () => Promise<string[]>;
+  getChangeAddress: () => Promise<string>;
+  getRewardAddresses: () => Promise<string[]>;
+  signTx: (tx: string, partialSign?: boolean) => Promise<string>;
+  signData: (addr: string, payload: string) => Promise<string>;
+  submitTx: (tx: string) => Promise<string>;
+  getCollateral?: () => Promise<string[]>;
+  experimental?: {
+    [key: string]: unknown;
+  };
 }
