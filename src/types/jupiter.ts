@@ -29,6 +29,9 @@ export interface JupiterToken {
   symbol: string;
   tags: string[];
   verified?: boolean;
+  // Added for compatibility with Token interface
+  icon?: string;
+  chain?: 'solana' | 'ethereum' | 'cardano';
 }
 
 export interface SwapResult {

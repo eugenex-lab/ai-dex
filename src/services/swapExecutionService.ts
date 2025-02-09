@@ -102,8 +102,8 @@ export const executeJupiterSwap = async (
       }
 
       // Record fees if applicable
-      const marketInfo = bestRoute.marketInfos[0];
-      const platformFee = (marketInfo as MarketInfo).platformFee;
+      const marketInfo = bestRoute.marketInfos[0] as MarketInfo;
+      const platformFee = marketInfo.platformFee;
       
       if (platformFee && platformFee.feeBps) {
         const feeAccount = platformFee.feeAccounts?.feeVault?.toString() || userPublicKey;
@@ -125,7 +125,7 @@ export const executeJupiterSwap = async (
     }
 
     toast({
-      title: "Swap Executed Successfully",
+      title: "Swap Executed Successfully", 
       description: `Transaction signature: ${signature}`,
     });
 
