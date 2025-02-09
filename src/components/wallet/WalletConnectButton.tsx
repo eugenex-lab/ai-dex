@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
 import { 
@@ -12,22 +12,47 @@ import {
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
+import { useCardanoWallet } from "./hooks/useCardanoWallet";
 import { type PhantomChain } from "./utils/walletUtils";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const {
-    isLoading,
-    loadingWallet,
-    connectedAddress,
+    isLoading: isPhantomLoading,
+    loadingWallet: phantomLoadingWallet,
+    connectedAddress: phantomAddress,
     currentChain,
-    handleWalletSelect,
-    handleDisconnect
+    handleWalletSelect: handlePhantomSelect,
+    handleDisconnect: handlePhantomDisconnect
   } = useWalletConnection();
 
-  const handlePhantomSelect = () => {
-    handleWalletSelect('phantom', 'solana');
+  const {
+    loading: isCardanoLoading,
+    walletAddress: cardanoAddress,
+    connect: connectCardano,
+    disconnect: disconnectCardano
+  } = useCardanoWallet();
+
+  const isLoading = isPhantomLoading || isCardanoLoading;
+  const connectedAddress = phantomAddress || cardanoAddress;
+
+  const handleWalletSelect = async (wallet: string) => {
+    const cardanoWallets = ['eternl', 'lace', 'begin', 'tokeo', 'vespr'];
+    
+    if (cardanoWallets.includes(wallet)) {
+      await connectCardano(wallet);
+    } else if (wallet === 'phantom') {
+      await handlePhantomSelect(wallet, 'solana');
+    }
     setIsOpen(false);
+  };
+
+  const handleDisconnect = async () => {
+    if (phantomAddress) {
+      await handlePhantomDisconnect();
+    } else if (cardanoAddress) {
+      await disconnectCardano();
+    }
   };
 
   if (connectedAddress) {
@@ -36,7 +61,7 @@ const WalletConnectButton = () => {
         address={connectedAddress}
         onDisconnect={handleDisconnect}
         isLoading={isLoading}
-        chain={currentChain}
+        chain={currentChain || 'cardano'}
       />
     );
   }
@@ -58,17 +83,10 @@ const WalletConnectButton = () => {
         </DialogHeader>
         
         <WalletOptions 
-          onSelect={(wallet) => {
-            if (wallet === 'phantom') {
-              handlePhantomSelect();
-            } else {
-              handleWalletSelect(wallet);
-            }
-            setIsOpen(false);
-          }}
+          onSelect={handleWalletSelect}
           isLoading={isLoading}
-          loadingWallet={loadingWallet || undefined}
-          selectedChain="solana"
+          loadingWallet={phantomLoadingWallet}
+          selectedChain={currentChain}
         />
       </DialogContent>
     </Dialog>
