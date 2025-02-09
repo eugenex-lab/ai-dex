@@ -1,11 +1,11 @@
 
-import { CardanoWalletName, WalletInfo, CardanoApi, CardanoWallet } from './types/cardanoTypes';
+import { CardanoWalletName, WalletInfo, CardanoApi, CardanoWallet, CardanoApiResponse } from './types/cardanoTypes';
 import { WALLET_INFO } from './config/walletConfig';
 import { formatCardanoAddress, isValidCardanoAddress } from './addressUtils';
 
 const REQUIRED_METHODS = [
   'getNetworkId',
-  'getUtxos',
+  'getUtxos', 
   'getBalance',
   'getUsedAddresses',
   'getUnusedAddresses',
@@ -16,12 +16,28 @@ const REQUIRED_METHODS = [
   'submitTx'
 ] as const;
 
-export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
-  if (!api) throw new Error('API instance required');
+const validateApi = (api: any): api is CardanoApiResponse => {
+  if (!api?.cardano) {
+    console.error('Missing cardano namespace in API');
+    return false;
+  }
+
+  for (const method of REQUIRED_METHODS) {
+    if (typeof api.cardano[method] !== 'function') {
+      console.error(`Missing required method: ${method}`);
+      return false;
+    }
+  }
+
+  return true;
+};
+
+export const getCardanoAddress = async (api: CardanoApiResponse): Promise<string> => {
+  if (!api?.cardano) throw new Error('API instance required');
   
   try {
     // Try getting used addresses first
-    const usedAddresses = await api.getUsedAddresses();
+    const usedAddresses = await api.cardano.getUsedAddresses();
     if (usedAddresses && usedAddresses.length > 0) {
       const address = formatCardanoAddress(usedAddresses[0]);
       if (isValidCardanoAddress(address)) {
@@ -31,7 +47,7 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
     }
 
     // Fall back to change address if no used addresses
-    const changeAddress = await api.getChangeAddress();
+    const changeAddress = await api.cardano.getChangeAddress();
     if (changeAddress) {
       const address = formatCardanoAddress(changeAddress);
       if (isValidCardanoAddress(address)) {
@@ -50,25 +66,23 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
 export const enableWallet = async (
   wallet: CardanoWallet,
   walletName: CardanoWalletName
-): Promise<CardanoApi> => {
+): Promise<CardanoApiResponse> => {
   try {
     // Check if already enabled first
     const isEnabled = await wallet.isEnabled().catch(() => false);
     if (isEnabled) {
       console.log(`${walletName} wallet already enabled`);
-      return wallet as unknown as CardanoApi;
+      return wallet as unknown as CardanoApiResponse;
     }
 
     console.log(`Enabling ${walletName} wallet...`);
     
-    // Simple enable call to trigger wallet popup
+    // Get API response from enable call
     const api = await wallet.enable();
     
-    // Verify required API methods after enable
-    for (const method of REQUIRED_METHODS) {
-      if (typeof api[method] !== 'function') {
-        throw new Error(`${walletName} wallet API missing required method: ${method}`);
-      }
+    // Validate API structure
+    if (!validateApi(api)) {
+      throw new Error(`${walletName} wallet API is missing required methods`);
     }
 
     console.log(`${walletName} wallet enabled successfully`);

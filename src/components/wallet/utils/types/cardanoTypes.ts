@@ -30,7 +30,7 @@ export interface Cardano {
 
 // CardanoApi interface for enabled wallet
 export interface CardanoApi {
-  getNetworkId: () => Promise<number>;
+  getNetworkId: () => Promise<number>;  
   getUtxos: () => Promise<string[]>;
   getBalance: () => Promise<string>;
   getUsedAddresses: () => Promise<string[]>;
@@ -41,4 +41,9 @@ export interface CardanoApi {
   signData: (addr: string, payload: string) => Promise<string>;
   submitTx: (tx: string) => Promise<string>;
   experimental?: unknown;
+}
+
+// API response after enable()
+export interface CardanoApiResponse {
+  cardano: CardanoApi;
 }
