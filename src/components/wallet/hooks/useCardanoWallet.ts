@@ -112,7 +112,7 @@ export const useCardanoWallet = () => {
         toast({
           title: "Disconnection Saved Locally",
           description: "Wallet disconnected but changes couldn't be saved to your profile",
-          variant: "warning",
+          variant: "destructive", // Changed from "warning" to "destructive" to match allowed variants
         });
       }
 
