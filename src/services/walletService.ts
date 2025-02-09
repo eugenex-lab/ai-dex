@@ -3,9 +3,9 @@ import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.
 import { 
   TOKEN_PROGRAM_ID, 
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccountInstruction,
+  createAssociatedTokenAccountInstruction as createATA,
   getAssociatedTokenAddress,
-  createCloseAccountInstruction,
+  createCloseAccountInstruction as closeAccount,
 } from '@solana/spl-token';
 import { toast } from '@/hooks/use-toast';
 
@@ -32,29 +32,37 @@ export class WalletService {
     payer: PublicKey
   ): Promise<{ address: PublicKey; instruction?: any }> {
     try {
+      // Get the associated token account address
       const ata = await getAssociatedTokenAddress(
         mint,
         walletAddress,
-        true,
+        true, // allowOwnerOffCurve
         TOKEN_PROGRAM_ID,
         ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
       try {
-        await this.connection.getAccountInfo(ata);
-        return { address: ata };
-      } catch {
-        // ATA doesn't exist, create it
-        const instruction = createAssociatedTokenAccountInstruction(
-          payer,
-          ata,
-          walletAddress,
-          mint,
+        // Check if the account exists
+        const account = await this.connection.getAccountInfo(ata);
+        
+        if (account) {
+          return { address: ata };
+        }
+
+        // Account doesn't exist, create instruction to make it
+        const instruction = createATA(
+          payer, // Payer
+          ata, // Associated account
+          walletAddress, // Owner
+          mint, // Mint
           TOKEN_PROGRAM_ID,
           ASSOCIATED_TOKEN_PROGRAM_ID
         );
 
         return { address: ata, instruction };
+      } catch (error) {
+        console.error('Error checking ATA:', error);
+        throw error;
       }
     } catch (error) {
       console.error('Error with ATA:', error);
@@ -71,7 +79,10 @@ export class WalletService {
     walletAddress: PublicKey,
     amount: number
   ): Promise<{ address: PublicKey; createInstruction?: any; closeInstruction?: any }> {
-    const mint = new PublicKey('So11111111111111111111111111111111111111112'); // WSOL mint
+    // WSOL mint address
+    const mint = new PublicKey('So11111111111111111111111111111111111111112');
+    
+    // Get or create ATA for WSOL
     const { address: ata, instruction: createInstruction } = await this.findOrCreateATA(
       walletAddress,
       mint,
@@ -79,11 +90,11 @@ export class WalletService {
     );
 
     // Create close instruction for cleanup
-    const closeInstruction = createCloseAccountInstruction(
-      ata,
-      walletAddress,
-      walletAddress,
-      [],
+    const closeInstruction = closeAccount(
+      ata, // Account to close
+      walletAddress, // Destination
+      walletAddress, // Owner
+      [], // Signers
       TOKEN_PROGRAM_ID
     );
 
