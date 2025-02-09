@@ -60,7 +60,7 @@ const Dashboard = () => {
           <div className="lg:col-span-2">
             <ChartSection currentPair={currentPair} onPairChange={handlePairChange} />
           </div>
-          <div className="bg-card rounded-lg p-6 shadow-sm">
+          <div className="lg:col-span-1">
             <TradeSection />
           </div>
         </div>
