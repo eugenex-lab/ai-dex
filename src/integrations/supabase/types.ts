@@ -179,6 +179,44 @@ export type Database = {
         }
         Relationships: []
       }
+      collected_fees: {
+        Row: {
+          created_at: string | null
+          fee_amount: number
+          id: string
+          order_id: string | null
+          recipient_address: string
+          status: string | null
+          transaction_signature: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          fee_amount: number
+          id?: string
+          order_id?: string | null
+          recipient_address: string
+          status?: string | null
+          transaction_signature?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          fee_amount?: number
+          id?: string
+          order_id?: string | null
+          recipient_address?: string
+          status?: string | null
+          transaction_signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collected_fees_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       copy_trade_orders: {
         Row: {
           copy_trade_id: string
@@ -258,15 +296,24 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          execution_context: Json | null
           fee_amount: number | null
           id: string
+          input_amount: number | null
+          input_mint: string | null
           jupiter_route_id: string | null
           metadata: Json | null
+          min_output_amount: number | null
           order_type: string | null
+          output_amount: number | null
+          output_mint: string | null
           pair: string
+          platform_fee: number | null
           price: number
           route_data: Json | null
+          route_id: string | null
           side: string
+          slippage: number | null
           source_wallet: string | null
           status: string
           total: number
@@ -278,15 +325,24 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          execution_context?: Json | null
           fee_amount?: number | null
           id?: string
+          input_amount?: number | null
+          input_mint?: string | null
           jupiter_route_id?: string | null
           metadata?: Json | null
+          min_output_amount?: number | null
           order_type?: string | null
+          output_amount?: number | null
+          output_mint?: string | null
           pair: string
+          platform_fee?: number | null
           price: number
           route_data?: Json | null
+          route_id?: string | null
           side: string
+          slippage?: number | null
           source_wallet?: string | null
           status?: string
           total: number
@@ -298,15 +354,24 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          execution_context?: Json | null
           fee_amount?: number | null
           id?: string
+          input_amount?: number | null
+          input_mint?: string | null
           jupiter_route_id?: string | null
           metadata?: Json | null
+          min_output_amount?: number | null
           order_type?: string | null
+          output_amount?: number | null
+          output_mint?: string | null
           pair?: string
+          platform_fee?: number | null
           price?: number
           route_data?: Json | null
+          route_id?: string | null
           side?: string
+          slippage?: number | null
           source_wallet?: string | null
           status?: string
           total?: number
