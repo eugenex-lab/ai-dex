@@ -8,9 +8,24 @@ export interface WalletInfo {
   downloadUrl: string;
 }
 
+// CardanoApi interface for enabled wallet methods - matching actual wallet structure
+export interface CardanoApi {
+  getNetworkId: () => Promise<number>;  
+  getUtxos: () => Promise<string[]>;
+  getBalance: () => Promise<string>;
+  getUsedAddresses: () => Promise<string[]>;
+  getUnusedAddresses: () => Promise<string[]>;
+  getChangeAddress: () => Promise<string>;
+  getRewardAddresses: () => Promise<string[]>;
+  signTx: (tx: string, partialSign?: boolean) => Promise<string>;
+  signData: (addr: string, payload: string) => Promise<string>;
+  submitTx: (tx: string) => Promise<string>;
+  experimental?: unknown;
+}
+
 // CardanoWallet API interface
 export interface CardanoWallet {
-  enable: () => Promise<CardanoApiResponse>;
+  enable: () => Promise<CardanoApi | CardanoApiResponse>;
   isEnabled: () => Promise<boolean>;
   apiVersion: string;
   name: string;
@@ -28,22 +43,8 @@ export interface Cardano {
   tokeo?: CardanoWallet;
 }
 
-// CardanoApi interface for enabled wallet methods
-export interface CardanoApi {
-  getNetworkId: () => Promise<number>;  
-  getUtxos: () => Promise<string[]>;
-  getBalance: () => Promise<string>;
-  getUsedAddresses: () => Promise<string[]>;
-  getUnusedAddresses: () => Promise<string[]>;
-  getChangeAddress: () => Promise<string>;
-  getRewardAddresses: () => Promise<string[]>;
-  signTx: (tx: string, partialSign?: boolean) => Promise<string>;
-  signData: (addr: string, payload: string) => Promise<string>;
-  submitTx: (tx: string) => Promise<string>;
-  experimental?: unknown;
-}
-
-// API response after enable()
+// Legacy namespaced API response format
 export interface CardanoApiResponse {
   cardano: CardanoApi;
 }
+
