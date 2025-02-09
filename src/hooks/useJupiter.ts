@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Jupiter, RouteInfo, SwapMode } from '@jup-ag/core';
@@ -6,6 +5,8 @@ import { toast } from '@/hooks/use-toast';
 import JSBI from 'jsbi';
 import { initializeJupiter, getJupiterTokens, getRoutes, executeSwap } from '@/services/jupiterService';
 import { supabase } from '@/integrations/supabase/client';
+import { WalletService } from '@/services/walletService';
+import { RPC_ENDPOINTS, DEFAULT_COMMITMENT } from '@/config/rpc';
 
 export interface UseJupiterProps {
   connection: Connection;
@@ -31,15 +32,14 @@ export const useJupiter = ({
   const [routes, setRoutes] = useState<RouteInfo[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const walletService = useMemo(() => new WalletService(connection), [connection]);
 
-  // Initialize Jupiter instance
   useEffect(() => {
     const init = async () => {
       try {
         const jupiterInstance = await initializeJupiter(connection);
         setJupiter(jupiterInstance);
         
-        // Fetch tokens after initialization
         const tokenList = await getJupiterTokens();
         setTokens(tokenList);
       } catch (err) {
@@ -51,7 +51,6 @@ export const useJupiter = ({
     init();
   }, [connection]);
 
-  // Compute routes when inputs change
   useEffect(() => {
     const computeRoutes = async () => {
       if (!jupiter || !inputMint || !outputMint || !amount) {
@@ -75,6 +74,11 @@ export const useJupiter = ({
       } catch (err) {
         setError('Failed to compute routes');
         console.error(err);
+        toast({
+          title: "Route Computation Failed",
+          description: err instanceof Error ? err.message : "Failed to find trading route",
+          variant: "destructive"
+        });
       } finally {
         setLoading(false);
       }
@@ -83,16 +87,32 @@ export const useJupiter = ({
     computeRoutes();
   }, [jupiter, inputMint, outputMint, amount, slippageBps, swapMode]);
 
-  // Execute swap with best route
   const executeJupiterSwap = useCallback(async () => {
     if (!jupiter || !userPublicKey || routes.length === 0) {
       throw new Error('Missing required swap parameters');
     }
 
-    const bestRoute = routes[0]; // Jupiter returns routes sorted by best price
+    const bestRoute = routes[0];
+    const walletPubkey = new PublicKey(userPublicKey);
 
     try {
-      // Create order record before executing swap
+      const hasBalance = await walletService.checkBalance(
+        walletPubkey,
+        Number(bestRoute.inAmount)
+      );
+
+      if (!hasBalance) {
+        throw new Error('Insufficient balance for swap');
+      }
+
+      let wsolAccount;
+      if (inputMint === 'So11111111111111111111111111111111111111112') {
+        wsolAccount = await walletService.verifyWSOLAccount(
+          walletPubkey,
+          Number(bestRoute.inAmount)
+        );
+      }
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -111,6 +131,7 @@ export const useJupiter = ({
           min_output_amount: Number(bestRoute.otherAmountThreshold),
           slippage: slippageBps,
           user_email: (await supabase.auth.getUser()).data.user?.email,
+          wallet_address: userPublicKey,
         })
         .select()
         .single();
@@ -120,13 +141,11 @@ export const useJupiter = ({
       const { swapTransaction, routeInfo } = await executeSwap(
         jupiter,
         bestRoute,
-        new PublicKey(userPublicKey)
+        walletPubkey
       );
 
-      // Get signature from first signature in array
       const signature = swapTransaction.signatures[0]?.toString();
 
-      // Update order with transaction signature
       if (order && signature) {
         const { error: updateError } = await supabase
           .from('orders')
@@ -144,7 +163,6 @@ export const useJupiter = ({
           console.error('Failed to update order:', updateError);
         }
 
-        // Check for fee info in the route's otherInfo
         const otherInfo = (routeInfo as any).otherInfo;
         if (otherInfo?.feeAccount && otherInfo?.platformFee) {
           const { error: feeError } = await supabase
@@ -163,6 +181,16 @@ export const useJupiter = ({
         }
       }
 
+      const confirmation = await connection.confirmTransaction({
+        signature,
+        blockhash: swapTransaction.message.recentBlockhash,
+        lastValidBlockHeight: await connection.getBlockHeight()
+      });
+
+      if (confirmation.value.err) {
+        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
+      }
+
       toast({
         title: "Swap Executed Successfully",
         description: `Transaction signature: ${signature}`,
@@ -170,7 +198,8 @@ export const useJupiter = ({
 
       return {
         swapTransaction,
-        routeInfo
+        routeInfo,
+        signature
       };
     } catch (err) {
       console.error('Swap execution error:', err);
@@ -181,7 +210,7 @@ export const useJupiter = ({
       });
       throw err;
     }
-  }, [jupiter, userPublicKey, routes, inputMint, outputMint]);
+  }, [jupiter, userPublicKey, routes, inputMint, outputMint, connection, walletService]);
 
   return {
     jupiter,
