@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ArrowDown, Settings, AlignHorizontalDistributeCenter, List } from "lucide-react";
 import { Button } from "../ui/button";
 import { TokenSection } from "./TokenSection";
@@ -10,6 +11,7 @@ import { useSolanaTokens } from "@/hooks/useSolanaTokens";
 import { useTokenPrice } from "@/hooks/useTokenPrice";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { toast } from "@/hooks/use-toast";
+import { JupiterToken } from "@/services/jupiterTokenService";
 
 export interface TokenSelectProps {
   showTokenSelect: boolean;

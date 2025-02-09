@@ -3,9 +3,10 @@ import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.
 import { 
   TOKEN_PROGRAM_ID, 
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  createAssociatedTokenAccount,
-  getAssociatedTokenAddress,
-  createCloseAccount
+  createAssociatedToken,
+  getAccount,
+  getAssociatedToken,
+  closeAccount
 } from '@solana/spl-token';
 import { toast } from '@/hooks/use-toast';
 
@@ -32,7 +33,7 @@ export class WalletService {
     payer: PublicKey
   ): Promise<{ address: PublicKey; instruction?: any }> {
     try {
-      const ata = await getAssociatedTokenAddress(
+      const ata = await getAssociatedToken(
         mint,
         walletAddress,
         true,
@@ -47,7 +48,7 @@ export class WalletService {
           return { address: ata };
         }
 
-        const instruction = createAssociatedTokenAccount(
+        const instruction = createAssociatedToken(
           payer,
           ata,
           walletAddress,
@@ -84,7 +85,7 @@ export class WalletService {
       walletAddress
     );
 
-    const closeInstruction = createCloseAccount({
+    const closeInstruction = closeAccount({
       source: ata,
       destination: walletAddress,
       owner: walletAddress,

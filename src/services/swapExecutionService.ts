@@ -6,7 +6,7 @@ import { toast } from '@/hooks/use-toast';
 
 interface PlatformFee {
   amount: string;
-  address?: string;
+  recipient?: string;
 }
 
 interface MarketInfo {
@@ -112,7 +112,7 @@ export const executeJupiterSwap = async (
           .insert({
             order_id: order.id,
             fee_amount: Number(platformFee.amount),
-            recipient_address: platformFee.address?.toString() || userPublicKey,
+            recipient_address: platformFee.recipient || userPublicKey,
             transaction_signature: signature,
             status: 'confirmed'
           });
