@@ -47,9 +47,10 @@ const WalletConnectButton = () => {
         <Button 
           variant="outline"
           className="gap-2 min-w-[180px] h-11"
+          disabled={isLoading}
         >
           <Wallet className="h-4 w-4" />
-          Connect Wallet
+          {isLoading ? "Connecting..." : "Connect Wallet"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">

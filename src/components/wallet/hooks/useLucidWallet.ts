@@ -25,43 +25,49 @@ declare global {
 
 export const useLucidWallet = (setConnectedAddress: (address: string | null) => void) => {
   const [lucid, setLucid] = useState<Lucid | null>(null);
+  const [isInitializing, setIsInitializing] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const initLucid = async () => {
-      try {
-        // Initialize Blockfrost provider
-        const blockfrostProvider = new Blockfrost(
-          "https://cardano-mainnet.blockfrost.io/api/v0",
-          // Note: In production, use an actual project API key
-          "projectKey" 
-        );
-        
-        const lucidInstance = await Lucid.new(blockfrostProvider);
-        setLucid(lucidInstance);
-      } catch (error) {
-        console.error("Failed to initialize Lucid:", error);
-      }
-    };
-    initLucid();
-  }, []);
+  const initializeLucid = async () => {
+    if (isInitializing || lucid) return;
+    
+    setIsInitializing(true);
+    try {
+      const provider = new Blockfrost(
+        "https://cardano-mainnet.blockfrost.io/api/v0",
+        process.env.VITE_BLOCKFROST_API_KEY || "projectKey"
+      );
+      
+      const lucidInstance = await Lucid.new(provider);
+      setLucid(lucidInstance);
+    } catch (error) {
+      console.error("Failed to initialize Lucid:", error);
+      toast({
+        title: "Initialization Error",
+        description: "Failed to initialize wallet connection",
+        variant: "destructive",
+      });
+    } finally {
+      setIsInitializing(false);
+    }
+  };
 
   const connect = async (walletName: string): Promise<string> => {
     if (!lucid) {
-      throw new Error("Lucid not initialized");
+      await initializeLucid();
+    }
+
+    if (!lucid) {
+      throw new Error("Lucid initialization failed");
     }
 
     try {
-      // Check if wallet exists in window.cardano
       const wallet = window.cardano?.[walletName];
       if (!wallet) {
         throw new Error(`${walletName} wallet not found. Please install it first.`);
       }
 
-      // Enable the wallet
       const api = await wallet.enable();
-      
-      // Select wallet using the enabled API
       await lucid.selectWallet(api);
       const address = await lucid.wallet.address();
       
@@ -83,5 +89,5 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
     }
   };
 
-  return { connect };
+  return { connect, isInitializing };
 };
