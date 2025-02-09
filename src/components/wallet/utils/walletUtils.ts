@@ -1,4 +1,6 @@
 export type PhantomChain = 'solana' | 'ethereum';
+export type CardanoWalletType = 'eternl' | 'yoroi' | 'begin' | 'lace' | 'tokeo' | 'vespr';
+export type WalletChain = PhantomChain | 'cardano';
 
 export const isPhantomAvailable = (chain: PhantomChain = 'solana') => {
   // Check if we're in a browser environment
@@ -47,7 +49,16 @@ export const isMetaMaskAvailable = () => {
   return true;
 };
 
-export const getDisplayAddress = (address: string) => {
+export const isCardanoWalletAvailable = (walletName: CardanoWalletType): boolean => {
+  if (typeof window === 'undefined') return false;
+  return !!(window as any)?.cardano?.[walletName];
+};
+
+export const getDisplayAddress = (address: string, chain?: WalletChain) => {
+  if (chain === 'cardano') {
+    // Cardano addresses are longer, so we show more characters
+    return `${address.slice(0, 8)}...${address.slice(-8)}`;
+  }
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
