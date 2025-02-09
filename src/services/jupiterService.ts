@@ -4,7 +4,7 @@ import { Jupiter, RouteInfo, TOKEN_LIST_URL, SwapMode } from '@jup-ag/core';
 import JSBI from 'jsbi';
 import { toast } from '@/hooks/use-toast';
 
-// Constants
+// Constants 
 export const JUPITER_FEE_RECIPIENT = new PublicKey('8iB1cjU7PtkxW3yemjtDLAWVt645vtW1NUduyH6AuWFS');
 export const PLATFORM_FEE_BPS = 100; // 1% = 100 basis points
 
@@ -56,7 +56,7 @@ export const getJupiterTokens = async (): Promise<Token[]> => {
   } catch (error) {
     console.error('Error fetching Jupiter tokens:', error);
     toast({
-      title: "Token List Error",
+      title: "Token List Error", 
       description: "Failed to fetch available tokens",
       variant: "destructive"
     });
@@ -104,16 +104,13 @@ export const executeSwap = async (
   userPublicKey: PublicKey
 ) => {
   try {
-    const swapResult = await jupiter.exchange({
+    const result = await jupiter.exchange({
       routeInfo: route,
-      userPublicKey,
+      userPublicKey
     });
-    
-    // Extract swapTransaction and routeInfo from the result
-    const { swapTransaction, routeInfo } = swapResult;
-    
+
     return {
-      swapTransaction,
+      swapTransaction: result.swapTransaction,
       routeInfo: route
     };
   } catch (error) {

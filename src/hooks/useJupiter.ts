@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Jupiter, RouteInfo } from '@jup-ag/core';
+import { Jupiter, RouteInfo, SwapMode } from '@jup-ag/core';
 import { toast } from '@/hooks/use-toast';
 import JSBI from 'jsbi';
 import { initializeJupiter, getJupiterTokens, getRoutes, executeSwap } from '@/services/jupiterService';
@@ -13,7 +13,7 @@ export interface UseJupiterProps {
   outputMint?: string;
   amount?: number;
   slippageBps?: number;
-  swapMode?: 'ExactIn' | 'ExactOut';
+  swapMode?: SwapMode;
   userPublicKey?: string;
 }
 
@@ -23,7 +23,7 @@ export const useJupiter = ({
   outputMint,
   amount,
   slippageBps = 50,
-  swapMode = 'ExactIn',
+  swapMode = SwapMode.ExactIn,
   userPublicKey
 }: UseJupiterProps) => {
   const [jupiter, setJupiter] = useState<Jupiter | null>(null);
@@ -99,7 +99,7 @@ export const useJupiter = ({
           pair: `${inputMint}/${outputMint}`,
           type: 'swap',
           side: 'buy',
-          price: bestRoute.outAmount / bestRoute.inAmount,
+          price: Number(bestRoute.outAmount) / Number(bestRoute.inAmount),
           amount: Number(bestRoute.inAmount),
           total: Number(bestRoute.outAmount),
           status: 'open',
@@ -110,7 +110,6 @@ export const useJupiter = ({
           output_amount: Number(bestRoute.outAmount),
           min_output_amount: Number(bestRoute.otherAmountThreshold),
           slippage: slippageBps,
-          jupiter_route_id: bestRoute.routeId,
           user_email: (await supabase.auth.getUser()).data.user?.email,
         })
         .select()
@@ -124,15 +123,19 @@ export const useJupiter = ({
         new PublicKey(userPublicKey)
       );
 
+      // Get signature from first signature in array
+      const signature = swapTransaction.signatures[0]?.toString();
+
       // Update order with transaction signature
-      if (order) {
+      if (order && signature) {
         const { error: updateError } = await supabase
           .from('orders')
           .update({
-            transaction_signature: swapTransaction.signature,
+            transaction_signature: signature,
             status: 'filled',
             execution_context: {
-              route: routeInfo,
+              // Convert route info to plain object for JSON storage
+              route: JSON.parse(JSON.stringify(routeInfo)),
               timestamp: new Date().toISOString()
             }
           })
@@ -142,15 +145,15 @@ export const useJupiter = ({
           console.error('Failed to update order:', updateError);
         }
 
-        // Record collected fee
-        if (routeInfo.feeAmount && routeInfo.platformFeePubkey) {
+        // Record collected fee if available in route info
+        if (routeInfo.fees?.amount && routeInfo.fees?.recipient) {
           const { error: feeError } = await supabase
             .from('collected_fees')
             .insert({
               order_id: order.id,
-              fee_amount: routeInfo.feeAmount,
-              recipient_address: routeInfo.platformFeePubkey.toString(),
-              transaction_signature: swapTransaction.signature,
+              fee_amount: Number(routeInfo.fees.amount),
+              recipient_address: routeInfo.fees.recipient.toString(),
+              transaction_signature: signature,
               status: 'confirmed'
             });
 
@@ -162,7 +165,7 @@ export const useJupiter = ({
 
       toast({
         title: "Swap Executed Successfully",
-        description: `Transaction signature: ${swapTransaction.signature}`,
+        description: `Transaction signature: ${signature}`,
       });
 
       return {
