@@ -25,9 +25,10 @@ export class WalletBridge {
   private discovery: WalletDiscovery;
   private eventManager: EventManager;
   private connectionManager: ConnectionManager;
+  private initializationPromise: Promise<void>;
 
   constructor(config?: WalletBridgeConfig) {
-    console.log('Initializing WalletBridge');
+    console.log('Initializing WalletBridge with config:', config);
     
     this.config = {
       timeout: config?.timeout || DEFAULT_TIMEOUT,
@@ -47,35 +48,55 @@ export class WalletBridge {
     this.discovery = new WalletDiscovery(this.config.timeout);
     this.connectionManager = new ConnectionManager(this.eventManager);
     
-    this.initialize();
+    this.initializationPromise = this.initialize();
   }
 
   private async initialize() {
     try {
       console.log('Starting wallet bridge initialization');
+      
+      // Setup event listeners
       window.addEventListener('message', this.handleIncomingMessage);
+      
+      // Setup error boundary
+      window.addEventListener('unhandledrejection', this.handleUnhandledRejection);
+      
+      // Discover available wallets
       await this.discoverWallets();
+      
       this.state.isInitialized = true;
       console.log('Wallet bridge initialization complete');
       this.eventManager.emit('DISCOVERY', { initialized: true });
     } catch (error) {
       console.error('Initialization failed:', error);
       this.handleError('Initialization failed', error);
+      throw error; // Re-throw to allow proper error handling upstream
     }
   }
 
+  private handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+    console.error('Unhandled promise rejection in WalletBridge:', event.reason);
+    this.handleError('Unhandled error', event.reason);
+  };
+
   private async discoverWallets(): Promise<void> {
     console.log('Starting wallet discovery');
-    const cip95Wallets = await this.discovery.discoverCIP95Wallets();
-    console.log('CIP-95 wallets discovered:', cip95Wallets);
     
-    const cip30Wallets = await this.discovery.discoverCIP30Wallets();
-    console.log('CIP-30 wallets discovered:', cip30Wallets);
-    
-    const availableWallets = [...new Set([...cip95Wallets, ...cip30Wallets])];
-    console.log('Total available wallets:', availableWallets);
-    
-    this.eventManager.emit('DISCOVERY', { wallets: availableWallets });
+    try {
+      const cip95Wallets = await this.discovery.discoverCIP95Wallets();
+      console.log('CIP-95 wallets discovered:', cip95Wallets);
+      
+      const cip30Wallets = await this.discovery.discoverCIP30Wallets();
+      console.log('CIP-30 wallets discovered:', cip30Wallets);
+      
+      const availableWallets = [...new Set([...cip95Wallets, ...cip30Wallets])];
+      console.log('Total available wallets:', availableWallets);
+      
+      this.eventManager.emit('DISCOVERY', { wallets: availableWallets });
+    } catch (error) {
+      console.error('Wallet discovery error:', error);
+      this.handleError('Wallet discovery failed', error);
+    }
   }
 
   private handleIncomingMessage = (event: MessageEvent) => {
@@ -84,11 +105,19 @@ export class WalletBridge {
     console.log('Received wallet message:', event.data.type);
     const handler = this.discovery.getMessageHandlers().get(event.data.id);
     if (handler) {
-      handler(event.data);
+      try {
+        handler(event.data);
+      } catch (error) {
+        console.error('Error handling wallet message:', error);
+        this.handleError('Message handling failed', error);
+      }
     }
   };
 
   public async connect(walletName: CardanoWalletName): Promise<CardanoApi> {
+    // Ensure initialization is complete before attempting connection
+    await this.initializationPromise;
+    
     console.log(`Initiating connection to ${walletName}`);
     return this.connectionManager.connect(walletName);
   }
@@ -120,6 +149,9 @@ export class WalletBridge {
   public cleanup(): void {
     console.log('Cleaning up wallet bridge');
     window.removeEventListener('message', this.handleIncomingMessage);
+    window.removeEventListener('unhandledrejection', this.handleUnhandledRejection);
     this.discovery.getMessageHandlers().clear();
+    this.connectionManager.disconnect();
+    this.eventManager.cleanup();
   }
 }
