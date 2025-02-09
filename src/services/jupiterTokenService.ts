@@ -1,6 +1,4 @@
 
-import { Connection, PublicKey } from '@solana/web3.js';
-import { Jupiter, TOKEN_LIST_URL } from '@jup-ag/core';
 import { toast } from '@/hooks/use-toast';
 
 export interface JupiterToken {
@@ -40,9 +38,9 @@ class JupiterTokenService {
   async getTokens(): Promise<JupiterToken[]> {
     try {
       if (this.shouldRefreshCache()) {
-        const response = await fetch(TOKEN_LIST_URL);
+        const response = await fetch('https://api.jup.ag/tokens/v1/mints/tradable');
         const data = await response.json();
-        this.tokenList = data.tokens;
+        this.tokenList = data;
         this.lastFetchTime = Date.now();
       }
       return this.tokenList;

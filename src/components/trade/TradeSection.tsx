@@ -37,7 +37,7 @@ const TradeSection = () => {
       toast({
         title: "Wallet Not Connected",
         description: "Please connect your wallet to trade",
-        variant: "warning"
+        variant: "destructive"
       });
     }
   }, [connected]);
