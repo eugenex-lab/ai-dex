@@ -89,7 +89,7 @@ export const enableWallet = async (
     // Get API response from enable call
     const api = await wallet.enable();
     
-    // Validate API structure
+    // Validate API structure 
     if (!validateApi(api)) {
       throw new Error(`${walletName} wallet API is missing required methods`);
     }
