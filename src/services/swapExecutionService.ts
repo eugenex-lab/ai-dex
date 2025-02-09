@@ -1,13 +1,10 @@
+
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletService } from '@/services/walletService';
 import { toast } from '@/hooks/use-toast';
-
-interface PlatformFee {
-  amount: string;
-  recipient?: string;
-}
+import { PlatformFee } from '@/types/jupiter';
 
 interface MarketInfo {
   platformFee?: PlatformFee;
@@ -105,14 +102,18 @@ export const executeJupiterSwap = async (
       }
 
       // Record fees if applicable
-      const platformFee = bestRoute.marketInfos[0]?.platformFee;
-      if (platformFee && platformFee.amount) {
+      const marketInfo = bestRoute.marketInfos[0];
+      const platformFee = (marketInfo as MarketInfo).platformFee;
+      
+      if (platformFee && platformFee.feeBps) {
+        const feeAccount = platformFee.feeAccounts?.feeVault?.toString() || userPublicKey;
+        
         const { error: feeError } = await supabase
           .from('collected_fees')
           .insert({
             order_id: order.id,
-            fee_amount: Number(platformFee.amount),
-            recipient_address: platformFee.recipient || userPublicKey,
+            fee_amount: Number(platformFee.feeBps),
+            recipient_address: feeAccount,
             transaction_signature: signature,
             status: 'confirmed'
           });

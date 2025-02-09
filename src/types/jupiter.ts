@@ -14,14 +14,33 @@ export interface UseJupiterProps {
 
 export interface JupiterState {
   jupiter: Jupiter | null;
-  tokens: any[];
+  tokens: JupiterToken[];
   routes: RouteInfo[];
   loading: boolean;
   error: string | null;
+}
+
+export interface JupiterToken {
+  address: string;
+  chainId: number;
+  decimals: number;
+  logoURI: string;
+  name: string;
+  symbol: string;
+  tags: string[];
+  verified?: boolean;
 }
 
 export interface SwapResult {
   swapTransaction: any;
   routeInfo: any;
   signature?: string;
+}
+
+export interface PlatformFee {
+  feeBps: number;
+  feeAccounts?: {
+    feeMint: PublicKey;
+    feeVault: PublicKey;
+  };
 }
