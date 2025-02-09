@@ -1,9 +1,18 @@
-
 import { PublicKey, Transaction } from '@solana/web3.js';
 import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletService } from '@/services/walletService';
 import { toast } from '@/hooks/use-toast';
+
+interface PlatformFee {
+  amount: string;
+  address?: string;
+}
+
+interface MarketInfo {
+  platformFee?: PlatformFee;
+  outputMint: PublicKey;
+}
 
 export const executeJupiterSwap = async (
   jupiter: Jupiter,

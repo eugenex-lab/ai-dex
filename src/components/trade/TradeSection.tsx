@@ -11,6 +11,15 @@ import { useTokenPrice } from "@/hooks/useTokenPrice";
 import { useWallet } from '@solana/wallet-adapter-react';
 import { toast } from "@/hooks/use-toast";
 
+export interface TokenSelectProps {
+  showTokenSelect: boolean;
+  setShowTokenSelect: (show: boolean) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  handleTokenSelect: (token: JupiterToken) => void;
+  availableTokens: JupiterToken[];
+}
+
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
@@ -40,7 +49,7 @@ const TradeSection = () => {
     }
   }, [connected]);
 
-  const handleTokenSelect = (token: any) => {
+  const handleTokenSelect = (token: JupiterToken) => {
     if (selectingFor === "from") {
       setFromTokenMint(token.address);
     } else {
