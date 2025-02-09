@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowDown, Settings } from "lucide-react";
 import { Button } from "../ui/button";
 import { tokens } from "@/utils/tokenData";
