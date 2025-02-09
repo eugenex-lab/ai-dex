@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import { Lucid } from "lucid-cardano";
+import { Lucid, Blockfrost } from "lucid-cardano";
 import { useToast } from "@/hooks/use-toast";
 import { updateWalletConnection } from "../utils/walletDatabase";
 
@@ -30,9 +30,14 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
   useEffect(() => {
     const initLucid = async () => {
       try {
-        // Using correct initialization with Blockfrost provider
-        const api = "https://cardano-mainnet.blockfrost.io/api/v0";
-        const lucidInstance = await Lucid.new(api);
+        // Initialize Blockfrost provider
+        const blockfrostProvider = new Blockfrost(
+          "https://cardano-mainnet.blockfrost.io/api/v0",
+          // Note: In production, use an actual project API key
+          "projectKey" 
+        );
+        
+        const lucidInstance = await Lucid.new(blockfrostProvider);
         setLucid(lucidInstance);
       } catch (error) {
         console.error("Failed to initialize Lucid:", error);
