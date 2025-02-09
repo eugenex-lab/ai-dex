@@ -1,12 +1,16 @@
+
 import { CardanoWalletName, CardanoApi, WalletState } from './types/cardanoTypes';
 import { 
   WalletBridgeEvent, 
   WalletBridgeConfig, 
   WalletBridgeState,
   WalletCapabilities,
-  WalletBridgeMessage, 
+  WalletBridgeMessage,
   WalletEventType 
 } from './types/cip95Types';
+import { EventManager } from './walletBridge/events';
+import { WalletDiscovery } from './walletBridge/discovery';
+import { createWalletAPI } from './walletBridge/api';
 import { v4 as uuidv4 } from 'uuid';
 
 const DEFAULT_TIMEOUT = 5000;
@@ -20,8 +24,8 @@ const DEFAULT_CAPABILITIES: WalletCapabilities = {
 export class WalletBridge {
   private state: WalletBridgeState;
   private config: WalletBridgeConfig;
-  private messageHandlers: Map<string, (message: WalletBridgeMessage) => void>;
-  private eventListeners: Map<string, Set<(event: WalletBridgeEvent) => void>>;
+  private discovery: WalletDiscovery;
+  private eventManager: EventManager;
 
   constructor(config?: WalletBridgeConfig) {
     this.config = {
@@ -38,87 +42,36 @@ export class WalletBridge {
       capabilities: DEFAULT_CAPABILITIES
     };
 
-    this.messageHandlers = new Map();
-    this.eventListeners = new Map();
+    this.discovery = new WalletDiscovery(this.config.timeout);
+    this.eventManager = new EventManager();
     
     this.initialize();
   }
 
   private async initialize() {
     try {
-      // Register CIP-95 message handler
       window.addEventListener('message', this.handleIncomingMessage);
-      
-      // Initialize wallet discovery
       await this.discoverWallets();
-      
       this.state.isInitialized = true;
-      this.emit('DISCOVERY', { initialized: true });
+      this.eventManager.emit('DISCOVERY', { initialized: true });
     } catch (error) {
       this.handleError('Initialization failed', error);
     }
   }
 
   private async discoverWallets(): Promise<void> {
-    // Check for CIP-95 support
-    const cip95Wallets = await this.discoverCIP95Wallets();
-    
-    // Fallback to CIP-30 if needed
-    const cip30Wallets = await this.discoverCIP30Wallets();
-    
-    // Combine and deduplicate wallet list
+    const cip95Wallets = await this.discovery.discoverCIP95Wallets();
+    const cip30Wallets = await this.discovery.discoverCIP30Wallets();
     const availableWallets = [...new Set([...cip95Wallets, ...cip30Wallets])];
-    
-    this.emit('DISCOVERY', { wallets: availableWallets });
-  }
-
-  private async discoverCIP95Wallets(): Promise<string[]> {
-    return new Promise((resolve) => {
-      const messageId = uuidv4();
-      
-      const timeoutId = setTimeout(() => {
-        this.messageHandlers.delete(messageId);
-        resolve([]);
-      }, this.config.timeout);
-
-      this.messageHandlers.set(messageId, (message) => {
-        clearTimeout(timeoutId);
-        this.messageHandlers.delete(messageId);
-        resolve(message.data?.wallets || []);
-      });
-
-      window.postMessage({
-        type: 'CARDANO_WALLET_DISCOVERY',
-        id: messageId
-      }, '*');
-    });
-  }
-
-  private async discoverCIP30Wallets(): Promise<string[]> {
-    const cardanoWallets: string[] = [];
-    if (typeof window.cardano !== 'undefined') {
-      Object.keys(window.cardano).forEach(walletName => {
-        if (this.isCIP30Wallet(window.cardano[walletName])) {
-          cardanoWallets.push(walletName);
-        }
-      });
-    }
-    return cardanoWallets;
-  }
-
-  private isCIP30Wallet(wallet: any): boolean {
-    return wallet && 
-           typeof wallet.enable === 'function' && 
-           typeof wallet.isEnabled === 'function';
+    this.eventManager.emit('DISCOVERY', { wallets: availableWallets });
   }
 
   private handleIncomingMessage = (event: MessageEvent) => {
     const message = event.data as WalletBridgeMessage;
-    
     if (!message || !message.type || !message.id) return;
     
     if (message.type.startsWith('CARDANO_WALLET_')) {
-      const handler = this.messageHandlers.get(message.id);
+      const handler = this.discovery.getMessageHandlers().get(message.id);
       if (handler) {
         handler(message);
       }
@@ -132,16 +85,11 @@ export class WalletBridge {
 
     try {
       this.state.isConnecting = true;
-      
-      // Try CIP-95 connection first
       const cip95Connection = await this.connectWithCIP95(walletName);
       if (cip95Connection) {
         return cip95Connection;
       }
-
-      // Fallback to CIP-30
       return await this.connectWithCIP30(walletName);
-      
     } catch (error) {
       this.handleError('Connection failed', error);
       throw error;
@@ -155,20 +103,20 @@ export class WalletBridge {
       const messageId = uuidv4();
       
       const timeoutId = setTimeout(() => {
-        this.messageHandlers.delete(messageId);
+        this.discovery.getMessageHandlers().delete(messageId);
         resolve(null);
       }, this.config.timeout);
 
-      this.messageHandlers.set(messageId, (message) => {
+      this.discovery.getMessageHandlers().set(messageId, (message) => {
         clearTimeout(timeoutId);
-        this.messageHandlers.delete(messageId);
+        this.discovery.getMessageHandlers().delete(messageId);
         
         if (message.error) {
           resolve(null);
           return;
         }
 
-        const api = this.createWalletAPI(message.data);
+        const api = createWalletAPI(message.data);
         resolve(api);
       });
 
@@ -187,59 +135,27 @@ export class WalletBridge {
     }
 
     const api = await wallet.enable();
-    return this.createWalletAPI(api);
-  }
-
-  private createWalletAPI(api: any): CardanoApi {
-    // Validate and wrap the API
-    if (!api) throw new Error('Invalid wallet API');
-
-    return {
-      getNetworkId: () => api.getNetworkId(),
-      getUtxos: () => api.getUtxos(),
-      getBalance: () => api.getBalance(),
-      getUsedAddresses: () => api.getUsedAddresses(),
-      getUnusedAddresses: () => api.getUnusedAddresses(),
-      getChangeAddress: () => api.getChangeAddress(),
-      getRewardAddresses: () => api.getRewardAddresses(),
-      signTx: (tx: string, partialSign?: boolean) => api.signTx(tx, partialSign),
-      signData: (addr: string, payload: string) => api.signData(addr, payload),
-      submitTx: (tx: string) => api.submitTx(tx),
-      experimental: api.experimental
-    };
+    return createWalletAPI(api);
   }
 
   public on(eventType: WalletEventType, callback: (event: WalletBridgeEvent) => void): void {
-    if (!this.eventListeners.has(eventType)) {
-      this.eventListeners.set(eventType, new Set());
-    }
-    this.eventListeners.get(eventType)?.add(callback);
+    this.eventManager.on(eventType, callback);
   }
 
   public off(eventType: WalletEventType, callback: (event: WalletBridgeEvent) => void): void {
-    this.eventListeners.get(eventType)?.delete(callback);
-  }
-
-  private emit(type: WalletEventType, data?: any): void {
-    const event: WalletBridgeEvent = {
-      id: uuidv4(),
-      type,
-      data
-    };
-
-    this.eventListeners.get(type)?.forEach(callback => callback(event));
+    this.eventManager.off(eventType, callback);
   }
 
   private handleError(message: string, error: any): void {
     const errorMessage = error instanceof Error ? error.message : String(error);
     this.state.error = `${message}: ${errorMessage}`;
-    this.emit('ERROR', { message: this.state.error });
+    this.eventManager.emit('ERROR', { message: this.state.error });
   }
 
   public getState(): WalletState {
     return {
       name: this.state.connectedWallet as CardanoWalletName,
-      networkId: undefined, // Will be set after connection
+      networkId: undefined,
       apiVersion: '0.1.0',
       isAvailable: this.state.isInitialized,
       isConnected: !!this.state.connectedWallet
@@ -248,12 +164,12 @@ export class WalletBridge {
 
   public disconnect(): void {
     this.state.connectedWallet = null;
-    this.emit('DISCONNECT', null);
+    this.eventManager.emit('DISCONNECT', null);
   }
 
   public cleanup(): void {
     window.removeEventListener('message', this.handleIncomingMessage);
-    this.messageHandlers.clear();
-    this.eventListeners.clear();
+    this.discovery.getMessageHandlers().clear();
+    this.eventManager = new EventManager();
   }
 }
