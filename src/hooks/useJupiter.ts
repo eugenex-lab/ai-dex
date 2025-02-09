@@ -144,7 +144,10 @@ export const useJupiter = ({
         walletPubkey
       );
 
-      const signature = swapTransaction.signatures[0]?.toString();
+      // Handle both legacy and versioned transactions
+      const signature = 'signatures' in swapTransaction 
+        ? swapTransaction.signatures[0]?.toString()
+        : swapTransaction.signature?.toString();
 
       if (order && signature) {
         const { error: updateError } = await supabase
@@ -183,7 +186,9 @@ export const useJupiter = ({
 
       const confirmation = await connection.confirmTransaction({
         signature,
-        blockhash: swapTransaction.message.recentBlockhash,
+        blockhash: 'recentBlockhash' in swapTransaction 
+          ? swapTransaction.recentBlockhash
+          : swapTransaction.message.recentBlockhash,
         lastValidBlockHeight: await connection.getBlockHeight()
       });
 
