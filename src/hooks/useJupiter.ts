@@ -5,6 +5,7 @@ import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { toast } from '@/hooks/use-toast';
 import JSBI from 'jsbi';
 import { initializeJupiter, getJupiterTokens, getRoutes, executeSwap } from '@/services/jupiterService';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface UseJupiterProps {
   connection: Connection;
@@ -91,11 +92,78 @@ export const useJupiter = ({
     const bestRoute = routes[0]; // Jupiter returns routes sorted by best price
 
     try {
+      // Create order record before executing swap
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          pair: `${inputMint}/${outputMint}`,
+          type: 'swap',
+          side: 'buy',
+          price: bestRoute.outAmount / bestRoute.inAmount,
+          amount: Number(bestRoute.inAmount),
+          total: Number(bestRoute.outAmount),
+          status: 'open',
+          order_type: 'market',
+          input_mint: inputMint,
+          output_mint: outputMint,
+          input_amount: Number(bestRoute.inAmount),
+          output_amount: Number(bestRoute.outAmount),
+          min_output_amount: Number(bestRoute.otherAmountThreshold),
+          slippage: slippageBps,
+          jupiter_route_id: bestRoute.routeId,
+          user_email: (await supabase.auth.getUser()).data.user?.email,
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
       const { swapTransaction, routeInfo } = await executeSwap(
         jupiter,
         bestRoute,
         new PublicKey(userPublicKey)
       );
+
+      // Update order with transaction signature
+      if (order) {
+        const { error: updateError } = await supabase
+          .from('orders')
+          .update({
+            transaction_signature: swapTransaction.signature,
+            status: 'filled',
+            execution_context: {
+              route: routeInfo,
+              timestamp: new Date().toISOString()
+            }
+          })
+          .eq('id', order.id);
+
+        if (updateError) {
+          console.error('Failed to update order:', updateError);
+        }
+
+        // Record collected fee
+        if (routeInfo.feeAmount && routeInfo.platformFeePubkey) {
+          const { error: feeError } = await supabase
+            .from('collected_fees')
+            .insert({
+              order_id: order.id,
+              fee_amount: routeInfo.feeAmount,
+              recipient_address: routeInfo.platformFeePubkey.toString(),
+              transaction_signature: swapTransaction.signature,
+              status: 'confirmed'
+            });
+
+          if (feeError) {
+            console.error('Failed to record fee:', feeError);
+          }
+        }
+      }
+
+      toast({
+        title: "Swap Executed Successfully",
+        description: `Transaction signature: ${swapTransaction.signature}`,
+      });
 
       return {
         swapTransaction,
@@ -103,9 +171,14 @@ export const useJupiter = ({
       };
     } catch (err) {
       console.error('Swap execution error:', err);
+      toast({
+        title: "Swap Failed",
+        description: err instanceof Error ? err.message : "Unknown error occurred",
+        variant: "destructive"
+      });
       throw err;
     }
-  }, [jupiter, userPublicKey, routes]);
+  }, [jupiter, userPublicKey, routes, inputMint, outputMint]);
 
   return {
     jupiter,

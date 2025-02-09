@@ -109,8 +109,8 @@ export const executeSwap = async (
       userPublicKey,
     });
     
-    // Extract swapTransaction from the result
-    const { swapTransaction } = swapResult;
+    // Extract swapTransaction and routeInfo from the result
+    const { swapTransaction, routeInfo } = swapResult;
     
     return {
       swapTransaction,
