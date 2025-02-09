@@ -13,7 +13,9 @@ const isVersionCompatible = (version: string): boolean => {
 };
 
 // Comprehensive API validation
-const validateApi = async (api: any, walletName: string): Promise<api is CardanoApi> => {
+const validateApi = async (api: unknown, walletName: string): Promise<boolean> => {
+  if (!api || typeof api !== 'object') return false;
+
   const REQUIRED_METHODS = [
     'getNetworkId',
     'getUtxos', 
@@ -31,9 +33,9 @@ const validateApi = async (api: any, walletName: string): Promise<api is Cardano
     rootMethods: Object.keys(api || {}),
   });
 
-  // Check all required methods exist
+  // Type guard to check if api has all required methods
   const hasAllMethods = REQUIRED_METHODS.every(
-    method => typeof api[method] === 'function'
+    method => api.hasOwnProperty(method) && typeof (api as any)[method] === 'function'
   );
 
   if (!hasAllMethods) {
@@ -43,11 +45,12 @@ const validateApi = async (api: any, walletName: string): Promise<api is Cardano
 
   // Test basic API functionality
   try {
+    const apiAsCardano = api as CardanoApi;
     // Verify we can get network ID
-    await api.getNetworkId();
+    await apiAsCardano.getNetworkId();
     
     // Verify we can get balance
-    await api.getBalance();
+    await apiAsCardano.getBalance();
     
     console.log('API validation successful');
     return true;
@@ -108,7 +111,7 @@ export const enableWallet = async (
     }
 
     console.log(`${walletName} wallet enabled successfully`);
-    return api;
+    return api as CardanoApi;
   } catch (error) {
     console.error(`Error enabling ${walletName} wallet:`, error);
     throw error;
