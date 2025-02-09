@@ -1,7 +1,20 @@
 
-import { CardanoWalletName, WalletInfo, CardanoApi } from './types/cardanoTypes';
+import { CardanoWalletName, WalletInfo, CardanoApi, CardanoWallet } from './types/cardanoTypes';
 import { WALLET_INFO } from './config/walletConfig';
 import { formatCardanoAddress, isValidCardanoAddress } from './addressUtils';
+
+const REQUIRED_METHODS = [
+  'getNetworkId',
+  'getUtxos',
+  'getBalance',
+  'getUsedAddresses',
+  'getUnusedAddresses',
+  'getChangeAddress',
+  'getRewardAddresses',
+  'signTx',
+  'signData',
+  'submitTx'
+] as const;
 
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   if (!api) throw new Error('API instance required');
