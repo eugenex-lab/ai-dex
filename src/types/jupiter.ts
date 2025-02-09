@@ -37,15 +37,5 @@ export interface SwapResult {
   signature?: string;
 }
 
-export interface PlatformFee {
-  feeBps: number;
-  feeAccounts?: {
-    feeMint: PublicKey;
-    feeVault: PublicKey;
-  };
-}
-
-export interface MarketInfo {
-  outputMint: PublicKey;
-  platformFee?: PlatformFee;
-}
+// Using Jupiter's types directly
+export { MarketInfo, PlatformFee } from '@jup-ag/core';

@@ -1,7 +1,7 @@
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { JupiterToken } from "@/services/jupiterTokenService";
+import { JupiterToken } from "@/types/jupiter";
 
 interface TokenSectionProps {
   label: string;
