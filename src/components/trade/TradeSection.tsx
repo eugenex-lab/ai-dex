@@ -223,15 +223,15 @@ const TradeSection = () => {
                   {option}%
                 </Button>
               ))}
-              <div className="flex gap-2 flex-1">
+              <div className="flex flex-1 items-center gap-2">
                 <Input
-                  type="number"
+                  type="text"
                   value={slippage}
                   onChange={(e) => setSlippage(e.target.value)}
                   className="bg-background"
                   placeholder="Custom"
                 />
-                <span className="flex items-center">%</span>
+                <span>%</span>
               </div>
             </div>
             <Button 
