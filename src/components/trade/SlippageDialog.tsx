@@ -25,26 +25,26 @@ export const SlippageDialog = ({
           <DialogTitle>Swap slippage tolerance</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {slippageOptions.map((option) => (
               <Button
                 key={option}
                 variant={slippage === option ? "default" : "outline"}
-                className="flex-1"
                 onClick={() => setSlippage(option)}
+                className="w-full"
               >
                 {option}%
               </Button>
             ))}
-            <div className="flex flex-1 items-center gap-2">
+            <div className="flex items-center bg-background rounded-md border border-input h-10">
               <Input
                 type="text"
                 value={slippage}
                 onChange={(e) => setSlippage(e.target.value)}
-                className="bg-background"
+                className="border-0 bg-transparent h-full"
                 placeholder="Custom"
               />
-              <span>%</span>
+              <span className="pr-3">%</span>
             </div>
           </div>
           <Button 
