@@ -22,6 +22,7 @@ const TradeSection = () => {
   const [selectedChain, setSelectedChain] = useState<"cardano" | "ethereum" | "solana">("cardano");
   const [activeTradeType, setActiveTradeType] = useState<'market' | 'dip' | 'limit'>('market');
   const [activeTab, setActiveTab] = useState<'swap' | 'limit'>('swap');
+  const [tradeTab, setTradeTab] = useState<'buy' | 'sell'>('buy'); // Separate state for TradeForm
 
   // Subscribe to chain changes from WalletSection
   useEffect(() => {
@@ -137,7 +138,7 @@ const TradeSection = () => {
             <TabsContent value="limit" className="space-y-4">
               <TradeForm 
                 activeTrade="limit"
-                activeTab={activeTab}
+                activeTab={tradeTab}
                 amount={fromAmount}
                 setAmount={setFromAmount}
                 receiveAmount={toAmount}
