@@ -113,29 +113,34 @@ const TradeSection = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="swap" className="space-y-4">
-            <SwapContent />
-          </TabsContent>
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex-1">
+              <TabsContent value="swap" className="space-y-4">
+                <SwapContent />
+              </TabsContent>
 
-          <TabsContent value="limit" className="space-y-4">
-            <TradeForm 
-              activeTrade="limit"
-              activeTab={activeTab}
-              amount={fromAmount}
-              setAmount={setFromAmount}
-              receiveAmount={toAmount}
-              setReceiveAmount={setToAmount}
-            />
-          </TabsContent>
+              <TabsContent value="limit" className="space-y-4">
+                <TradeForm 
+                  activeTrade="limit"
+                  activeTab={activeTab}
+                  amount={fromAmount}
+                  setAmount={setFromAmount}
+                  receiveAmount={toAmount}
+                  setReceiveAmount={setToAmount}
+                />
+              </TabsContent>
+            </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 ml-2"
+              onClick={() => setShowSlippage(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
         </Tabs>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6"
-          onClick={() => setShowSlippage(true)}
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
       </div>
 
       <TokenSelectDialog
