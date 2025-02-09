@@ -144,6 +144,10 @@ const TradeSection = () => {
                   setAmount={setFromAmount}
                   receiveAmount={toAmount}
                   setReceiveAmount={setToAmount}
+                  fromToken={fromToken}
+                  toToken={toToken}
+                  onFromTokenSelect={() => openTokenSelect("from")}
+                  onToTokenSelect={() => openTokenSelect("to")}
                 />
               </TabsContent>
             </div>

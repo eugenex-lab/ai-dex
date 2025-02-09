@@ -1,7 +1,10 @@
+
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
+import { Token } from "@/utils/tokenData";
+import { TokenSection } from "./TokenSection";
 
 interface TradeFormProps {
   activeTrade: 'market' | 'dip' | 'limit';
@@ -10,6 +13,10 @@ interface TradeFormProps {
   setAmount: (value: string) => void;
   receiveAmount: string;
   setReceiveAmount: (value: string) => void;
+  fromToken: Token;
+  toToken: Token;
+  onFromTokenSelect: () => void;
+  onToTokenSelect: () => void;
 }
 
 const TradeForm = ({
@@ -18,7 +25,11 @@ const TradeForm = ({
   amount,
   setAmount,
   receiveAmount,
-  setReceiveAmount
+  setReceiveAmount,
+  fromToken,
+  toToken,
+  onFromTokenSelect,
+  onToTokenSelect
 }: TradeFormProps) => {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [autoTrade, setAutoTrade] = useState<'off' | 'on'>('off');
@@ -69,6 +80,25 @@ const TradeForm = ({
               On
             </Button>
           </div>
+        </div>
+
+        <div className="space-y-4">
+          <TokenSection
+            label="From"
+            showButtons={true}
+            amount={amount}
+            setAmount={setAmount}
+            token={fromToken}
+            onTokenSelect={onFromTokenSelect}
+          />
+
+          <TokenSection
+            label="To"
+            amount={receiveAmount}
+            setAmount={setReceiveAmount}
+            token={toToken}
+            onTokenSelect={onToTokenSelect}
+          />
         </div>
 
         <div className="space-y-2">
