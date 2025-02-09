@@ -10,7 +10,7 @@ export interface WalletInfo {
 
 // CardanoWallet API interface
 export interface CardanoWallet {
-  enable: () => Promise<CardanoApi>;
+  enable: () => Promise<CardanoApiResponse>;
   isEnabled: () => Promise<boolean>;
   apiVersion: string;
   name: string;
@@ -28,7 +28,7 @@ export interface Cardano {
   tokeo?: CardanoWallet;
 }
 
-// CardanoApi interface for enabled wallet
+// CardanoApi interface for enabled wallet methods
 export interface CardanoApi {
   getNetworkId: () => Promise<number>;  
   getUtxos: () => Promise<string[]>;

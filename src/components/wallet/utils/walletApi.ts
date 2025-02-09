@@ -22,6 +22,10 @@ const validateApi = (api: any): api is CardanoApiResponse => {
     return false;
   }
 
+  // Add detailed logging for debugging
+  console.log('API structure:', Object.keys(api));
+  console.log('Cardano namespace structure:', Object.keys(api.cardano));
+
   for (const method of REQUIRED_METHODS) {
     if (typeof api.cardano[method] !== 'function') {
       console.error(`Missing required method: ${method}`);
@@ -72,7 +76,12 @@ export const enableWallet = async (
     const isEnabled = await wallet.isEnabled().catch(() => false);
     if (isEnabled) {
       console.log(`${walletName} wallet already enabled`);
-      return wallet as unknown as CardanoApiResponse;
+      // Get fresh API instance even when already enabled
+      const api = await wallet.enable();
+      if (!validateApi(api)) {
+        throw new Error(`${walletName} wallet API is missing required methods`);
+      }
+      return api;
     }
 
     console.log(`Enabling ${walletName} wallet...`);
