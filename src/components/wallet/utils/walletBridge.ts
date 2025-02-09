@@ -1,11 +1,11 @@
-
 import { CardanoWalletName, CardanoApi, WalletState } from './types/cardanoTypes';
 import { 
   WalletBridgeEvent, 
   WalletBridgeConfig, 
   WalletBridgeState,
   WalletCapabilities,
-  WalletBridgeMessage 
+  WalletBridgeMessage, 
+  WalletEventType 
 } from './types/cip95Types';
 import { v4 as uuidv4 } from 'uuid';
 
