@@ -10,6 +10,8 @@ export interface JupiterToken {
   symbol: string;
   tags: string[];
   verified?: boolean;
+  icon?: string; // Added for compatibility
+  chain?: string; // Added for compatibility
 }
 
 export interface TokenPrice {
@@ -40,7 +42,11 @@ class JupiterTokenService {
       if (this.shouldRefreshCache()) {
         const response = await fetch('https://api.jup.ag/tokens/v1/mints/tradable');
         const data = await response.json();
-        this.tokenList = data;
+        this.tokenList = data.map((token: JupiterToken) => ({
+          ...token,
+          icon: token.logoURI, // Map logoURI to icon for compatibility
+          chain: 'solana' // Add chain field for compatibility
+        }));
         this.lastFetchTime = Date.now();
       }
       return this.tokenList;
