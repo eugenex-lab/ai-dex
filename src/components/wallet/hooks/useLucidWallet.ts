@@ -26,7 +26,8 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
     }
 
     try {
-      await lucid.selectWalletFromExtension(walletName);
+      // Use selectWallet instead of selectWalletFromExtension
+      await lucid.selectWallet(walletName);
       const address = await lucid.wallet.address();
       
       if (address) {
