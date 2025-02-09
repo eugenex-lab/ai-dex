@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowDown, Settings, AlignHorizontalDistributeCenter, List } from "lucide-react";
 import { Button } from "../ui/button";
@@ -26,12 +25,11 @@ const TradeSection = () => {
   const [activeTab, setActiveTab] = useState<'swap' | 'limit'>('swap');
   const [tradeTab, setTradeTab] = useState<'buy' | 'sell'>('buy');
 
-  const { tokens, loading: tokensLoading } = useSolanaTokens();
+  const { tokens = [], loading: tokensLoading } = useSolanaTokens();
   const { price: fromTokenPrice } = useTokenPrice(fromTokenMint);
   const { price: toTokenPrice } = useTokenPrice(toTokenMint);
   const { connected } = useWallet();
 
-  // Subscribe to chain changes from WalletSection
   useEffect(() => {
     if (!connected) {
       toast({

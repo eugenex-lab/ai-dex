@@ -7,7 +7,7 @@ interface TokenSectionProps {
   showButtons?: boolean;
   amount: string;
   setAmount: (amount: string) => void;
-  token: {
+  token?: {
     icon: string;
     symbol: string;
   };
@@ -62,8 +62,14 @@ export const TokenSection = ({
             className="flex items-center gap-2 bg-background/60 hover:bg-background"
             onClick={onTokenSelect}
           >
-            <img src={token.icon} alt={token.symbol} className="w-5 h-5" />
-            {token.symbol}
+            {token ? (
+              <>
+                <img src={token.icon} alt={token.symbol} className="w-5 h-5" />
+                {token.symbol}
+              </>
+            ) : (
+              <span>Select Token</span>
+            )}
           </Button>
           <Input 
             type="text"
