@@ -4,10 +4,12 @@ import { fetchMarketData } from '@/services/binanceService';
 import { cleanSymbol, isValidSymbol } from '@/utils/symbolUtils';
 import { toast } from '@/components/ui/use-toast';
 
-// WebSocket endpoints in order of preference 
+// Expanded WebSocket endpoints in order of preference 
 const WS_ENDPOINTS = [
   'wss://stream.binance.us:9443',
-  'wss://stream.binance.com:9443'
+  'wss://stream.binance.com:9443',
+  'wss://ws-api.binance.com:443',
+  'wss://ws.binance.com:9443'
 ];
 
 interface WSError {
@@ -15,16 +17,28 @@ interface WSError {
   message: string;
   timestamp: number;
   retryCount: number;
+  endpoint: string;
 }
 
-// Cache for market data
+// Cache with TTL
 const dataCache = new Map<string, {
   data: any;
   timestamp: number;
+  endpoint?: string; // Track successful endpoint
 }>();
 
-// Connection pool
-const wsPool = new Map<string, WebSocket>();
+// Connection pool with health tracking
+const wsPool = new Map<string, {
+  connection: WebSocket;
+  lastHealthCheck: number;
+  endpoint: string;
+}>();
+
+// Health check interval (15 seconds)
+const HEALTH_CHECK_INTERVAL = 15000;
+
+// Cache TTL (30 seconds)
+const CACHE_TTL = 30000;
 
 export const useTokenData = (symbol: string) => {
   const [data, setData] = useState<any>(null);
@@ -36,9 +50,15 @@ export const useTokenData = (symbol: string) => {
   const wsRef = useRef<WebSocket | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout>();
   const healthCheckIntervalRef = useRef<NodeJS.Timeout>();
+  const lastEndpointTryRef = useRef<Map<string, number>>(new Map());
 
-  const getBackoffDelay = (retry: number) => {
-    return Math.min(1000 * Math.pow(2, retry), 30000);
+  const getBackoffDelay = (retry: number, endpoint: string) => {
+    const lastTry = lastEndpointTryRef.current.get(endpoint) || 0;
+    const timeSinceLastTry = Date.now() - lastTry;
+    const baseDelay = Math.min(1000 * Math.pow(2, retry), 30000);
+    
+    // Add jitter to prevent thundering herd
+    return Math.max(baseDelay + Math.random() * 1000, timeSinceLastTry);
   };
 
   const clearIntervals = () => {
@@ -61,51 +81,89 @@ export const useTokenData = (symbol: string) => {
     }, 5000);
   };
 
-  const startHealthCheck = () => {
+  const startHealthCheck = (ws: WebSocket, endpoint: string) => {
     healthCheckIntervalRef.current = setInterval(() => {
-      if (wsRef.current?.readyState !== WebSocket.OPEN) {
+      if (ws.readyState === WebSocket.OPEN) {
+        // Send ping frame
+        ws.send(JSON.stringify({ method: 'ping' }));
+      } else {
         console.log('useTokenData: WebSocket health check failed, reconnecting...');
-        connectWebSocket(symbol);
+        connectWebSocket(symbol, endpoint);
       }
-    }, 30000);
+    }, HEALTH_CHECK_INTERVAL);
   };
 
-  const tryNextEndpoint = () => {
-    const nextIndex = (endpointIndex + 1) % WS_ENDPOINTS.length;
-    setEndpointIndex(nextIndex);
-    return WS_ENDPOINTS[nextIndex];
+  const selectBestEndpoint = () => {
+    // Try endpoints in order, with backoff
+    for (let i = 0; i < WS_ENDPOINTS.length; i++) {
+      const endpoint = WS_ENDPOINTS[i];
+      const lastTry = lastEndpointTryRef.current.get(endpoint) || 0;
+      if (Date.now() - lastTry > 60000) { // 1 minute cooldown
+        return endpoint;
+      }
+    }
+    // If all endpoints are in cooldown, return the first one
+    return WS_ENDPOINTS[0];
   };
 
-  const connectWebSocket = (cleanedSymbol: string) => {
+  const connectWebSocket = (cleanedSymbol: string, preferredEndpoint?: string) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       return;
     }
 
     // Check connection pool first
     const pooledWs = wsPool.get(cleanedSymbol);
-    if (pooledWs?.readyState === WebSocket.OPEN) {
-      wsRef.current = pooledWs;
+    if (pooledWs?.connection.readyState === WebSocket.OPEN) {
+      wsRef.current = pooledWs.connection;
       setConnectionState('connected');
       return;
     }
 
     console.log('useTokenData: Setting up WebSocket for symbol:', cleanedSymbol);
-    const baseUrl = WS_ENDPOINTS[endpointIndex];
-    const wsConnection = new WebSocket(`${baseUrl}/ws/${cleanedSymbol.toLowerCase()}@ticker`);
+    const endpoint = preferredEndpoint || selectBestEndpoint();
+    lastEndpointTryRef.current.set(endpoint, Date.now());
+    
+    const wsConnection = new WebSocket(`${endpoint}/ws/${cleanedSymbol.toLowerCase()}@ticker`);
     wsRef.current = wsConnection;
     setConnectionState('connecting');
+
+    // Set connection timeout
+    const timeoutId = setTimeout(() => {
+      if (wsConnection.readyState !== WebSocket.OPEN) {
+        console.log('useTokenData: Connection timeout, trying next endpoint');
+        wsConnection.close();
+      }
+    }, 5000);
     
     wsConnection.onopen = () => {
+      clearTimeout(timeoutId);
       console.log('useTokenData: WebSocket connected for symbol:', cleanedSymbol);
       setConnectionState('connected');
       setRetryCount(0);
-      wsPool.set(cleanedSymbol, wsConnection);
-      startHealthCheck();
+      
+      // Update pool with successful connection
+      wsPool.set(cleanedSymbol, {
+        connection: wsConnection,
+        lastHealthCheck: Date.now(),
+        endpoint
+      });
+      
+      // Cache the successful endpoint
+      const cacheEntry = dataCache.get(cleanedSymbol);
+      if (cacheEntry) {
+        dataCache.set(cleanedSymbol, { ...cacheEntry, endpoint });
+      }
+      
+      startHealthCheck(wsConnection, endpoint);
     };
     
     wsConnection.onmessage = (event) => {
       try {
         const tickerData = JSON.parse(event.data);
+        if (tickerData.type === 'pong') {
+          return; // Ignore pong responses
+        }
+        
         setData(prevData => {
           if (!prevData) return prevData;
           
@@ -118,10 +176,11 @@ export const useTokenData = (symbol: string) => {
             }
           };
 
-          // Update cache
+          // Update cache with fresh data
           dataCache.set(cleanedSymbol, {
             data: updatedData,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            endpoint
           });
 
           return updatedData;
@@ -132,24 +191,28 @@ export const useTokenData = (symbol: string) => {
     };
 
     wsConnection.onerror = (error) => {
+      clearTimeout(timeoutId);
       console.error('useTokenData: WebSocket error:', error);
       setConnectionState('disconnected');
       wsConnection.close();
     };
 
     wsConnection.onclose = () => {
+      clearTimeout(timeoutId);
       console.log('useTokenData: WebSocket closed');
       setConnectionState('disconnected');
       wsPool.delete(cleanedSymbol);
       
       // If we haven't exceeded max retries, try next endpoint
       if (retryCount < 3) {
-        console.log(`useTokenData: Attempting reconnect ${retryCount + 1}/3 in ${getBackoffDelay(retryCount)}ms`);
+        const delay = getBackoffDelay(retryCount, endpoint);
+        console.log(`useTokenData: Attempting reconnect ${retryCount + 1}/3 in ${delay}ms`);
         setTimeout(() => {
           setRetryCount(prev => prev + 1);
-          tryNextEndpoint();
-          connectWebSocket(cleanedSymbol);
-        }, getBackoffDelay(retryCount));
+          // Try next endpoint
+          const nextEndpoint = WS_ENDPOINTS[(WS_ENDPOINTS.indexOf(endpoint) + 1) % WS_ENDPOINTS.length];
+          connectWebSocket(cleanedSymbol, nextEndpoint);
+        }, delay);
       } else {
         setError('WebSocket connection failed after max retries. Using fallback polling.');
         toast({
@@ -174,12 +237,17 @@ export const useTokenData = (symbol: string) => {
 
     // Check cache first
     const cachedData = dataCache.get(cleanedSymbol);
-    if (cachedData && Date.now() - cachedData.timestamp < 30000) {
+    if (cachedData && Date.now() - cachedData.timestamp < CACHE_TTL) {
       setData(cachedData.data);
       setIsLoading(false);
+      
+      // If we have a successful endpoint cached, try it first
+      if (cachedData.endpoint) {
+        connectWebSocket(cleanedSymbol, cachedData.endpoint);
+        return;
+      }
     }
 
-    // Function to fetch initial data
     const fetchData = async () => {
       try {
         setIsLoading(true);
