@@ -21,7 +21,7 @@ const TradeSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChain, setSelectedChain] = useState<"cardano" | "ethereum" | "solana">("cardano");
   const [activeTradeType, setActiveTradeType] = useState<'market' | 'dip' | 'limit'>('market');
-  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
+  const [activeTab, setActiveTab] = useState<'swap' | 'limit'>('swap');
 
   // Subscribe to chain changes from WalletSection
   useEffect(() => {
@@ -101,44 +101,49 @@ const TradeSection = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Tabs defaultValue="swap" className="flex-1">
-          <TabsList className="grid w-[400px] grid-cols-2">
-            <TabsTrigger value="swap" className="flex items-center gap-2">
-              <AlignHorizontalDistributeCenter className="h-4 w-4" />
-              Swap
-            </TabsTrigger>
-            <TabsTrigger value="limit" className="flex items-center gap-2">
-              <List className="h-4 w-4" />
-              Limit Order
-            </TabsTrigger>
-          </TabsList>
+        <Tabs 
+          defaultValue="swap" 
+          className="flex-1"
+          onValueChange={(value) => setActiveTab(value as 'swap' | 'limit')}
+        >
+          <div className="flex items-center justify-between">
+            <TabsList className="w-[400px] grid grid-cols-2">
+              <TabsTrigger value="swap" className="flex items-center gap-2">
+                <AlignHorizontalDistributeCenter className="h-4 w-4" />
+                Swap
+              </TabsTrigger>
+              <TabsTrigger value="limit" className="flex items-center gap-2">
+                <List className="h-4 w-4" />
+                Limit Order
+              </TabsTrigger>
+            </TabsList>
+            {activeTab === 'swap' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => setShowSlippage(true)}
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex-1">
-              <TabsContent value="swap" className="space-y-4">
-                <SwapContent />
-              </TabsContent>
+          <div className="mt-4">
+            <TabsContent value="swap" className="space-y-4">
+              <SwapContent />
+            </TabsContent>
 
-              <TabsContent value="limit" className="space-y-4">
-                <TradeForm 
-                  activeTrade="limit"
-                  activeTab={activeTab}
-                  amount={fromAmount}
-                  setAmount={setFromAmount}
-                  receiveAmount={toAmount}
-                  setReceiveAmount={setToAmount}
-                />
-              </TabsContent>
-            </div>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 ml-2"
-              onClick={() => setShowSlippage(true)}
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
+            <TabsContent value="limit" className="space-y-4">
+              <TradeForm 
+                activeTrade="limit"
+                activeTab={activeTab}
+                amount={fromAmount}
+                setAmount={setFromAmount}
+                receiveAmount={toAmount}
+                setReceiveAmount={setToAmount}
+              />
+            </TabsContent>
           </div>
         </Tabs>
       </div>
