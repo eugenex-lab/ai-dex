@@ -66,7 +66,6 @@ export const executeJupiterSwap = async (
     if (orderError) throw orderError;
 
     // Execute swap
-    console.log('Executing swap with route:', bestRoute);
     const { swapTransaction } = await jupiter.exchange({
       routeInfo: bestRoute,
       userPublicKey: walletPubkey
@@ -98,13 +97,13 @@ export const executeJupiterSwap = async (
 
       // Record fees if applicable
       const platformFee = bestRoute.marketInfos[0]?.platformFee;
-      if (platformFee) {
+      if (platformFee && platformFee.amount) {
         const { error: feeError } = await supabase
           .from('collected_fees')
           .insert({
             order_id: order.id,
             fee_amount: Number(platformFee.amount),
-            recipient_address: platformFee.feeAccount?.toString() || userPublicKey,
+            recipient_address: platformFee.address?.toString() || userPublicKey,
             transaction_signature: signature,
             status: 'confirmed'
           });

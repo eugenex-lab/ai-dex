@@ -1,12 +1,12 @@
 
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
 import { 
-  createAssociatedTokenAccountInstruction as createATA,
-  getAssociatedTokenAddress,
-  createCloseAccountInstruction,
   TOKEN_PROGRAM_ID, 
   ASSOCIATED_TOKEN_PROGRAM_ID,
-} from '@solana/spl-token-2';
+  createAssociatedTokenAccount,
+  getAssociatedTokenAddress,
+  createCloseAccount
+} from '@solana/spl-token';
 import { toast } from '@/hooks/use-toast';
 
 export class WalletService {
@@ -47,7 +47,7 @@ export class WalletService {
           return { address: ata };
         }
 
-        const instruction = createATA(
+        const instruction = createAssociatedTokenAccount(
           payer,
           ata,
           walletAddress,
@@ -84,13 +84,12 @@ export class WalletService {
       walletAddress
     );
 
-    const closeInstruction = createCloseAccountInstruction(
-      ata,
-      walletAddress,
-      walletAddress,
-      [],
+    const closeInstruction = createCloseAccount({
+      source: ata,
+      destination: walletAddress,
+      owner: walletAddress,
       TOKEN_PROGRAM_ID
-    );
+    });
 
     return {
       address: ata,
