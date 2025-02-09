@@ -43,6 +43,7 @@ function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -51,7 +52,6 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/roadmap" element={<Roadmap />} />
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/api" element={<API />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/staking" element={<Staking />} />
