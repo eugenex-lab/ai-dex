@@ -4,20 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
 import { usePhantom } from "./usePhantom";
-import { useLucidWallet } from "./useLucidWallet";
 import { updateWalletConnection, disconnectWallet } from "../utils/walletDatabase";
-import { type PhantomChain, type CardanoWalletType } from "../utils/walletUtils";
+import { type PhantomChain } from "../utils/walletUtils";
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWallet, setLoadingWallet] = useState<string | null>(null);
   const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
-  const [currentChain, setCurrentChain] = useState<PhantomChain | 'cardano' | null>(null);
+  const [currentChain, setCurrentChain] = useState<PhantomChain | null>(null);
   const { toast } = useToast();
 
   const { connect: connectMetaMask, getChainInfo } = useMetaMask(setConnectedAddress, updateWalletConnection);
   const { connect: connectPhantom } = usePhantom(setConnectedAddress, updateWalletConnection);
-  const { connect: connectCardano } = useLucidWallet(setConnectedAddress);
 
   useEffect(() => {
     const checkConnectionStatus = async () => {
@@ -56,9 +54,6 @@ export const useWalletConnection = () => {
         }
         address = await connectPhantom(chain);
         setCurrentChain(chain);
-      } else if (Object.values(['eternl', 'yoroi', 'begin', 'lace', 'tokeo', 'vespr']).includes(walletType)) {
-        address = await connectCardano(walletType);
-        setCurrentChain('cardano');
       }
 
       if (address) {

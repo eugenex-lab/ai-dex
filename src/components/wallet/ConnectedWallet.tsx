@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Copy, LogOut, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { type PhantomChain } from "./utils/walletUtils";
-import { getDisplayAddress } from "./utils/walletUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +19,7 @@ export interface ConnectedWalletProps {
 
 const ConnectedWallet = ({ address, onDisconnect, isLoading, chain }: ConnectedWalletProps) => {
   const { toast } = useToast();
-  const displayAddress = getDisplayAddress(address, chain);
+  const displayAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(address);
