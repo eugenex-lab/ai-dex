@@ -1,6 +1,7 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Jupiter, RouteInfo, TOKEN_LIST_URL } from '@jup-ag/core';
+import { Jupiter, RouteInfo, TOKEN_LIST_URL, SwapMode } from '@jup-ag/core';
+import JSBI from 'jsbi';
 import { toast } from '@/hooks/use-toast';
 
 // Constants
@@ -23,14 +24,15 @@ let jupiterInstance: Jupiter | null = null;
 export const initializeJupiter = async (connection: Connection) => {
   try {
     if (!jupiterInstance) {
+      const feeAccountMap = new Map<string, number>();
+      feeAccountMap.set(JUPITER_FEE_RECIPIENT.toBase58(), PLATFORM_FEE_BPS);
+
       jupiterInstance = await Jupiter.load({
         connection,
         cluster: 'mainnet-beta',
         platformFeeAndAccounts: {
           feeBps: PLATFORM_FEE_BPS,
-          feeAccounts: {
-            [JUPITER_FEE_RECIPIENT.toBase58()]: PLATFORM_FEE_BPS
-          }
+          feeAccounts: feeAccountMap
         }
       });
     }
@@ -66,9 +68,9 @@ export const getRoutes = async (
   jupiter: Jupiter,
   inputMint: PublicKey,
   outputMint: PublicKey,
-  amount: number,
+  amount: JSBI,
   slippageBps: number,
-  swapMode: 'ExactIn' | 'ExactOut'
+  swapMode: SwapMode
 ): Promise<RouteInfo[]> => {
   try {
     const routes = await jupiter.computeRoutes({
@@ -102,13 +104,13 @@ export const executeSwap = async (
   userPublicKey: PublicKey
 ) => {
   try {
-    const { transactions } = await jupiter.exchange({
+    const swapResult = await jupiter.exchange({
       routeInfo: route,
       userPublicKey,
     });
-
-    // Prepare transaction
-    const { swapTransaction } = transactions;
+    
+    // Extract swapTransaction from the result
+    const { swapTransaction } = swapResult;
     
     return {
       swapTransaction,
