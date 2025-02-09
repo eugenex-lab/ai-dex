@@ -123,11 +123,11 @@ const TradeSection = () => {
         </Button>
       </div>
 
-      <Tabs.Content value="swap" className="space-y-4">
+      <TabsContent value="swap" className="space-y-4">
         <SwapContent />
-      </Tabs.Content>
+      </TabsContent>
 
-      <Tabs.Content value="limit" className="space-y-4">
+      <TabsContent value="limit" className="space-y-4">
         <TradeForm 
           activeTrade="limit"
           activeTab={activeTab}
@@ -136,7 +136,7 @@ const TradeSection = () => {
           receiveAmount={toAmount}
           setReceiveAmount={setToAmount}
         />
-      </Tabs.Content>
+      </TabsContent>
 
       <TokenSelectDialog
         showTokenSelect={showTokenSelect}
