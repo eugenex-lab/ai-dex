@@ -1,22 +1,12 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Jupiter, RouteInfo, TOKEN_LIST_URL, SwapMode } from '@jup-ag/core';
-import JSBI from 'jsbi';
+import { Jupiter, RouteInfo, TOKEN_LIST_URL } from '@jup-ag/core';
+import { JupiterToken, SwapResult } from '@/types/jupiter';
 import { toast } from '@/hooks/use-toast';
 
-// Constants 
+// Constants
 export const JUPITER_FEE_RECIPIENT = new PublicKey('8iB1cjU7PtkxW3yemjtDLAWVt645vtW1NUduyH6AuWFS');
 export const PLATFORM_FEE_BPS = 100; // 1% = 100 basis points
-
-interface Token {
-  chainId: number;
-  address: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  logoURI: string;
-  tags: string[];
-}
 
 // Singleton instance
 let jupiterInstance: Jupiter | null = null;
@@ -48,7 +38,7 @@ export const initializeJupiter = async (connection: Connection) => {
   }
 };
 
-export const getJupiterTokens = async (): Promise<Token[]> => {
+export const getJupiterTokens = async (): Promise<JupiterToken[]> => {
   try {
     const response = await fetch(TOKEN_LIST_URL.toString());
     const data = await response.json();
@@ -56,7 +46,7 @@ export const getJupiterTokens = async (): Promise<Token[]> => {
   } catch (error) {
     console.error('Error fetching Jupiter tokens:', error);
     toast({
-      title: "Token List Error", 
+      title: "Token List Error",
       description: "Failed to fetch available tokens",
       variant: "destructive"
     });
@@ -68,7 +58,7 @@ export const getRoutes = async (
   jupiter: Jupiter,
   inputMint: PublicKey,
   outputMint: PublicKey,
-  amount: JSBI,
+  amount: number,
   slippageBps: number,
   swapMode: SwapMode
 ): Promise<RouteInfo[]> => {
@@ -102,7 +92,7 @@ export const executeSwap = async (
   jupiter: Jupiter,
   route: RouteInfo,
   userPublicKey: PublicKey
-) => {
+): Promise<SwapResult> => {
   try {
     const result = await jupiter.exchange({
       routeInfo: route,
@@ -116,16 +106,10 @@ export const executeSwap = async (
   } catch (error) {
     console.error('Error executing swap:', error);
     toast({
-      title: "Swap Execution Error",
+      title: "Swap Execution Error", 
       description: "Failed to execute swap",
       variant: "destructive"
     });
     throw error;
   }
-};
-
-// Hook for tracking token prices
-export const useTokenPrice = (mint: string) => {
-  // Implementation will be added in next phase
-  return { price: 0, loading: false, error: null };
 };

@@ -6,14 +6,14 @@ export interface UseJupiterProps {
   connection: Connection;
   inputMint?: string;
   outputMint?: string;
-  amount?: number;
+  amount?: number;  
   slippageBps?: number;
   swapMode?: SwapMode;
   userPublicKey?: string;
 }
 
 export interface JupiterState {
-  jupiter: Jupiter | null;  
+  jupiter: Jupiter | null;
   tokens: JupiterToken[];
   routes: RouteInfo[];
   loading: boolean;
@@ -22,7 +22,7 @@ export interface JupiterState {
 
 export interface JupiterToken {
   address: string;
-  chainId: number;
+  chainId: number; 
   decimals: number;
   logoURI: string;
   name: string;
@@ -37,5 +37,5 @@ export interface SwapResult {
   signature?: string;
 }
 
-// Re-export Jupiter types using export type
-export type { MarketInfo, Fee, PlatformFee } from '@jup-ag/core';
+// Re-export Jupiter core types
+export type { MarketInfo, RouteInfo } from '@jup-ag/core';
