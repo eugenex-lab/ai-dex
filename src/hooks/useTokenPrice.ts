@@ -1,14 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { getJupiterTokens } from '@/services/jupiterService';
-
-export interface TokenPrice {
-  price: number;
-  priceChange24h?: number;
-  volume24h?: number;
-  marketCap?: number;
-}
+import { jupiterTokenService, TokenPrice } from '@/services/jupiterTokenService';
 
 export const useTokenPrice = (mint: string | undefined) => {
   const [price, setPrice] = useState<TokenPrice | null>(null);
@@ -26,26 +18,10 @@ export const useTokenPrice = (mint: string | undefined) => {
       try {
         setLoading(true);
         setError(null);
+        const tokenPrice = await jupiterTokenService.getTokenPrice(mint);
         
-        // Get all Jupiter tokens
-        const tokens = await getJupiterTokens();
-        const token = tokens.find(t => t.address === mint);
-        
-        if (!token) {
-          throw new Error('Token not found');
-        }
-
-        // TODO: Replace with actual Jupiter price API once rate limits are configured
-        const response = await fetch(`https://api.jup.ag/price/v2/${mint}`);
-        const data = await response.json();
-
         if (mounted) {
-          setPrice({
-            price: data.price || 0,
-            priceChange24h: data.price_change_24h,
-            volume24h: data.volume_24h,
-            marketCap: data.market_cap
-          });
+          setPrice(tokenPrice);
         }
       } catch (err) {
         console.error('Error fetching token price:', err);
@@ -60,7 +36,7 @@ export const useTokenPrice = (mint: string | undefined) => {
     };
 
     fetchPrice();
-    const interval = setInterval(fetchPrice, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchPrice, 10000); // Update every 10 seconds
 
     return () => {
       mounted = false;
