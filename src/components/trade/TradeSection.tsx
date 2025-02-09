@@ -112,6 +112,21 @@ const TradeSection = () => {
               Limit Order
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="swap" className="space-y-4">
+            <SwapContent />
+          </TabsContent>
+
+          <TabsContent value="limit" className="space-y-4">
+            <TradeForm 
+              activeTrade="limit"
+              activeTab={activeTab}
+              amount={fromAmount}
+              setAmount={setFromAmount}
+              receiveAmount={toAmount}
+              setReceiveAmount={setToAmount}
+            />
+          </TabsContent>
         </Tabs>
         <Button
           variant="ghost"
@@ -122,21 +137,6 @@ const TradeSection = () => {
           <Settings className="h-4 w-4" />
         </Button>
       </div>
-
-      <TabsContent value="swap" className="space-y-4">
-        <SwapContent />
-      </TabsContent>
-
-      <TabsContent value="limit" className="space-y-4">
-        <TradeForm 
-          activeTrade="limit"
-          activeTab={activeTab}
-          amount={fromAmount}
-          setAmount={setFromAmount}
-          receiveAmount={toAmount}
-          setReceiveAmount={setToAmount}
-        />
-      </TabsContent>
 
       <TokenSelectDialog
         showTokenSelect={showTokenSelect}
