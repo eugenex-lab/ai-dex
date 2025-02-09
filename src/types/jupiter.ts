@@ -37,5 +37,5 @@ export interface SwapResult {
   signature?: string;
 }
 
-// Using Jupiter's types directly
-export { MarketInfo, PlatformFee } from '@jup-ag/core';
+// Re-export Jupiter types using export type
+export type { MarketInfo, Fee, PlatformFee } from '@jup-ag/core';
