@@ -11,32 +11,31 @@ import {
 } from "@/components/ui/dialog";
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
-import { useWalletConnection } from "./hooks/useWalletConnection";
-import { type PhantomChain } from "./utils/walletUtils";
+import { useCardanoWallet } from "./hooks/useCardanoWallet";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const {
     isLoading,
-    loadingWallet,
-    connectedAddress,
-    currentChain,
-    handleWalletSelect,
-    handleDisconnect
-  } = useWalletConnection();
+    isConnecting,
+    address,
+    currentWallet,
+    connect,
+    disconnect
+  } = useCardanoWallet();
 
-  const handlePhantomSelect = () => {
-    handleWalletSelect('phantom', 'solana');
+  const handleWalletSelect = async (walletName: string) => {
+    await connect(walletName);
     setIsOpen(false);
   };
 
-  if (connectedAddress) {
+  if (address && currentWallet) {
     return (
       <ConnectedWallet
-        address={connectedAddress}
-        onDisconnect={handleDisconnect}
+        address={address}
+        onDisconnect={disconnect}
         isLoading={isLoading}
-        chain={currentChain}
+        chain="cardano"
       />
     );
   }
@@ -54,21 +53,14 @@ const WalletConnectButton = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold mb-2">Connect Wallet</DialogTitle>
+          <DialogTitle className="text-xl font-semibold mb-2">Connect Cardano Wallet</DialogTitle>
         </DialogHeader>
         
         <WalletOptions 
-          onSelect={(wallet) => {
-            if (wallet === 'phantom') {
-              handlePhantomSelect();
-            } else {
-              handleWalletSelect(wallet);
-            }
-            setIsOpen(false);
-          }}
-          isLoading={isLoading}
-          loadingWallet={loadingWallet || undefined}
-          selectedChain="solana"
+          onSelect={handleWalletSelect}
+          isLoading={isConnecting}
+          loadingWallet={currentWallet}
+          selectedChain="cardano"
         />
       </DialogContent>
     </Dialog>
