@@ -5,8 +5,8 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   createAssociatedTokenAccountInstruction as createATA,
   getAssociatedTokenAddress,
-  createCloseAccountInstruction as closeAccount,
-} from '@solana/spl-token';
+  createCloseAccountInstruction
+} from '@solana/spl-token-v2';
 import { toast } from '@/hooks/use-toast';
 
 export class WalletService {
@@ -32,29 +32,26 @@ export class WalletService {
     payer: PublicKey
   ): Promise<{ address: PublicKey; instruction?: any }> {
     try {
-      // Get the associated token account address
       const ata = await getAssociatedTokenAddress(
         mint,
         walletAddress,
-        true, // allowOwnerOffCurve
+        true,
         TOKEN_PROGRAM_ID,
         ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
       try {
-        // Check if the account exists
         const account = await this.connection.getAccountInfo(ata);
         
         if (account) {
           return { address: ata };
         }
 
-        // Account doesn't exist, create instruction to make it
         const instruction = createATA(
-          payer, // Payer
-          ata, // Associated account
-          walletAddress, // Owner
-          mint, // Mint
+          payer,
+          ata,
+          walletAddress,
+          mint,
           TOKEN_PROGRAM_ID,
           ASSOCIATED_TOKEN_PROGRAM_ID
         );
@@ -79,22 +76,19 @@ export class WalletService {
     walletAddress: PublicKey,
     amount: number
   ): Promise<{ address: PublicKey; createInstruction?: any; closeInstruction?: any }> {
-    // WSOL mint address
     const mint = new PublicKey('So11111111111111111111111111111111111111112');
     
-    // Get or create ATA for WSOL
     const { address: ata, instruction: createInstruction } = await this.findOrCreateATA(
       walletAddress,
       mint,
       walletAddress
     );
 
-    // Create close instruction for cleanup
-    const closeInstruction = closeAccount(
-      ata, // Account to close
-      walletAddress, // Destination
-      walletAddress, // Owner
-      [], // Signers
+    const closeInstruction = createCloseAccountInstruction(
+      ata,
+      walletAddress,
+      walletAddress,
+      [],
       TOKEN_PROGRAM_ID
     );
 
