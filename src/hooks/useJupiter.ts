@@ -146,13 +146,13 @@ export const useJupiter = ({
         }
 
         // Record collected fee if available in route info
-        if (routeInfo.fees?.amount && routeInfo.fees?.recipient) {
+        if (routeInfo.amount && routeInfo.recipient) {
           const { error: feeError } = await supabase
             .from('collected_fees')
             .insert({
               order_id: order.id,
-              fee_amount: Number(routeInfo.fees.amount),
-              recipient_address: routeInfo.fees.recipient.toString(),
+              fee_amount: Number(routeInfo.amount),
+              recipient_address: routeInfo.recipient.toString(),
               transaction_signature: signature,
               status: 'confirmed'
             });
