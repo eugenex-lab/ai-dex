@@ -20,7 +20,7 @@ export interface JupiterState {
   error: string | null;
 }
 
-export interface JupiterToken {
+export interface Token {
   address: string;
   chainId: number;
   decimals: number;
@@ -29,10 +29,12 @@ export interface JupiterToken {
   symbol: string;
   tags: string[];
   verified?: boolean;
-  // Added for compatibility with Token interface
   icon?: string;
   chain?: 'solana' | 'ethereum' | 'cardano';
 }
+
+// Make JupiterToken extend Token to ensure compatibility
+export type JupiterToken = Token;
 
 export interface SwapResult {
   swapTransaction: any;
@@ -46,4 +48,9 @@ export interface PlatformFee {
     feeMint: PublicKey;
     feeVault: PublicKey;
   };
+}
+
+export interface MarketInfo {
+  platformFee?: PlatformFee;
+  outputMint: PublicKey;
 }
