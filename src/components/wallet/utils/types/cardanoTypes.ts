@@ -39,6 +39,8 @@ export interface CardanoWallet {
   apiVersion: string;
   name: string;
   icon: string;
+  onAccountChange?: (callback: (addresses: string[]) => void) => void;
+  onNetworkChange?: (callback: () => void) => void;
 }
 
 // Interface for CardanoWallet extensions

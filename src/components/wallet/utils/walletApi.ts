@@ -121,3 +121,4 @@ export const enableWallet = async (
 export const getWalletInfo = (walletName: CardanoWalletName): WalletInfo => {
   return WALLET_INFO[walletName];
 };
+
