@@ -258,15 +258,19 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          fee_amount: number | null
           id: string
+          jupiter_route_id: string | null
           metadata: Json | null
           order_type: string | null
           pair: string
           price: number
+          route_data: Json | null
           side: string
           source_wallet: string | null
           status: string
           total: number
+          transaction_signature: string | null
           type: string
           user_email: string
           wallet_address: string | null
@@ -274,15 +278,19 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          fee_amount?: number | null
           id?: string
+          jupiter_route_id?: string | null
           metadata?: Json | null
           order_type?: string | null
           pair: string
           price: number
+          route_data?: Json | null
           side: string
           source_wallet?: string | null
           status?: string
           total: number
+          transaction_signature?: string | null
           type: string
           user_email: string
           wallet_address?: string | null
@@ -290,15 +298,19 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          fee_amount?: number | null
           id?: string
+          jupiter_route_id?: string | null
           metadata?: Json | null
           order_type?: string | null
           pair?: string
           price?: number
+          route_data?: Json | null
           side?: string
           source_wallet?: string | null
           status?: string
           total?: number
+          transaction_signature?: string | null
           type?: string
           user_email?: string
           wallet_address?: string | null

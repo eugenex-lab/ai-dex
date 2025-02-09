@@ -16,6 +16,10 @@ export type Order = {
   wallet_address?: string;
   source_wallet?: string;
   metadata?: Record<string, any>;
+  transaction_signature?: string;
+  jupiter_route_id?: string;
+  fee_amount?: number;
+  route_data?: Record<string, any>;
 };
 
 export const useOrders = () => {

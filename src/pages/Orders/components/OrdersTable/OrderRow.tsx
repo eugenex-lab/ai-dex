@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { type Order } from "../../hooks/useOrders";
 import OrderStatus from "./OrderStatus";
 import OrderType from "./OrderType";
+import { ExternalLink } from "lucide-react";
 
 type OrderRowProps = {
   order: Order;
@@ -31,6 +32,22 @@ const OrderRow = ({ order }: OrderRowProps) => {
       <TableCell className="text-right">{order.amount.toFixed(8)}</TableCell>
       <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
       <TableCell><OrderStatus status={order.status} /></TableCell>
+      {order.transaction_signature && (
+        <TableCell>
+          <a
+            href={`https://solscan.io/tx/${order.transaction_signature}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center text-blue-500 hover:text-blue-700"
+          >
+            {order.transaction_signature.slice(0, 8)}...
+            <ExternalLink className="ml-1 h-3 w-3" />
+          </a>
+        </TableCell>
+      )}
+      {order.fee_amount !== undefined && (
+        <TableCell className="text-right">${order.fee_amount.toFixed(2)}</TableCell>
+      )}
     </TableRow>
   );
 };
