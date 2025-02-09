@@ -26,8 +26,16 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
     }
 
     try {
-      // Use selectWallet instead of selectWalletFromExtension
-      await lucid.selectWallet(walletName);
+      // First check if the wallet exists on window.cardano
+      if (!(window as any).cardano?.[walletName]) {
+        throw new Error(`${walletName} wallet not found. Please install it first.`);
+      }
+
+      // Get the wallet API from window.cardano
+      const walletApi = (window as any).cardano[walletName];
+      
+      // Now we can pass the proper WalletApi to selectWallet
+      await lucid.selectWallet(walletApi);
       const address = await lucid.wallet.address();
       
       if (address) {
