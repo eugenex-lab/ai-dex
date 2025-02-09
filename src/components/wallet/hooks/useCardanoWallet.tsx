@@ -12,47 +12,79 @@ import {
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
+  const [currentWallet, setCurrentWallet] = useState<CardanoWalletName | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const walletApiRef = useRef<CardanoApi | null>(null);
-
-  // Handle wallet events
-  useEffect(() => {
-    const checkWalletConnection = async () => {
-      if (walletApiRef.current) {
-        try {
-          // Verify wallet is still enabled
-          const wallet = window.cardano?.[address as CardanoWalletName];
-          if (!wallet) {
-            disconnect();
-            return;
-          }
-
-          const isEnabled = await wallet.isEnabled();
-          if (!isEnabled) {
-            disconnect();
-          }
-        } catch (err) {
-          disconnect();
-        }
-      }
-    };
-
-    // Check connection status periodically
-    const interval = setInterval(checkWalletConnection, 1000);
-    return () => clearInterval(interval);
-  }, [address]);
+  const connectionCheckInterval = useRef<NodeJS.Timeout>();
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (connectionCheckInterval.current) {
+        clearInterval(connectionCheckInterval.current);
+      }
       walletApiRef.current = null;
       setIsConnected(false);
       setAddress(null);
+      setCurrentWallet(null);
     };
   }, []);
+
+  // Connection status checker
+  useEffect(() => {
+    const checkConnection = async () => {
+      if (!currentWallet || !walletApiRef.current) return;
+
+      try {
+        const wallet = window.cardano?.[currentWallet];
+        if (!wallet) {
+          await disconnect();
+          return;
+        }
+
+        const isEnabled = await wallet.isEnabled();
+        if (!isEnabled) {
+          await disconnect();
+        }
+      } catch (err) {
+        await disconnect();
+      }
+    };
+
+    // Only start checking if we're connected
+    if (isConnected && currentWallet) {
+      connectionCheckInterval.current = setInterval(checkConnection, 1000);
+    }
+
+    return () => {
+      if (connectionCheckInterval.current) {
+        clearInterval(connectionCheckInterval.current);
+      }
+    };
+  }, [isConnected, currentWallet]);
+
+  // Setup wallet event listeners
+  const setupWalletListeners = useCallback((walletName: CardanoWalletName) => {
+    const provider = window.cardano?.[walletName];
+    
+    if (provider?.onAccountChange) {
+      provider.onAccountChange((newAddress: string) => {
+        if (newAddress && newAddress !== address) {
+          setAddress(newAddress);
+        }
+      });
+    }
+
+    if (provider?.onNetworkChange) {
+      provider.onNetworkChange(() => {
+        // Reconnect on network change to get fresh state
+        connect(walletName);
+      });
+    }
+  }, [address]);
 
   const connect = useCallback(async (walletName: CardanoWalletName): Promise<string | null> => {
     if (isConnecting) return null;
@@ -97,11 +129,15 @@ export const useCardanoWallet = () => {
       const api = await enableWallet(wallet, walletName);
       walletApiRef.current = api;
 
+      // Setup event listeners
+      setupWalletListeners(walletName);
+
       // Get wallet address
       console.log('Getting wallet address...');
       const walletAddress = await getCardanoAddress(api);
       
       setAddress(walletAddress);
+      setCurrentWallet(walletName);
       setIsConnected(true);
       setError(null);
 
@@ -117,6 +153,7 @@ export const useCardanoWallet = () => {
       setError(message);
       setIsConnected(false);
       setAddress(null);
+      setCurrentWallet(null);
       walletApiRef.current = null;
       
       toast({
@@ -128,11 +165,16 @@ export const useCardanoWallet = () => {
     } finally {
       setIsConnecting(false);
     }
-  }, [toast]);
+  }, [toast, setupWalletListeners]);
 
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
+    if (connectionCheckInterval.current) {
+      clearInterval(connectionCheckInterval.current);
+    }
+    
     walletApiRef.current = null;
     setAddress(null);
+    setCurrentWallet(null);
     setIsConnected(false);
     setError(null);
     setIsConnecting(false);
@@ -149,6 +191,7 @@ export const useCardanoWallet = () => {
     isConnected,
     isConnecting,
     address,
-    error
+    error,
+    currentWallet
   };
 };
