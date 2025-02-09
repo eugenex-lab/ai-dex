@@ -30,10 +30,11 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
   useEffect(() => {
     const initLucid = async () => {
       try {
-        // Initialize with mainnet by default
         const lucidInstance = await Lucid.new(
-          undefined,
-          "Mainnet"
+          {
+            network: "Mainnet",
+            provider: "https://mainnet.blockfrost.io/api/v0",
+          }
         );
         setLucid(lucidInstance);
       } catch (error) {
