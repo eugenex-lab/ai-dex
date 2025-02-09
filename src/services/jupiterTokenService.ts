@@ -1,23 +1,7 @@
 
 import { toast } from '@/hooks/use-toast';
-
-export interface JupiterToken {
-  address: string;
-  chainId: number;
-  decimals: number;
-  logoURI: string;
-  name: string;
-  symbol: string;
-  tags: string[];
-  verified?: boolean;
-}
-
-export interface TokenPrice {
-  price: number;
-  priceChange24h?: number;
-  volume24h?: number;
-  marketCap?: number;
-}
+import { JupiterToken } from '@/types/jupiter';
+import { TokenPrice } from '@/types/token';
 
 class JupiterTokenService {
   private static instance: JupiterTokenService;

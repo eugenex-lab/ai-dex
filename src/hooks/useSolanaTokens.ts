@@ -1,15 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { jupiterTokenService, JupiterToken } from '@/services/jupiterTokenService';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { Connection, PublicKey } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { jupiterTokenService } from '@/services/jupiterTokenService';
+import { JupiterToken } from '@/types/jupiter';
 
 export const useSolanaTokens = () => {
   const [tokens, setTokens] = useState<JupiterToken[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { publicKey } = useWallet();
 
   useEffect(() => {
     const fetchTokens = async () => {

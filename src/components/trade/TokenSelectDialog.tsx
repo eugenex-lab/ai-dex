@@ -3,15 +3,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Search } from "lucide-react";
-import { tokens } from "@/utils/tokenData";
+import { JupiterToken } from "@/types/jupiter";
 
 interface TokenSelectDialogProps {
   showTokenSelect: boolean;
   setShowTokenSelect: (show: boolean) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  handleTokenSelect: (token: typeof tokens[0]) => void;
-  availableTokens: typeof tokens;
+  handleTokenSelect: (token: JupiterToken) => void;
+  availableTokens: JupiterToken[];
 }
 
 export const TokenSelectDialog = ({
@@ -56,7 +56,7 @@ export const TokenSelectDialog = ({
                   className="flex items-center gap-2"
                   onClick={() => handleTokenSelect(token)}
                 >
-                  {token.icon && <img src={token.icon} alt={token.symbol} className="w-4 h-4" />}
+                  {token.logoURI && <img src={token.logoURI} alt={token.symbol} className="w-4 h-4" />}
                   {token.symbol}
                 </Button>
               ))}
@@ -70,7 +70,7 @@ export const TokenSelectDialog = ({
                   className="w-full justify-start gap-3"
                   onClick={() => handleTokenSelect(token)}
                 >
-                  {token.icon && <img src={token.icon} alt={token.symbol} className="w-6 h-6" />}
+                  {token.logoURI && <img src={token.logoURI} alt={token.symbol} className="w-6 h-6" />}
                   <div className="flex flex-col items-start">
                     <span>{token.symbol}</span>
                     <span className="text-sm text-muted-foreground">{token.name}</span>

@@ -13,14 +13,14 @@ export interface UseJupiterProps {
 }
 
 export interface JupiterState {
-  jupiter: Jupiter | null;
+  jupiter: Jupiter | null;  
   tokens: JupiterToken[];
   routes: RouteInfo[];
   loading: boolean;
   error: string | null;
 }
 
-export interface Token {
+export interface JupiterToken {
   address: string;
   chainId: number;
   decimals: number;
@@ -29,11 +29,7 @@ export interface Token {
   symbol: string;
   tags: string[];
   verified?: boolean;
-  icon?: string;
-  chain?: 'solana' | 'ethereum' | 'cardano';
 }
-
-export type JupiterToken = Token;
 
 export interface SwapResult {
   swapTransaction: any;
