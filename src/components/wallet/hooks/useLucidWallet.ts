@@ -30,12 +30,9 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
   useEffect(() => {
     const initLucid = async () => {
       try {
-        const lucidInstance = await Lucid.new(
-          {
-            network: "Mainnet",
-            provider: "https://mainnet.blockfrost.io/api/v0",
-          }
-        );
+        // Using correct initialization with Blockfrost provider
+        const api = "https://cardano-mainnet.blockfrost.io/api/v0";
+        const lucidInstance = await Lucid.new(api);
         setLucid(lucidInstance);
       } catch (error) {
         console.error("Failed to initialize Lucid:", error);
