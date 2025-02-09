@@ -3,40 +3,63 @@ import { CardanoWalletName, WalletInfo, CardanoApi, CardanoWallet } from './type
 import { WALLET_INFO } from './config/walletConfig';
 import { formatCardanoAddress, isValidCardanoAddress } from './addressUtils';
 
-const REQUIRED_METHODS = [
-  'getNetworkId',
-  'getUtxos', 
-  'getBalance',
-  'getUsedAddresses',
-  'getUnusedAddresses',
-  'getChangeAddress',
-  'getRewardAddresses',
-  'signTx',
-  'signData',
-  'submitTx'
-] as const;
+const MIN_API_VERSION = '0.1.0';
 
-const validateApi = (api: any): api is CardanoApi => {
-  // Log the received API structure for debugging
+// Helper to check version compatibility
+const isVersionCompatible = (version: string): boolean => {
+  const [major, minor] = version.split('.').map(Number);
+  const [minMajor, minMinor] = MIN_API_VERSION.split('.').map(Number);
+  return major > minMajor || (major === minMajor && minor >= minMinor);
+};
+
+// Comprehensive API validation
+const validateApi = async (api: any, walletName: string): Promise<api is CardanoApi> => {
+  const REQUIRED_METHODS = [
+    'getNetworkId',
+    'getUtxos', 
+    'getBalance',
+    'getUsedAddresses',
+    'getUnusedAddresses',
+    'getChangeAddress',
+    'getRewardAddresses',
+    'signTx',
+    'signData',
+    'submitTx'
+  ] as const;
+
   console.log('Validating API structure:', {
     rootMethods: Object.keys(api || {}),
   });
 
+  // Check all required methods exist
   const hasAllMethods = REQUIRED_METHODS.every(
     method => typeof api[method] === 'function'
   );
-  if (hasAllMethods) {
-    console.log('Valid API structure found');
-    return true;
+
+  if (!hasAllMethods) {
+    console.error('Missing required methods in API');
+    return false;
   }
 
-  console.error('Missing required methods in API');
-  return false;
+  // Test basic API functionality
+  try {
+    // Verify we can get network ID
+    await api.getNetworkId();
+    
+    // Verify we can get balance
+    await api.getBalance();
+    
+    console.log('API validation successful');
+    return true;
+  } catch (error) {
+    console.error(`API validation failed for ${walletName}:`, error);
+    return false;
+  }
 };
 
 export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   try {
-    // Try getting used addresses first
+    // First try getting used addresses
     const usedAddresses = await api.getUsedAddresses();
     if (usedAddresses && usedAddresses.length > 0) {
       const address = formatCardanoAddress(usedAddresses[0]);
@@ -46,7 +69,7 @@ export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
       }
     }
 
-    // Fall back to change address if no used addresses
+    // Fall back to change address
     const changeAddress = await api.getChangeAddress();
     if (changeAddress) {
       const address = formatCardanoAddress(changeAddress);
@@ -68,14 +91,20 @@ export const enableWallet = async (
   walletName: CardanoWalletName
 ): Promise<CardanoApi> => {
   try {
+    // Version check
+    if (!isVersionCompatible(wallet.apiVersion)) {
+      throw new Error(`${walletName} wallet version ${wallet.apiVersion} not supported. Minimum version required: ${MIN_API_VERSION}`);
+    }
+
     console.log(`Requesting wallet connection...`);
     
-    // Always request a fresh enable() call to trigger wallet popup
+    // Request wallet enable
     const api = await wallet.enable();
     
-    // Validate the API structure
-    if (!validateApi(api)) {
-      throw new Error(`${walletName} wallet API is missing required methods`);
+    // Validate API and functionality
+    const isValid = await validateApi(api, walletName);
+    if (!isValid) {
+      throw new Error(`${walletName} wallet API validation failed`);
     }
 
     console.log(`${walletName} wallet enabled successfully`);
@@ -89,4 +118,3 @@ export const enableWallet = async (
 export const getWalletInfo = (walletName: CardanoWalletName): WalletInfo => {
   return WALLET_INFO[walletName];
 };
-

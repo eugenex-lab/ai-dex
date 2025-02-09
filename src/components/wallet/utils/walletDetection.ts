@@ -2,6 +2,8 @@
 import { CardanoWalletName } from './types/cardanoTypes';
 
 const REQUIRED_METHODS = [
+  'enable',
+  'isEnabled',
   'getNetworkId',
   'getUtxos', 
   'getBalance',
@@ -34,7 +36,7 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
   try {
     console.log(`Checking availability of ${walletName} wallet...`);
     
-    // Check if window.cardano exists
+    // Check window.cardano exists
     if (typeof window === 'undefined' || !window.cardano) {
       console.log('Cardano object not found in window');
       return false;
@@ -47,10 +49,15 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
     }
 
     // Check API version compatibility
-    const version = wallet.apiVersion;
-    if (typeof version !== 'string' || !isVersionSupported(version)) {
-      console.log(`${walletName} wallet API version ${version} not supported`);
+    if (!wallet.apiVersion || !isVersionSupported(wallet.apiVersion)) {
+      console.log(`${walletName} wallet API version not supported`);
       return false;
+    }
+
+    // Check wallet is in correct state
+    const isEnabled = await wallet.isEnabled().catch(() => false);
+    if (isEnabled) {
+      console.log(`${walletName} wallet is already enabled`);
     }
 
     // Verify required methods exist
@@ -71,4 +78,3 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
     return false;
   }
 };
-

@@ -18,6 +18,33 @@ export const useCardanoWallet = () => {
   const { toast } = useToast();
   const walletApiRef = useRef<CardanoApi | null>(null);
 
+  // Handle wallet events
+  useEffect(() => {
+    const checkWalletConnection = async () => {
+      if (walletApiRef.current) {
+        try {
+          // Verify wallet is still enabled
+          const wallet = window.cardano?.[address as CardanoWalletName];
+          if (!wallet) {
+            disconnect();
+            return;
+          }
+
+          const isEnabled = await wallet.isEnabled();
+          if (!isEnabled) {
+            disconnect();
+          }
+        } catch (err) {
+          disconnect();
+        }
+      }
+    };
+
+    // Check connection status periodically
+    const interval = setInterval(checkWalletConnection, 1000);
+    return () => clearInterval(interval);
+  }, [address]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -35,7 +62,7 @@ export const useCardanoWallet = () => {
       setError(null);
       console.log(`Attempting to connect to ${walletName} wallet...`);
 
-      // First check if wallet is available
+      // Check wallet availability
       const isAvailable = await isCardanoWalletAvailable(walletName);
       if (!isAvailable) {
         const { displayName, downloadUrl } = getWalletInfo(walletName);
@@ -65,7 +92,7 @@ export const useCardanoWallet = () => {
         throw new Error(`${walletName} wallet not found`);
       }
 
-      // Always request new enable() to trigger wallet popup
+      // Enable wallet and validate API
       console.log('Requesting wallet connection...');
       const api = await enableWallet(wallet, walletName);
       walletApiRef.current = api;
@@ -93,7 +120,7 @@ export const useCardanoWallet = () => {
       walletApiRef.current = null;
       
       toast({
-        title: "Connection Failed",
+        title: "Connection Failed", 
         description: message,
         variant: "destructive"
       });
