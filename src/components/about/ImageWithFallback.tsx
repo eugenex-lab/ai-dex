@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { ImageOff } from "lucide-react";
 
 interface ImageWithFallbackProps {
   storageUrl: string;
@@ -34,8 +35,10 @@ const ImageWithFallback = ({ storageUrl, alt, className = "" }: ImageWithFallbac
           }}
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center bg-secondary/20 rounded-lg">
-          <p className="text-muted-foreground text-sm">Image failed to load</p>
+        <div className="w-full h-full flex flex-col items-center justify-center bg-secondary/20 rounded-lg p-4">
+          <ImageOff className="h-8 w-8 text-muted-foreground mb-2" />
+          <p className="text-muted-foreground text-sm text-center">Image unavailable</p>
+          <p className="text-muted-foreground text-xs text-center mt-1">{alt}</p>
         </div>
       )}
     </div>
