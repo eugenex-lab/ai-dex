@@ -144,14 +144,15 @@ export const useJupiter = ({
           console.error('Failed to update order:', updateError);
         }
 
-        // Check if fee info exists in route metadata
-        if (routeInfo.feeAccount && routeInfo.platformFee) {
+        // Check for fee info in the route's otherInfo
+        const otherInfo = (routeInfo as any).otherInfo;
+        if (otherInfo?.feeAccount && otherInfo?.platformFee) {
           const { error: feeError } = await supabase
             .from('collected_fees')
             .insert({
               order_id: order.id,
-              fee_amount: Number(routeInfo.platformFee),
-              recipient_address: routeInfo.feeAccount.toString(),
+              fee_amount: Number(otherInfo.platformFee),
+              recipient_address: otherInfo.feeAccount.toString(),
               transaction_signature: signature,
               status: 'confirmed'
             });
