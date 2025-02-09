@@ -2,13 +2,22 @@
 // Define supported Cardano wallet names
 export type CardanoWalletName = 'eternl' | 'nami' | 'lace' | 'yoroi' | 'vespr' | 'begin' | 'tokeo';
 
+// Wallet state interface
+export interface WalletState {
+  name: CardanoWalletName;
+  networkId?: number;  
+  apiVersion: string;
+  isAvailable: boolean;
+  isConnected: boolean;
+}
+
 // Wallet information interface
 export interface WalletInfo {
   displayName: string;
-  downloadUrl: string;
+  downloadUrl: string; 
 }
 
-// CardanoApi interface for enabled wallet methods - matching actual wallet structure
+// CardanoApi interface defines required wallet methods
 export interface CardanoApi {
   getNetworkId: () => Promise<number>;  
   getUtxos: () => Promise<string[]>;
@@ -23,28 +32,30 @@ export interface CardanoApi {
   experimental?: unknown;
 }
 
-// CardanoWallet API interface
+// Main CardanoWallet interface 
 export interface CardanoWallet {
-  enable: () => Promise<CardanoApi | CardanoApiResponse>;
+  enable: () => Promise<CardanoApi>;
   isEnabled: () => Promise<boolean>;
   apiVersion: string;
   name: string;
   icon: string;
 }
 
+// Interface for CardanoWallet extensions
+export interface CardanoWalletExtended extends CardanoWallet {
+  experimental?: {
+    getCollateral?: () => Promise<string[]>;
+  };
+}
+
 // Main Cardano interface
 export interface Cardano {
   nami?: CardanoWallet;
-  eternl?: CardanoWallet;
+  eternl?: CardanoWallet; 
   lace?: CardanoWallet;
   yoroi?: CardanoWallet;
   vespr?: CardanoWallet;
   begin?: CardanoWallet;
   tokeo?: CardanoWallet;
-}
-
-// Legacy namespaced API response format
-export interface CardanoApiResponse {
-  cardano: CardanoApi;
 }
 

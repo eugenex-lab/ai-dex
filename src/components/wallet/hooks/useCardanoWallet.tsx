@@ -1,8 +1,8 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { isCardanoWalletAvailable, getWalletInfo, getCardanoAddress, enableWallet } from '../utils/cardanoWalletUtils';
-import type { CardanoWalletName, CardanoApi, CardanoApiResponse } from '../utils/types/cardanoTypes';
+import { isCardanoWalletAvailable, getWalletInfo, getCardanoAddress, enableWallet } from '../utils/walletUtils';
+import type { CardanoWalletName, CardanoApi } from '../utils/types/cardanoTypes';
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
@@ -10,7 +10,7 @@ export const useCardanoWallet = () => {
   const [error, setError] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
-  const walletApiRef = useRef<CardanoApiResponse | null>(null);
+  const walletApiRef = useRef<CardanoApi | null>(null);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -119,3 +119,4 @@ export const useCardanoWallet = () => {
     error
   };
 };
+

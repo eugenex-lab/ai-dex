@@ -3,7 +3,7 @@ import { CardanoWalletName } from './types/cardanoTypes';
 
 const REQUIRED_METHODS = [
   'getNetworkId',
-  'getUtxos',
+  'getUtxos', 
   'getBalance',
   'getUsedAddresses',
   'getUnusedAddresses',
@@ -53,7 +53,7 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
       return false;
     }
 
-    // Only check if the wallet exists and has required methods - don't check enabled state
+    // Verify required methods exist
     const hasRequiredMethods = REQUIRED_METHODS.every(method => 
       typeof wallet[method] === 'function' || 
       (wallet.enable && typeof wallet.enable === 'function')
@@ -71,3 +71,4 @@ export const isCardanoWalletAvailable = async (walletName: CardanoWalletName): P
     return false;
   }
 };
+

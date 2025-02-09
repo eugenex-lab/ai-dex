@@ -1,5 +1,5 @@
 
-import { CardanoWalletName, WalletInfo, CardanoApi, CardanoWallet, CardanoApiResponse } from './types/cardanoTypes';
+import { CardanoWalletName, WalletInfo, CardanoApi, CardanoWallet } from './types/cardanoTypes';
 import { WALLET_INFO } from './config/walletConfig';
 import { formatCardanoAddress, isValidCardanoAddress } from './addressUtils';
 
@@ -16,30 +16,17 @@ const REQUIRED_METHODS = [
   'submitTx'
 ] as const;
 
-const validateApi = (api: any): api is CardanoApiResponse | CardanoApi => {
+const validateApi = (api: any): api is CardanoApi => {
   // Log the received API structure for debugging
   console.log('Validating API structure:', {
     rootMethods: Object.keys(api || {}),
-    cardanoMethods: Object.keys(api?.cardano || {})
   });
 
-  // First try the namespaced format
-  if (api?.cardano) {
-    const hasAllMethods = REQUIRED_METHODS.every(
-      method => typeof api.cardano[method] === 'function'
-    );
-    if (hasAllMethods) {
-      console.log('Valid namespaced API structure found');
-      return true;
-    }
-  }
-
-  // Then try the root level format
   const hasAllMethods = REQUIRED_METHODS.every(
     method => typeof api[method] === 'function'
   );
   if (hasAllMethods) {
-    console.log('Valid root level API structure found');
+    console.log('Valid API structure found');
     return true;
   }
 
@@ -47,12 +34,10 @@ const validateApi = (api: any): api is CardanoApiResponse | CardanoApi => {
   return false;
 };
 
-export const getCardanoAddress = async (api: CardanoApiResponse | CardanoApi): Promise<string> => {
-  const walletApi = 'cardano' in api ? api.cardano : api;
-  
+export const getCardanoAddress = async (api: CardanoApi): Promise<string> => {
   try {
     // Try getting used addresses first
-    const usedAddresses = await walletApi.getUsedAddresses();
+    const usedAddresses = await api.getUsedAddresses();
     if (usedAddresses && usedAddresses.length > 0) {
       const address = formatCardanoAddress(usedAddresses[0]);
       if (isValidCardanoAddress(address)) {
@@ -62,7 +47,7 @@ export const getCardanoAddress = async (api: CardanoApiResponse | CardanoApi): P
     }
 
     // Fall back to change address if no used addresses
-    const changeAddress = await walletApi.getChangeAddress();
+    const changeAddress = await api.getChangeAddress();
     if (changeAddress) {
       const address = formatCardanoAddress(changeAddress);
       if (isValidCardanoAddress(address)) {
@@ -81,9 +66,9 @@ export const getCardanoAddress = async (api: CardanoApiResponse | CardanoApi): P
 export const enableWallet = async (
   wallet: CardanoWallet,
   walletName: CardanoWalletName
-): Promise<CardanoApiResponse> => {
+): Promise<CardanoApi> => {
   try {
-    console.log(`Enabling ${walletName} wallet...`);
+    console.log(`Requesting wallet connection...`);
     
     // Always request a fresh enable() call to trigger wallet popup
     const api = await wallet.enable();
@@ -93,11 +78,8 @@ export const enableWallet = async (
       throw new Error(`${walletName} wallet API is missing required methods`);
     }
 
-    // Return normalized API structure
-    const normalizedApi = 'cardano' in api ? api : { cardano: api };
     console.log(`${walletName} wallet enabled successfully`);
-    
-    return normalizedApi;
+    return api;
   } catch (error) {
     console.error(`Error enabling ${walletName} wallet:`, error);
     throw error;
@@ -107,3 +89,4 @@ export const enableWallet = async (
 export const getWalletInfo = (walletName: CardanoWalletName): WalletInfo => {
   return WALLET_INFO[walletName];
 };
+
