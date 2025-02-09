@@ -1,4 +1,3 @@
-
 // Define supported Cardano wallet names
 export type CardanoWalletName = 'eternl' | 'nami' | 'lace' | 'yoroi' | 'vespr' | 'begin' | 'tokeo';
 
@@ -61,3 +60,11 @@ export interface Cardano {
   tokeo?: CardanoWallet;
 }
 
+export interface DiscoveredWallet {
+  name: string;
+  installed: boolean;
+  icon?: string;
+  enabledFeatures: string[];
+  experimentalFeatures: string[];
+  apiVersion: string;
+}
