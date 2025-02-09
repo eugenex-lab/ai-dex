@@ -7,7 +7,6 @@ import AlertNotification from "@/components/dashboard/AlertNotification";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import ChartSection from "@/components/dashboard/ChartSection";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
-import TradeSection from "@/components/trade/TradeSection";
 
 const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState('BTCUSDT');
@@ -56,14 +55,7 @@ const Dashboard = () => {
           </div>
         </div>
         <MarketStats />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            <ChartSection currentPair={currentPair} onPairChange={handlePairChange} />
-          </div>
-          <div className="lg:col-span-1">
-            <TradeSection />
-          </div>
-        </div>
+        <ChartSection currentPair={currentPair} onPairChange={handlePairChange} />
         <CryptoList />
       </div>
     </div>
