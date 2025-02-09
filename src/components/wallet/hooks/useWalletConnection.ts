@@ -4,10 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
 import { usePhantom } from "./usePhantom";
-import { useCardanoWallet } from "./useCardanoWallet";
 import { updateWalletConnection, disconnectWallet } from "../utils/walletDatabase";
 import { type PhantomChain } from "../utils/walletUtils";
-import { type CardanoWalletName } from "../utils/cardanoWalletUtils";
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +16,6 @@ export const useWalletConnection = () => {
 
   const { connect: connectMetaMask, getChainInfo } = useMetaMask(setConnectedAddress, updateWalletConnection);
   const { connect: connectPhantom } = usePhantom(setConnectedAddress, updateWalletConnection);
-  const { connect: connectCardano } = useCardanoWallet();
 
   useEffect(() => {
     const checkConnectionStatus = async () => {
@@ -57,9 +54,6 @@ export const useWalletConnection = () => {
         }
         address = await connectPhantom(chain);
         setCurrentChain(chain);
-      } else if (['eternl', 'nami', 'lace', 'yoroi', 'vespr', 'begin', 'tokeo'].includes(walletType)) {
-        address = await connectCardano(walletType as CardanoWalletName);
-        setCurrentChain('cardano' as PhantomChain);
       }
 
       if (address) {
