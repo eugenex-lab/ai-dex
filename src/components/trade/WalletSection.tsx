@@ -3,9 +3,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Coins, Sun, CircleDollarSign } from "lucide-react";
 
 const WalletSection = () => {
+  const handleChainChange = (chain: string) => {
+    // Dispatch custom event for chain change
+    const event = new CustomEvent('chainChanged', { 
+      detail: { chain }
+    });
+    window.dispatchEvent(event);
+  };
+
   return (
     <div className="relative">
-      <Select>
+      <Select onValueChange={handleChainChange}>
         <SelectTrigger className="w-full mb-4 bg-background">
           <SelectValue placeholder="Choose Chain" />
         </SelectTrigger>

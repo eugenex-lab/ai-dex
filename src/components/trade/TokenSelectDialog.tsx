@@ -11,6 +11,7 @@ interface TokenSelectDialogProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   handleTokenSelect: (token: typeof tokens[0]) => void;
+  availableTokens: typeof tokens;
 }
 
 export const TokenSelectDialog = ({
@@ -19,8 +20,9 @@ export const TokenSelectDialog = ({
   searchQuery,
   setSearchQuery,
   handleTokenSelect,
+  availableTokens,
 }: TokenSelectDialogProps) => {
-  const filteredTokens = tokens.filter(token => 
+  const filteredTokens = availableTokens.filter(token => 
     token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -45,7 +47,7 @@ export const TokenSelectDialog = ({
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground">Popular tokens</div>
             <div className="flex gap-2 flex-wrap">
-              {tokens.slice(0, 4).map((token) => (
+              {availableTokens.slice(0, 4).map((token) => (
                 <Button
                   key={token.symbol}
                   variant="outline"

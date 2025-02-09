@@ -17,6 +17,25 @@ const TradeSection = () => {
   const [showSlippage, setShowSlippage] = useState(false);
   const [slippage, setSlippage] = useState("0.5");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedChain, setSelectedChain] = useState<"cardano" | "ethereum" | "solana">("cardano");
+
+  // Subscribe to chain changes from WalletSection
+  useEffect(() => {
+    const handleChainChange = (event: CustomEvent) => {
+      setSelectedChain(event.detail.chain);
+      // Reset tokens when chain changes
+      const chainTokens = tokens.filter(t => t.chain === event.detail.chain);
+      if (chainTokens.length > 0) {
+        setFromToken(chainTokens[0]);
+        setToToken(chainTokens[1] || chainTokens[0]);
+      }
+    };
+    
+    window.addEventListener('chainChanged', handleChainChange as EventListener);
+    return () => {
+      window.removeEventListener('chainChanged', handleChainChange as EventListener);
+    };
+  }, []);
 
   const handleTokenSelect = (token: typeof tokens[0]) => {
     if (selectingFor === "from") {
@@ -32,9 +51,11 @@ const TradeSection = () => {
     setShowTokenSelect(true);
   };
 
+  // Filter tokens based on selected chain
+  const filteredTokens = tokens.filter(token => token.chain === selectedChain);
+
   return (
     <div className="space-y-4">
-      {/* From Token Section */}
       <div className="flex justify-end">
         <Button
           variant="ghost"
@@ -55,7 +76,6 @@ const TradeSection = () => {
         onTokenSelect={() => openTokenSelect("from")}
       />
 
-      {/* Swap Direction Button */}
       <div className="flex justify-center -my-2">
         <Button
           size="icon"
@@ -71,7 +91,6 @@ const TradeSection = () => {
         </Button>
       </div>
 
-      {/* To Token Section */}
       <TokenSection
         label="To"
         amount={toAmount}
@@ -80,21 +99,19 @@ const TradeSection = () => {
         onTokenSelect={() => openTokenSelect("to")}
       />
 
-      {/* Swap Button */}
       <Button className="w-full bg-[#0EA5E9] hover:bg-[#0EA5E9]/90">
         Swap
       </Button>
 
-      {/* Token Selection Dialog */}
       <TokenSelectDialog
         showTokenSelect={showTokenSelect}
         setShowTokenSelect={setShowTokenSelect}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         handleTokenSelect={handleTokenSelect}
+        availableTokens={filteredTokens}
       />
 
-      {/* Slippage Dialog */}
       <SlippageDialog
         showSlippage={showSlippage}
         setShowSlippage={setShowSlippage}
