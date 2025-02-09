@@ -1,6 +1,6 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Ethereum, Sun, Circuit } from "lucide-react";
+import { Coins, Sun, CircleDollarSign } from "lucide-react";
 
 const WalletSection = () => {
   return (
@@ -11,11 +11,11 @@ const WalletSection = () => {
         </SelectTrigger>
         <SelectContent className="bg-background">
           <SelectItem value="cardano" className="flex items-center gap-2">
-            <Circuit className="h-4 w-4" />
+            <CircleDollarSign className="h-4 w-4" />
             Cardano
           </SelectItem>
           <SelectItem value="ethereum" className="flex items-center gap-2">
-            <Ethereum className="h-4 w-4" />
+            <Coins className="h-4 w-4" />
             Ethereum
           </SelectItem>
           <SelectItem value="solana" className="flex items-center gap-2">
