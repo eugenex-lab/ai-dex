@@ -4,6 +4,25 @@ import { Lucid } from "lucid-cardano";
 import { useToast } from "@/hooks/use-toast";
 import { updateWalletConnection } from "../utils/walletDatabase";
 
+// Define types for Cardano window object
+interface CardanoWallet {
+  enable: () => Promise<any>;
+  isEnabled: () => Promise<boolean>;
+  apiVersion: string;
+  name: string;
+  icon: string;
+}
+
+interface Cardano {
+  [key: string]: CardanoWallet;
+}
+
+declare global {
+  interface Window {
+    cardano?: Cardano;
+  }
+}
+
 export const useLucidWallet = (setConnectedAddress: (address: string | null) => void) => {
   const [lucid, setLucid] = useState<Lucid | null>(null);
   const { toast } = useToast();
@@ -11,7 +30,11 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
   useEffect(() => {
     const initLucid = async () => {
       try {
-        const lucidInstance = await Lucid.new();
+        // Initialize with mainnet by default
+        const lucidInstance = await Lucid.new(
+          undefined,
+          "Mainnet"
+        );
         setLucid(lucidInstance);
       } catch (error) {
         console.error("Failed to initialize Lucid:", error);
@@ -26,16 +49,17 @@ export const useLucidWallet = (setConnectedAddress: (address: string | null) => 
     }
 
     try {
-      // First check if the wallet exists on window.cardano
-      if (!(window as any).cardano?.[walletName]) {
+      // Check if wallet exists in window.cardano
+      const wallet = window.cardano?.[walletName];
+      if (!wallet) {
         throw new Error(`${walletName} wallet not found. Please install it first.`);
       }
 
-      // Get the wallet API from window.cardano
-      const walletApi = (window as any).cardano[walletName];
+      // Enable the wallet
+      const api = await wallet.enable();
       
-      // Now we can pass the proper WalletApi to selectWallet
-      await lucid.selectWallet(walletApi);
+      // Select wallet using the enabled API
+      await lucid.selectWallet(api);
       const address = await lucid.wallet.address();
       
       if (address) {
