@@ -1,12 +1,15 @@
 
-import { useState, useCallback } from 'react';
-import { BrowserWallet } from '@meshsdk/core';
-import { useToast } from '@/hooks/use-toast';
-
-// Add polyfill
+// Required polyfills for @meshsdk/core
+import { Buffer } from 'buffer';
+import 'react-native-get-random-values';
 if (typeof (window as any).global === 'undefined') {
   (window as any).global = window;
 }
+(window as any).Buffer = Buffer;
+
+import { useState, useCallback } from 'react';
+import { BrowserWallet } from '@meshsdk/core';
+import { useToast } from '@/hooks/use-toast';
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
