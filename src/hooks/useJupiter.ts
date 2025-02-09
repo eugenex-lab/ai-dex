@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Connection, PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
 import { Jupiter, RouteInfo, SwapMode } from '@jup-ag/core';
 import { toast } from '@/hooks/use-toast';
 import JSBI from 'jsbi';
@@ -144,10 +145,13 @@ export const useJupiter = ({
         walletPubkey
       );
 
-      // Handle both legacy and versioned transactions
-      const signature = 'signatures' in swapTransaction 
-        ? swapTransaction.signatures[0]?.toString()
-        : swapTransaction.signature?.toString();
+      let signature: string | undefined;
+      
+      if (swapTransaction instanceof VersionedTransaction) {
+        signature = swapTransaction.signatures[0]?.toString();
+      } else if (swapTransaction instanceof Transaction) {
+        signature = swapTransaction.signature?.toString();
+      }
 
       if (order && signature) {
         const { error: updateError } = await supabase
@@ -186,9 +190,9 @@ export const useJupiter = ({
 
       const confirmation = await connection.confirmTransaction({
         signature,
-        blockhash: 'recentBlockhash' in swapTransaction 
-          ? swapTransaction.recentBlockhash
-          : swapTransaction.message.recentBlockhash,
+        blockhash: swapTransaction instanceof VersionedTransaction
+          ? swapTransaction.message.recentBlockhash
+          : swapTransaction.recentBlockhash,
         lastValidBlockHeight: await connection.getBlockHeight()
       });
 
