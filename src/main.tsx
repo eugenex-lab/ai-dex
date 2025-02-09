@@ -1,10 +1,12 @@
 
-import { Buffer } from 'buffer';
-import 'react-native-get-random-values';
-if (typeof (window as any).global === 'undefined') {
-  (window as any).global = window;
+// Polyfills for @meshsdk/core
+if (typeof window !== 'undefined') {
+  window.global = window;
+  window.process = window.process || { env: { NODE_ENV: 'production' } };
 }
-(window as any).Buffer = Buffer;
+
+import { Buffer } from 'buffer';
+window.Buffer = Buffer;
 
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
