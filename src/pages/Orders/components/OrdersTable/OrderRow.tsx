@@ -5,12 +5,17 @@ import { type Order } from "../../hooks/useOrders";
 import OrderStatus from "./OrderStatus";
 import OrderType from "./OrderType";
 import { ExternalLink } from "lucide-react";
+import { formatCurrency } from "@/utils/formatters";
 
 type OrderRowProps = {
   order: Order;
 };
 
 const OrderRow = ({ order }: OrderRowProps) => {
+  const getExplorerUrl = (signature: string) => {
+    return `https://solscan.io/tx/${signature}`;
+  };
+
   return (
     <TableRow>
       <TableCell className="font-mono">{order.id.slice(0, 8)}</TableCell>
@@ -28,14 +33,14 @@ const OrderRow = ({ order }: OrderRowProps) => {
           {order.side}
         </span>
       </TableCell>
-      <TableCell className="text-right">${order.price.toFixed(2)}</TableCell>
+      <TableCell className="text-right">${formatCurrency(order.price)}</TableCell>
       <TableCell className="text-right">{order.amount.toFixed(8)}</TableCell>
-      <TableCell className="text-right">${order.total.toFixed(2)}</TableCell>
+      <TableCell className="text-right">${formatCurrency(order.total)}</TableCell>
       <TableCell><OrderStatus status={order.status} /></TableCell>
       {order.transaction_signature && (
         <TableCell>
           <a
-            href={`https://solscan.io/tx/${order.transaction_signature}`}
+            href={getExplorerUrl(order.transaction_signature)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center text-blue-500 hover:text-blue-700"
@@ -46,7 +51,7 @@ const OrderRow = ({ order }: OrderRowProps) => {
         </TableCell>
       )}
       {order.fee_amount !== undefined && (
-        <TableCell className="text-right">${order.fee_amount.toFixed(2)}</TableCell>
+        <TableCell className="text-right">${formatCurrency(order.fee_amount)}</TableCell>
       )}
     </TableRow>
   );
