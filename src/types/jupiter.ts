@@ -33,7 +33,6 @@ export interface Token {
   chain?: 'solana' | 'ethereum' | 'cardano';
 }
 
-// Make JupiterToken extend Token to ensure compatibility
 export type JupiterToken = Token;
 
 export interface SwapResult {
@@ -51,6 +50,6 @@ export interface PlatformFee {
 }
 
 export interface MarketInfo {
-  platformFee?: PlatformFee;
   outputMint: PublicKey;
+  platformFee?: PlatformFee;
 }

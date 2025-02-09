@@ -4,12 +4,7 @@ import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletService } from '@/services/walletService';
 import { toast } from '@/hooks/use-toast';
-import { PlatformFee } from '@/types/jupiter';
-
-interface MarketInfo {
-  platformFee?: PlatformFee;
-  outputMint: PublicKey;
-}
+import { MarketInfo, PlatformFee } from '@/types/jupiter';
 
 export const executeJupiterSwap = async (
   jupiter: Jupiter,
@@ -23,6 +18,7 @@ export const executeJupiterSwap = async (
   }
 
   try {
+    console.log('Starting swap execution with routes:', routes);
     const bestRoute = routes[0];
     const walletPubkey = new PublicKey(userPublicKey);
 
@@ -39,6 +35,7 @@ export const executeJupiterSwap = async (
     // Handle WSOL wrapping if needed
     let wsolAccount;
     if (inputMint === 'So11111111111111111111111111111111111111112') {
+      console.log('Setting up WSOL account');
       wsolAccount = await walletService.verifyWSOLAccount(
         walletPubkey,
         Number(bestRoute.inAmount)
@@ -71,6 +68,8 @@ export const executeJupiterSwap = async (
 
     if (orderError) throw orderError;
 
+    console.log('Created order:', order);
+
     // Execute swap
     const { swapTransaction } = await jupiter.exchange({
       routeInfo: bestRoute,
@@ -82,6 +81,8 @@ export const executeJupiterSwap = async (
     if (swapTransaction instanceof Transaction) {
       signature = swapTransaction.signature?.toString();
     }
+
+    console.log('Swap executed with signature:', signature);
 
     // Update order with transaction details
     if (order && signature) {
