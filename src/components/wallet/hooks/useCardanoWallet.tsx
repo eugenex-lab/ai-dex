@@ -1,8 +1,14 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { isCardanoWalletAvailable, getWalletInfo, getCardanoAddress, enableWallet } from '../utils/walletUtils';
-import type { CardanoWalletName, CardanoApi } from '../utils/types/cardanoTypes';
+import {
+  isCardanoWalletAvailable,
+  getWalletInfo,
+  getCardanoAddress,
+  enableWallet,
+  type CardanoWalletName,
+  type CardanoApi
+} from '../utils/cardanoWalletUtils';
 
 export const useCardanoWallet = () => {
   const [address, setAddress] = useState<string | null>(null);
@@ -53,7 +59,7 @@ export const useCardanoWallet = () => {
         throw new Error(`${walletName} wallet not available`);
       }
 
-      // Get wallet instance
+      // Get wallet instance 
       const wallet = window.cardano?.[walletName];
       if (!wallet) {
         throw new Error(`${walletName} wallet not found`);
@@ -119,4 +125,3 @@ export const useCardanoWallet = () => {
     error
   };
 };
-
