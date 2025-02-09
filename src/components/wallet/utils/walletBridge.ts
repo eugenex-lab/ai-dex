@@ -27,6 +27,8 @@ export class WalletBridge {
   private connectionManager: ConnectionManager;
 
   constructor(config?: WalletBridgeConfig) {
+    console.log('Initializing WalletBridge');
+    
     this.config = {
       timeout: config?.timeout || DEFAULT_TIMEOUT,
       requiredCapabilities: { ...DEFAULT_CAPABILITIES, ...config?.requiredCapabilities },
@@ -50,25 +52,36 @@ export class WalletBridge {
 
   private async initialize() {
     try {
+      console.log('Starting wallet bridge initialization');
       window.addEventListener('message', this.handleIncomingMessage);
       await this.discoverWallets();
       this.state.isInitialized = true;
+      console.log('Wallet bridge initialization complete');
       this.eventManager.emit('DISCOVERY', { initialized: true });
     } catch (error) {
+      console.error('Initialization failed:', error);
       this.handleError('Initialization failed', error);
     }
   }
 
   private async discoverWallets(): Promise<void> {
+    console.log('Starting wallet discovery');
     const cip95Wallets = await this.discovery.discoverCIP95Wallets();
+    console.log('CIP-95 wallets discovered:', cip95Wallets);
+    
     const cip30Wallets = await this.discovery.discoverCIP30Wallets();
+    console.log('CIP-30 wallets discovered:', cip30Wallets);
+    
     const availableWallets = [...new Set([...cip95Wallets, ...cip30Wallets])];
+    console.log('Total available wallets:', availableWallets);
+    
     this.eventManager.emit('DISCOVERY', { wallets: availableWallets });
   }
 
   private handleIncomingMessage = (event: MessageEvent) => {
     if (!event.data?.type?.startsWith('CARDANO_WALLET_')) return;
     
+    console.log('Received wallet message:', event.data.type);
     const handler = this.discovery.getMessageHandlers().get(event.data.id);
     if (handler) {
       handler(event.data);
@@ -76,6 +89,7 @@ export class WalletBridge {
   };
 
   public async connect(walletName: CardanoWalletName): Promise<CardanoApi> {
+    console.log(`Initiating connection to ${walletName}`);
     return this.connectionManager.connect(walletName);
   }
 
@@ -89,6 +103,7 @@ export class WalletBridge {
 
   private handleError(message: string, error: any): void {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`${message}: ${errorMessage}`);
     this.state.error = `${message}: ${errorMessage}`;
     this.eventManager.emit('ERROR', { message: this.state.error });
   }
@@ -98,10 +113,12 @@ export class WalletBridge {
   }
 
   public disconnect(): void {
+    console.log('Disconnecting wallet bridge');
     this.connectionManager.disconnect();
   }
 
   public cleanup(): void {
+    console.log('Cleaning up wallet bridge');
     window.removeEventListener('message', this.handleIncomingMessage);
     this.discovery.getMessageHandlers().clear();
   }
