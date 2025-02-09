@@ -115,15 +115,6 @@ export const LimitOrderForm = ({
         />
       </div>
 
-      <div className="space-y-2">
-        <span className="text-sm">Amount To Trade Under Conditions Set</span>
-        <Input
-          type="number"
-          defaultValue="1000"
-          className="bg-background"
-        />
-      </div>
-
       <div className="flex gap-2">
         <Button 
           variant={activeTab === 'buy' ? 'default' : 'outline'}
