@@ -24,8 +24,8 @@ let jupiterInstance: Jupiter | null = null;
 export const initializeJupiter = async (connection: Connection) => {
   try {
     if (!jupiterInstance) {
-      const feeAccountMap = new Map<string, number>();
-      feeAccountMap.set(JUPITER_FEE_RECIPIENT.toBase58(), PLATFORM_FEE_BPS);
+      const feeAccountMap = new Map<string, PublicKey>();
+      feeAccountMap.set(JUPITER_FEE_RECIPIENT.toBase58(), JUPITER_FEE_RECIPIENT);
 
       jupiterInstance = await Jupiter.load({
         connection,
@@ -50,7 +50,7 @@ export const initializeJupiter = async (connection: Connection) => {
 
 export const getJupiterTokens = async (): Promise<Token[]> => {
   try {
-    const response = await fetch(TOKEN_LIST_URL);
+    const response = await fetch(TOKEN_LIST_URL.toString());
     const data = await response.json();
     return data.tokens;
   } catch (error) {

@@ -1,8 +1,9 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { toast } from '@/hooks/use-toast';
+import JSBI from 'jsbi';
 import { initializeJupiter, getJupiterTokens, getRoutes, executeSwap } from '@/services/jupiterService';
 
 export interface UseJupiterProps {
@@ -60,11 +61,12 @@ export const useJupiter = ({
       setError(null);
 
       try {
+        const amountInJSBI = JSBI.BigInt(amount);
         const routeInfos = await getRoutes(
           jupiter,
           new PublicKey(inputMint),
           new PublicKey(outputMint),
-          amount,
+          amountInJSBI,
           slippageBps,
           swapMode
         );
