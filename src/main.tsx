@@ -2,7 +2,29 @@
 // Polyfills for @meshsdk/core
 if (typeof window !== 'undefined') {
   window.global = window;
-  window.process = window.process || { env: { NODE_ENV: 'production' } };
+  // Process polyfill with proper typing
+  window.process = {
+    env: { NODE_ENV: 'production' },
+    // Add minimal required process properties
+    argv: [],
+    version: '',
+    versions: {},
+    on: () => {},
+    addListener: () => {},
+    once: () => {},
+    off: () => {},
+    removeListener: () => {},
+    removeAllListeners: () => {},
+    emit: () => false,
+    prependListener: () => {},
+    prependOnceListener: () => {},
+    listeners: () => [],
+    binding: () => {},
+    cwd: () => '',
+    chdir: () => {},
+    umask: () => 0,
+    nextTick: (fn: () => void) => setTimeout(fn, 0),
+  } as NodeJS.Process;
 }
 
 import { Buffer } from 'buffer';
