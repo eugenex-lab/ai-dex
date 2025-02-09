@@ -1,5 +1,5 @@
 
-import { CardanoApi, CardanoWalletName } from '../types/cardanoTypes';
+import { CardanoApi, CardanoWalletName, WalletState } from '../types/cardanoTypes';
 import { WalletBridgeState, WalletCapabilities } from '../types/cip95Types';
 import { createWalletAPI } from './api';
 import { EventManager } from './events';

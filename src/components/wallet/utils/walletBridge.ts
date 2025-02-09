@@ -4,7 +4,8 @@ import {
   WalletBridgeConfig, 
   WalletBridgeState,
   WalletCapabilities,
-  WalletEventType 
+  WalletEventType,
+  WalletBridgeEvent
 } from './types/cip95Types';
 import { EventManager } from './walletBridge/events';
 import { WalletDiscovery } from './walletBridge/discovery';

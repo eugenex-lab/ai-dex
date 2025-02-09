@@ -22,7 +22,7 @@ export interface WalletCapabilities {
 
 export interface WalletBridgeConfig {
   timeout?: number;
-  requiredCapabilities?: Partial<WalletCapabilities>;
+  requiredCapabilities?: Partial<WalletCapabilities>;  
   preferredWallets?: string[];
 }
 
