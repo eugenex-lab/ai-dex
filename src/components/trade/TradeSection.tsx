@@ -1,11 +1,13 @@
 
 import { useState, useEffect } from "react";
-import { ArrowDown, Settings } from "lucide-react";
+import { ArrowDown, Settings, AlignHorizontalDistributeCenter, List } from "lucide-react";
 import { Button } from "../ui/button";
 import { tokens } from "@/utils/tokenData";
 import { TokenSection } from "./TokenSection";
 import { TokenSelectDialog } from "./TokenSelectDialog";
 import { SlippageDialog } from "./SlippageDialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
+import TradeForm from "./TradeForm";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -18,6 +20,8 @@ const TradeSection = () => {
   const [slippage, setSlippage] = useState("0.5");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChain, setSelectedChain] = useState<"cardano" | "ethereum" | "solana">("cardano");
+  const [activeTradeType, setActiveTradeType] = useState<'market' | 'dip' | 'limit'>('market');
+  const [activeTab, setActiveTab] = useState<'buy' | 'sell'>('buy');
 
   // Subscribe to chain changes from WalletSection
   useEffect(() => {
@@ -54,19 +58,8 @@ const TradeSection = () => {
   // Filter tokens based on selected chain
   const filteredTokens = tokens.filter(token => token.chain === selectedChain);
 
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6"
-          onClick={() => setShowSlippage(true)}
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
-      </div>
-
+  const SwapContent = () => (
+    <>
       <TokenSection
         label="From"
         showButtons={true}
@@ -102,6 +95,48 @@ const TradeSection = () => {
       <Button className="w-full bg-[#0EA5E9] hover:bg-[#0EA5E9]/90">
         Swap
       </Button>
+    </>
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Tabs defaultValue="swap" className="flex-1">
+          <TabsList className="grid w-[400px] grid-cols-2">
+            <TabsTrigger value="swap" className="flex items-center gap-2">
+              <AlignHorizontalDistributeCenter className="h-4 w-4" />
+              Swap
+            </TabsTrigger>
+            <TabsTrigger value="limit" className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              Limit Order
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6"
+          onClick={() => setShowSlippage(true)}
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <Tabs.Content value="swap" className="space-y-4">
+        <SwapContent />
+      </Tabs.Content>
+
+      <Tabs.Content value="limit" className="space-y-4">
+        <TradeForm 
+          activeTrade="limit"
+          activeTab={activeTab}
+          amount={fromAmount}
+          setAmount={setFromAmount}
+          receiveAmount={toAmount}
+          setReceiveAmount={setToAmount}
+        />
+      </Tabs.Content>
 
       <TokenSelectDialog
         showTokenSelect={showTokenSelect}
