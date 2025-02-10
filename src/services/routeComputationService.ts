@@ -1,22 +1,19 @@
 
 import { PublicKey } from '@solana/web3.js';
-import { Jupiter, RouteInfo, SwapMode } from '@jup-ag/core';
+import { RouteInfo } from '@/types/jupiter';
 import { toast } from '@/hooks/use-toast';
-import JSBI from 'jsbi';
 import { getRoutes } from '@/services/jupiterService';
 
 export const computeRoutes = async (
-  jupiter: Jupiter | null,
   inputMint: string | undefined,
   outputMint: string | undefined,
   amount: number | undefined,
   slippageBps: number,
-  swapMode: SwapMode,
   setLoading: (loading: boolean) => void,
   setError: (error: string | null) => void,
   setRoutes: (routes: RouteInfo[]) => void
 ) => {
-  if (!jupiter || !inputMint || !outputMint || !amount) {
+  if (!inputMint || !outputMint || !amount) {
     return;
   }
 
@@ -28,18 +25,15 @@ export const computeRoutes = async (
       inputMint,
       outputMint,
       amount,
-      slippageBps,
-      swapMode
+      slippageBps
     });
 
-    const routeInfos = await getRoutes(
-      jupiter,
-      new PublicKey(inputMint),
-      new PublicKey(outputMint),
-      amount,
+    const routeInfos = await getRoutes({
+      inputMint,
+      outputMint,
+      amount: amount.toString(),
       slippageBps,
-      swapMode
-    );
+    });
 
     console.log('Found routes:', routeInfos);
     setRoutes(routeInfos);

@@ -1,6 +1,5 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import { Jupiter, RouteInfo, SwapMode } from '@jup-ag/core';
 
 export interface UseJupiterProps {
   connection: Connection;
@@ -8,12 +7,10 @@ export interface UseJupiterProps {
   outputMint?: string;
   amount?: number;  
   slippageBps?: number;
-  swapMode?: SwapMode;
   userPublicKey?: string;
 }
 
 export interface JupiterState {
-  jupiter: Jupiter | null;
   tokens: JupiterToken[];
   routes: RouteInfo[];
   loading: boolean;
@@ -22,7 +19,7 @@ export interface JupiterState {
 
 export interface JupiterToken {
   address: string;
-  chainId: number; 
+  chainId: number;
   decimals: number;
   logoURI: string;
   name: string;
@@ -31,16 +28,46 @@ export interface JupiterToken {
   verified?: boolean;
 }
 
-export interface JupiterFee {
-  amount: number;
-  mint: string;
-  pct: number;
+export interface SwapParams {
+  inputMint: string;
+  outputMint: string;
+  amount: string;
+  slippageBps: number;
+  userPublicKey?: string;
+  asLegacyTransaction?: boolean;
+  destinationWallet?: string;
+  onlyDirectRoutes?: boolean;
 }
 
 export interface SwapResult {
-  swapTransaction: any;
+  swapTransaction: string;
   routeInfo: RouteInfo;
   signature?: string;
 }
 
-export type { RouteInfo, SwapMode } from '@jup-ag/core';
+export interface RouteInfo {
+  inAmount: string;
+  outAmount: string;
+  amount: string;
+  priceImpactPct: number;
+  marketInfos: MarketInfo[];
+  slippageBps: number;
+  otherAmountThreshold: string;
+}
+
+export interface MarketInfo {
+  id: string;
+  label: string;
+  inputMint: string;
+  outputMint: string;
+  inAmount: string;
+  outAmount: string;
+  lpFee: Fee;
+  platformFee: Fee;
+}
+
+export interface Fee {
+  amount: string;
+  mint: string;
+  pct: number;
+}

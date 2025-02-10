@@ -1,14 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { Connection } from '@solana/web3.js';
-import { initializeJupiter, getJupiterTokens } from '@/services/jupiterService';
-import { JupiterState } from '@/types/jupiter';
+import { getJupiterTokens } from '@/services/jupiterService';
+import { JupiterState, RouteInfo } from '@/types/jupiter';
 import { toast } from '@/hooks/use-toast';
 
 export const useJupiterState = (connection: Connection) => {
   const [state, setState] = useState<JupiterState>({
-    jupiter: null,
     tokens: [],
     routes: [],
     loading: false,
@@ -18,12 +16,10 @@ export const useJupiterState = (connection: Connection) => {
   useEffect(() => {
     const init = async () => {
       try {
-        const jupiterInstance = await initializeJupiter(connection);
         const tokenList = await getJupiterTokens();
         
         setState(prev => ({
           ...prev,
-          jupiter: jupiterInstance,
           tokens: tokenList
         }));
       } catch (err) {

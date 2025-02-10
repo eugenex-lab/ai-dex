@@ -1,46 +1,14 @@
 
 import { Connection, PublicKey } from '@solana/web3.js';
-import JSBI from 'jsbi';
-import { Jupiter, RouteInfo, TOKEN_LIST_URL, SwapMode } from '@jup-ag/core';
-import { JupiterToken, SwapResult } from '@/types/jupiter';
+import { JupiterToken, SwapParams, SwapResult, RouteInfo } from '@/types/jupiter';
 import { toast } from '@/hooks/use-toast';
 
-export const JUPITER_FEE_RECIPIENT = new PublicKey('8iB1cjU7PtkxW3yemjtDLAWVt645vtW1NUduyH6AuWFS');
-export const PLATFORM_FEE_BPS = 100; // 1% = 100 basis points
-
-// Singleton instance
-let jupiterInstance: Jupiter | null = null;
-
-export const initializeJupiter = async (connection: Connection) => {
-  try {
-    if (!jupiterInstance) {
-      const feeAccountMap = new Map<string, PublicKey>();
-      feeAccountMap.set(JUPITER_FEE_RECIPIENT.toBase58(), JUPITER_FEE_RECIPIENT);
-
-      jupiterInstance = await Jupiter.load({
-        connection,
-        cluster: 'mainnet-beta',
-        platformFeeAndAccounts: {
-          feeBps: PLATFORM_FEE_BPS,
-          feeAccounts: feeAccountMap
-        }
-      });
-    }
-    return jupiterInstance;
-  } catch (error) {
-    console.error('Error initializing Jupiter:', error);
-    toast({
-      title: "Jupiter Initialization Error",
-      description: "Failed to initialize Jupiter exchange",
-      variant: "destructive"
-    });
-    throw error;
-  }
-};
+export const JUPITER_API_BASE = 'https://api.jup.ag/v6';
+export const JUPITER_PRICE_API_BASE = 'https://price.jup.ag/v4';
 
 export const getJupiterTokens = async (): Promise<JupiterToken[]> => {
   try {
-    const response = await fetch(TOKEN_LIST_URL.toString());
+    const response = await fetch('https://token.jup.ag/strict');
     const data = await response.json();
     return data.tokens;
   } catch (error) {
@@ -54,30 +22,25 @@ export const getJupiterTokens = async (): Promise<JupiterToken[]> => {
   }
 };
 
-export const getRoutes = async (
-  jupiter: Jupiter,
-  inputMint: PublicKey,
-  outputMint: PublicKey,
-  amount: number,
-  slippageBps: number,
-  swapMode: SwapMode
-): Promise<RouteInfo[]> => {
+export const getRoutes = async (params: SwapParams): Promise<RouteInfo[]> => {
   try {
-    const amountBigInt = JSBI.BigInt(amount.toString());
-    const routes = await jupiter.computeRoutes({
-      inputMint,
-      outputMint,
-      amount: amountBigInt,
-      slippageBps,
-      swapMode,
-      forceFetch: true
+    const searchParams = new URLSearchParams({
+      inputMint: params.inputMint,
+      outputMint: params.outputMint,
+      amount: params.amount,
+      slippageBps: params.slippageBps.toString(),
+      ...(params.onlyDirectRoutes && { onlyDirectRoutes: 'true' }),
+      ...(params.asLegacyTransaction && { asLegacyTransaction: 'true' }),
     });
 
-    if (!routes.routesInfos || routes.routesInfos.length === 0) {
+    const response = await fetch(`${JUPITER_API_BASE}/quote?${searchParams}`);
+    const data = await response.json();
+
+    if (!data.data) {
       throw new Error('No routes found');
     }
 
-    return routes.routesInfos;
+    return data.data;
   } catch (error) {
     console.error('Error computing routes:', error);
     toast({
@@ -89,20 +52,27 @@ export const getRoutes = async (
   }
 };
 
-export const executeSwap = async (
-  jupiter: Jupiter,
-  route: RouteInfo,
-  userPublicKey: PublicKey
-): Promise<SwapResult> => {
+export const executeSwap = async (params: SwapParams, selectedRoute: RouteInfo): Promise<SwapResult> => {
   try {
-    const result = await jupiter.exchange({
-      routeInfo: route,
-      userPublicKey
+    // First get the swap transaction
+    const swapResponse = await fetch(`${JUPITER_API_BASE}/swap`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        quoteResponse: selectedRoute,
+        userPublicKey: params.userPublicKey,
+        destinationTokenAccount: params.destinationWallet,
+        asLegacyTransaction: params.asLegacyTransaction
+      })
     });
 
+    const swapData = await swapResponse.json();
+
     return {
-      swapTransaction: result.swapTransaction,
-      routeInfo: route
+      swapTransaction: swapData.swapTransaction,
+      routeInfo: selectedRoute,
     };
   } catch (error) {
     console.error('Error executing swap:', error);
