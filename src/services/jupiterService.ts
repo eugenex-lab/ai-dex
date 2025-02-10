@@ -69,7 +69,8 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
   try {
     // Define base headers
     const baseHeaders: Record<string, string> = {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     };
 
     // Conditionally add API key if present
@@ -81,8 +82,8 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
     const mintAddress = getTokenMintAddress(symbol);
     console.log('Fetching Jupiter data for mint:', mintAddress);
 
-    // Use the correct Jupiter V2 price endpoint
-    const priceResponse = await fetch(`${JUPITER_API_URL}/price/v2`, { 
+    // Use the correct Jupiter V2 price endpoint with proper request structure
+    const priceResponse = await fetch(`${JUPITER_API_URL}/price/v2/price`, { 
       method: 'POST',
       headers,
       body: JSON.stringify({
