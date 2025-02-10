@@ -301,65 +301,6 @@ export type Database = {
         }
         Relationships: []
       }
-      jupiter_route_tracking: {
-        Row: {
-          amount_in: number
-          amount_out: number
-          created_at: string
-          error_message: string | null
-          execution_time: number | null
-          id: string
-          input_mint: string
-          output_mint: string
-          price_impact: number | null
-          route_data: Json
-          route_id: string
-          slippage: number
-          success: boolean
-          user_id: string | null
-        }
-        Insert: {
-          amount_in: number
-          amount_out: number
-          created_at?: string
-          error_message?: string | null
-          execution_time?: number | null
-          id?: string
-          input_mint: string
-          output_mint: string
-          price_impact?: number | null
-          route_data?: Json
-          route_id: string
-          slippage: number
-          success?: boolean
-          user_id?: string | null
-        }
-        Update: {
-          amount_in?: number
-          amount_out?: number
-          created_at?: string
-          error_message?: string | null
-          execution_time?: number | null
-          id?: string
-          input_mint?: string
-          output_mint?: string
-          price_impact?: number | null
-          route_data?: Json
-          route_id?: string
-          slippage?: number
-          success?: boolean
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "jupiter_route_tracking_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       jupiter_routes: {
         Row: {
           created_at: string
@@ -449,48 +390,6 @@ export type Database = {
           symbol?: string
           tags?: string[] | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      liquidity_monitoring: {
-        Row: {
-          created_at: string
-          id: string
-          last_traded_price: number | null
-          last_updated_at: string
-          pool_address: string
-          pool_fee_rate: number | null
-          token_a_amount: number
-          token_a_mint: string
-          token_b_amount: number
-          token_b_mint: string
-          volume_24h: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          last_traded_price?: number | null
-          last_updated_at?: string
-          pool_address: string
-          pool_fee_rate?: number | null
-          token_a_amount: number
-          token_a_mint: string
-          token_b_amount: number
-          token_b_mint: string
-          volume_24h?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          last_traded_price?: number | null
-          last_updated_at?: string
-          pool_address?: string
-          pool_fee_rate?: number | null
-          token_a_amount?: number
-          token_a_mint?: string
-          token_b_amount?: number
-          token_b_mint?: string
-          volume_24h?: number | null
         }
         Relationships: []
       }
@@ -793,63 +692,6 @@ export type Database = {
           wallet_connection_status?: string | null
         }
         Relationships: []
-      }
-      trade_performance_metrics: {
-        Row: {
-          created_at: string
-          execution_success: boolean
-          gas_used: number | null
-          id: string
-          metadata: Json
-          price_impact_percentage: number | null
-          route_computation_time: number | null
-          total_fee_cost: number | null
-          trade_id: string | null
-          transaction_signature: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          execution_success?: boolean
-          gas_used?: number | null
-          id?: string
-          metadata?: Json
-          price_impact_percentage?: number | null
-          route_computation_time?: number | null
-          total_fee_cost?: number | null
-          trade_id?: string | null
-          transaction_signature?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          execution_success?: boolean
-          gas_used?: number | null
-          id?: string
-          metadata?: Json
-          price_impact_percentage?: number | null
-          route_computation_time?: number | null
-          total_fee_cost?: number | null
-          trade_id?: string | null
-          transaction_signature?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trade_performance_metrics_trade_id_fkey"
-            columns: ["trade_id"]
-            isOneToOne: false
-            referencedRelation: "jupiter_route_tracking"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trade_performance_metrics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       wallet_connections: {
         Row: {
