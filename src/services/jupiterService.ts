@@ -82,8 +82,7 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
     console.log('Fetching Jupiter data for mint:', mintAddress);
 
     // Use the correct Jupiter V2 price endpoint
-    const priceUrl = `${JUPITER_API_URL}/price/v2`;
-    const priceResponse = await fetch(priceUrl, { 
+    const priceResponse = await fetch(`${JUPITER_API_URL}/price/v2`, { 
       method: 'POST',
       headers,
       body: JSON.stringify({
