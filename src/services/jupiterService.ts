@@ -48,15 +48,20 @@ export interface JupiterMarketData {
 
 export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMarketData> {
   try {
+    // Define base headers as a proper object type
+    const baseHeaders: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+
+    // Conditionally add API key if present
+    const headers = JUPITER_API_KEY 
+      ? { ...baseHeaders, 'x-api-key': JUPITER_API_KEY }
+      : baseHeaders;
+
     // Price endpoint
     const priceResponse = await fetch(
       `${JUPITER_API_URL}/price/v2/${symbol}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(JUPITER_API_KEY && { 'x-api-key': JUPITER_API_KEY })
-        }
-      }
+      { headers }
     );
     
     if (!priceResponse.ok) {
