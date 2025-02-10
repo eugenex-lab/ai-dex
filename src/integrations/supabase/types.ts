@@ -301,6 +301,98 @@ export type Database = {
         }
         Relationships: []
       }
+      jupiter_routes: {
+        Row: {
+          created_at: string
+          id: string
+          in_amount: string
+          market_infos: Json | null
+          order_id: string | null
+          other_amount_threshold: string | null
+          out_amount: string
+          platform_fee: Json | null
+          price_impact_pct: number | null
+          route_map: Json
+          swap_mode: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          in_amount: string
+          market_infos?: Json | null
+          order_id?: string | null
+          other_amount_threshold?: string | null
+          out_amount: string
+          platform_fee?: Json | null
+          price_impact_pct?: number | null
+          route_map: Json
+          swap_mode?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          in_amount?: string
+          market_infos?: Json | null
+          order_id?: string | null
+          other_amount_threshold?: string | null
+          out_amount?: string
+          platform_fee?: Json | null
+          price_impact_pct?: number | null
+          route_map?: Json
+          swap_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jupiter_routes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jupiter_tokens: {
+        Row: {
+          address: string
+          chain_id: number
+          created_at: string
+          decimals: number
+          is_native: boolean | null
+          is_wrapped_sol: boolean | null
+          logo_uri: string | null
+          name: string
+          symbol: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          chain_id?: number
+          created_at?: string
+          decimals: number
+          is_native?: boolean | null
+          is_wrapped_sol?: boolean | null
+          logo_uri?: string | null
+          name: string
+          symbol: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          chain_id?: number
+          created_at?: string
+          decimals?: number
+          is_native?: boolean | null
+          is_wrapped_sol?: boolean | null
+          logo_uri?: string | null
+          name?: string
+          symbol?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -312,7 +404,17 @@ export type Database = {
           id: string
           input_amount: number | null
           input_mint: string | null
+          jupiter_compute_limit: number | null
+          jupiter_in_amount: string | null
+          jupiter_other_amount_threshold: string | null
+          jupiter_out_amount: string | null
+          jupiter_platform_fee: Json | null
+          jupiter_price_impact: number | null
+          jupiter_quote_id: string | null
           jupiter_route_id: string | null
+          jupiter_route_priority: number | null
+          jupiter_slippage: number | null
+          jupiter_swap_mode: string | null
           jupiter_v6_quote: Json | null
           jupiter_v6_response: Json | null
           jupiter_version: string | null
@@ -352,7 +454,17 @@ export type Database = {
           id?: string
           input_amount?: number | null
           input_mint?: string | null
+          jupiter_compute_limit?: number | null
+          jupiter_in_amount?: string | null
+          jupiter_other_amount_threshold?: string | null
+          jupiter_out_amount?: string | null
+          jupiter_platform_fee?: Json | null
+          jupiter_price_impact?: number | null
+          jupiter_quote_id?: string | null
           jupiter_route_id?: string | null
+          jupiter_route_priority?: number | null
+          jupiter_slippage?: number | null
+          jupiter_swap_mode?: string | null
           jupiter_v6_quote?: Json | null
           jupiter_v6_response?: Json | null
           jupiter_version?: string | null
@@ -392,7 +504,17 @@ export type Database = {
           id?: string
           input_amount?: number | null
           input_mint?: string | null
+          jupiter_compute_limit?: number | null
+          jupiter_in_amount?: string | null
+          jupiter_other_amount_threshold?: string | null
+          jupiter_out_amount?: string | null
+          jupiter_platform_fee?: Json | null
+          jupiter_price_impact?: number | null
+          jupiter_quote_id?: string | null
           jupiter_route_id?: string | null
+          jupiter_route_priority?: number | null
+          jupiter_slippage?: number | null
+          jupiter_swap_mode?: string | null
           jupiter_v6_quote?: Json | null
           jupiter_v6_response?: Json | null
           jupiter_version?: string | null

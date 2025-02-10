@@ -32,7 +32,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold">{symbol.replace('USDT', '/USDT')}</h3>
           <Badge variant="outline" className="text-xs">
-            Binance US
+            Jupiter DEX
           </Badge>
         </div>
       </div>
@@ -43,24 +43,24 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
           <LoadingOrValue value={data?.price ? `$${data.price.toFixed(2)}` : '-'} />
         </div>
         <div>
-          <div className="text-sm text-muted-foreground">SUPPLY</div>
-          <LoadingOrValue value={data?.supply || '-'} />
+          <div className="text-sm text-muted-foreground">LIQUIDITY</div>
+          <LoadingOrValue value={data?.liquidity ? `$${(data.liquidity / 1000000).toFixed(2)}M` : '-'} />
         </div>
         <div>
-          <div className="text-sm text-muted-foreground">LIQUIDITY</div>
-          <LoadingOrValue value={data?.liquidity || '-'} />
+          <div className="text-sm text-muted-foreground">24H VOLUME</div>
+          <LoadingOrValue value={data?.volume24h ? `$${(data.volume24h / 1000000).toFixed(2)}M` : '-'} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <div className="text-sm text-muted-foreground">MKT CAP</div>
-          <LoadingOrValue value={data?.marketCap || '-'} width="w-32" />
+          <LoadingOrValue value={data?.marketCap ? `$${(data.marketCap / 1000000).toFixed(2)}M` : '-'} width="w-32" />
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-2 mb-4">
-        {Object.entries(data?.priceChange || {}).map(([period, change]: [string, any]) => (
+        {data?.priceChange && Object.entries(data.priceChange).map(([period, change]) => (
           <div key={period}>
             <div className="text-xs text-muted-foreground">{period.toUpperCase()}</div>
             {isLoading ? (
@@ -86,7 +86,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">BUY VOL</span>
-            <LoadingOrValue value={data?.transactions.buyVolume || '-'} />
+            <LoadingOrValue value={data?.transactions.buyVolume ? `$${(data.transactions.buyVolume / 1000000).toFixed(2)}M` : '-'} />
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">BUYERS</span>
@@ -100,7 +100,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">SELL VOL</span>
-            <LoadingOrValue value={data?.transactions.sellVolume || '-'} />
+            <LoadingOrValue value={data?.transactions.sellVolume ? `$${(data.transactions.sellVolume / 1000000).toFixed(2)}M` : '-'} />
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">SELLERS</span>
