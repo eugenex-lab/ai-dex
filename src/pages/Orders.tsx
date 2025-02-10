@@ -1,14 +1,29 @@
 
-import { useOrderSubscription } from "@/hooks/useOrderSubscription";
+import { useState, useEffect } from "react";
+import { useOrders, type Order } from "./Orders/hooks/useOrders";
+import { useOrdersRealtime } from "./Orders/hooks/useOrdersRealtime";
 import OrdersTable from "./Orders/components/OrdersTable/OrdersTable";
 import OrdersLoading from "./Orders/components/OrdersLoading";
 import OrdersError from "./Orders/components/OrdersError";
 
 const Orders = () => {
-  const { orders } = useOrderSubscription();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const { data: initialOrders, isLoading, error } = useOrders();
 
-  if (!orders) {
+  useEffect(() => {
+    if (initialOrders) {
+      setOrders(initialOrders);
+    }
+  }, [initialOrders]);
+
+  useOrdersRealtime({ setOrders });
+
+  if (isLoading) {
     return <OrdersLoading />;
+  }
+
+  if (error) {
+    return <OrdersError />;
   }
 
   return (
