@@ -2,6 +2,16 @@
 const JUPITER_API_URL = 'https://api.jup.ag';
 const JUPITER_API_KEY = ''; // To be added later via env var
 
+// Common token mint addresses
+const COMMON_TOKENS = {
+  'SOL': 'So11111111111111111111111111111111111111112',
+  'USDC': 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+  'USDT': 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
+  'BTC': '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E', // Sollet wrapped BTC
+  'mSOL': 'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So',
+  // Add more common tokens as needed
+};
+
 export interface JupiterToken {
   address: string;
   chainId: number;
@@ -46,9 +56,16 @@ export interface JupiterMarketData {
   };
 }
 
+// Helper to get token mint address
+function getTokenMintAddress(symbol: string): string {
+  // Remove USDT suffix if present (for trading pairs)
+  const baseSymbol = symbol.replace('USDT', '');
+  return COMMON_TOKENS[baseSymbol] || symbol;
+}
+
 export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMarketData> {
   try {
-    // Define base headers as a proper object type
+    // Define base headers
     const baseHeaders: Record<string, string> = {
       'Content-Type': 'application/json'
     };
@@ -58,9 +75,13 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
       ? { ...baseHeaders, 'x-api-key': JUPITER_API_KEY }
       : baseHeaders;
 
-    // Price endpoint
+    // Get mint addresses for both tokens in the pair
+    const inputToken = getTokenMintAddress(symbol.replace('USDT', ''));
+    const outputToken = COMMON_TOKENS.USDT;
+
+    // Price endpoint with input/output tokens
     const priceResponse = await fetch(
-      `${JUPITER_API_URL}/price/v2/${symbol}`,
+      `${JUPITER_API_URL}/price/v2/${inputToken}/${outputToken}`,
       { headers }
     );
     
