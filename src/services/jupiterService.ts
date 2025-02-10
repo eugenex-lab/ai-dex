@@ -75,13 +75,12 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
       ? { ...baseHeaders, 'x-api-key': JUPITER_API_KEY }
       : baseHeaders;
 
-    // Get mint addresses for both tokens in the pair
-    const inputToken = getTokenMintAddress(symbol.replace('USDT', ''));
-    const outputToken = COMMON_TOKENS.USDT;
+    // Get mint address for the token
+    const mintAddress = getTokenMintAddress(symbol);
 
-    // Price endpoint with input/output tokens
+    // Price endpoint with mint address
     const priceResponse = await fetch(
-      `${JUPITER_API_URL}/price/v2/${inputToken}/${outputToken}`,
+      `${JUPITER_API_URL}/price/v2/${mintAddress}/price`,
       { headers }
     );
     
