@@ -1,7 +1,6 @@
 
 import { toast } from '@/hooks/use-toast';
-import { JupiterToken } from '@/types/jupiter';
-import { TokenPrice } from '@/types/token';
+import { JupiterToken, TokenPrice } from '@/types/jupiter';
 
 class JupiterTokenService {
   private static instance: JupiterTokenService;
@@ -65,3 +64,4 @@ class JupiterTokenService {
 }
 
 export const jupiterTokenService = JupiterTokenService.getInstance();
+export type { JupiterToken, TokenPrice };

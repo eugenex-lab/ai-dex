@@ -40,9 +40,16 @@ export interface SwapParams {
 }
 
 export interface SwapResult {
-  swapTransaction: string;
-  routeInfo: RouteInfo;
-  signature?: string;
+  txid: string;
+  signature: string;
+  swapResult: {
+    inputAddress: PublicKey;
+    outputAddress: PublicKey;
+    inputAmount: number;
+    outputAmount: number;
+    computeUnits?: number;
+    priorityFeeLamports?: number;
+  };
 }
 
 export interface RouteInfo {
@@ -53,6 +60,8 @@ export interface RouteInfo {
   marketInfos: MarketInfo[];
   slippageBps: number;
   otherAmountThreshold: string;
+  swapMode: 'ExactIn' | 'ExactOut';
+  getDepositAndFee?: () => { deposit: number; fee: number };
 }
 
 export interface MarketInfo {
@@ -70,4 +79,14 @@ export interface Fee {
   amount: string;
   mint: string;
   pct: number;
+  feeAccounts?: {
+    feeVault?: string;
+  };
+}
+
+export interface TokenPrice {
+  price: number;
+  priceChange24h?: number;
+  volume24h?: number;
+  marketCap?: number;
 }

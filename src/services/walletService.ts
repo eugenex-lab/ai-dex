@@ -3,7 +3,8 @@ import { Connection, PublicKey, Transaction } from '@solana/web3.js';
 import { 
   TOKEN_PROGRAM_ID, 
   ASSOCIATED_TOKEN_PROGRAM_ID,
-  getAssociatedTokenAddress,
+  getAccount,
+  getAssociatedTokenAddressSync,
   createAssociatedTokenAccountInstruction,
   createCloseAccountInstruction
 } from '@solana/spl-token';
@@ -32,7 +33,7 @@ export class WalletService {
     payer: PublicKey
   ): Promise<{ address: PublicKey; instruction?: any }> {
     try {
-      const ata = await getAssociatedTokenAddress(
+      const ata = getAssociatedTokenAddressSync(
         mint,
         walletAddress,
         true,
@@ -41,26 +42,24 @@ export class WalletService {
       );
 
       try {
-        const account = await this.connection.getAccountInfo(ata);
-        
+        const account = await getAccount(this.connection, ata);
         if (account) {
           return { address: ata };
         }
-
-        const instruction = createAssociatedTokenAccountInstruction(
-          payer,
-          ata,
-          walletAddress,
-          mint,
-          TOKEN_PROGRAM_ID,
-          ASSOCIATED_TOKEN_PROGRAM_ID
-        );
-
-        return { address: ata, instruction };
       } catch (error) {
-        console.error('Error checking ATA:', error);
-        throw error;
+        console.log('ATA does not exist, creating instruction');
       }
+
+      const instruction = createAssociatedTokenAccountInstruction(
+        payer,
+        ata,
+        walletAddress,
+        mint,
+        TOKEN_PROGRAM_ID,
+        ASSOCIATED_TOKEN_PROGRAM_ID
+      );
+
+      return { address: ata, instruction };
     } catch (error) {
       console.error('Error with ATA:', error);
       toast({
