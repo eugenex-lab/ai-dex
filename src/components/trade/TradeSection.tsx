@@ -1,52 +1,61 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ArrowDown, Settings, AlignHorizontalDistributeCenter, List } from "lucide-react";
 import { Button } from "../ui/button";
-import { tokens } from "@/utils/tokenData";
 import { TokenSection } from "./TokenSection";
 import { TokenSelectDialog } from "./TokenSelectDialog";
 import { SlippageDialog } from "./SlippageDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import TradeForm from "./TradeForm";
+import { useSolanaTokens } from "@/hooks/useSolanaTokens";
+import { useTokenPrice } from "@/hooks/useTokenPrice";
+import { useWallet } from '@solana/wallet-adapter-react';
+import { toast } from "@/hooks/use-toast";
+import { JupiterToken } from "@/types/jupiter";
+
+export interface TokenSelectProps {
+  showTokenSelect: boolean;
+  setShowTokenSelect: (show: boolean) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  handleTokenSelect: (token: JupiterToken) => void;
+  availableTokens: JupiterToken[];
+}
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
-  const [fromToken, setFromToken] = useState(tokens[5]); // FOXY token
-  const [toToken, setToToken] = useState(tokens[0]); // SOL token
+  const [fromTokenMint, setFromTokenMint] = useState<string>("");
+  const [toTokenMint, setToTokenMint] = useState<string>("");
   const [showTokenSelect, setShowTokenSelect] = useState(false);
   const [selectingFor, setSelectingFor] = useState<"from" | "to">("from");
   const [showSlippage, setShowSlippage] = useState(false);
   const [slippage, setSlippage] = useState("0.5");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedChain, setSelectedChain] = useState<"cardano" | "ethereum" | "solana">("cardano");
   const [activeTradeType, setActiveTradeType] = useState<'market' | 'dip' | 'limit'>('market');
   const [activeTab, setActiveTab] = useState<'swap' | 'limit'>('swap');
   const [tradeTab, setTradeTab] = useState<'buy' | 'sell'>('buy');
 
-  // Subscribe to chain changes from WalletSection
-  useEffect(() => {
-    const handleChainChange = (event: CustomEvent) => {
-      setSelectedChain(event.detail.chain);
-      // Reset tokens when chain changes
-      const chainTokens = tokens.filter(t => t.chain === event.detail.chain);
-      if (chainTokens.length > 0) {
-        setFromToken(chainTokens[0]);
-        setToToken(chainTokens[1] || chainTokens[0]);
-      }
-    };
-    
-    window.addEventListener('chainChanged', handleChainChange as EventListener);
-    return () => {
-      window.removeEventListener('chainChanged', handleChainChange as EventListener);
-    };
-  }, []);
+  const { tokens = [], loading: tokensLoading } = useSolanaTokens();
+  const { price: fromTokenPrice } = useTokenPrice(fromTokenMint);
+  const { price: toTokenPrice } = useTokenPrice(toTokenMint);
+  const { connected } = useWallet();
 
-  const handleTokenSelect = (token: typeof tokens[0]) => {
+  useEffect(() => {
+    if (!connected) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet to trade",
+        variant: "destructive"
+      });
+    }
+  }, [connected]);
+
+  const handleTokenSelect = (token: JupiterToken) => {
     if (selectingFor === "from") {
-      setFromToken(token);
+      setFromTokenMint(token.address);
     } else {
-      setToToken(token);
+      setToTokenMint(token.address);
     }
     setShowTokenSelect(false);
   };
@@ -56,9 +65,6 @@ const TradeSection = () => {
     setShowTokenSelect(true);
   };
 
-  // Filter tokens based on selected chain
-  const filteredTokens = tokens.filter(token => token.chain === selectedChain);
-
   const SwapContent = () => (
     <>
       <TokenSection
@@ -66,7 +72,7 @@ const TradeSection = () => {
         showButtons={true}
         amount={fromAmount}
         setAmount={setFromAmount}
-        token={fromToken}
+        token={tokens.find(t => t.address === fromTokenMint)}
         onTokenSelect={() => openTokenSelect("from")}
       />
 
@@ -76,9 +82,9 @@ const TradeSection = () => {
           variant="ghost"
           className="rounded-full bg-background/60 hover:bg-background"
           onClick={() => {
-            const tempToken = fromToken;
-            setFromToken(toToken);
-            setToToken(tempToken);
+            const tempMint = fromTokenMint;
+            setFromTokenMint(toTokenMint);
+            setToTokenMint(tempMint);
           }}
         >
           <ArrowDown className="h-4 w-4" />
@@ -89,12 +95,15 @@ const TradeSection = () => {
         label="To"
         amount={toAmount}
         setAmount={setToAmount}
-        token={toToken}
+        token={tokens.find(t => t.address === toTokenMint)}
         onTokenSelect={() => openTokenSelect("to")}
       />
 
-      <Button className="w-full bg-[#0EA5E9] hover:bg-[#0EA5E9]/90">
-        Swap
+      <Button 
+        className="w-full bg-[#0EA5E9] hover:bg-[#0EA5E9]/90"
+        disabled={!connected || !fromTokenMint || !toTokenMint}
+      >
+        {!connected ? "Connect Wallet" : "Swap"}
       </Button>
     </>
   );
@@ -144,8 +153,8 @@ const TradeSection = () => {
                   setAmount={setFromAmount}
                   receiveAmount={toAmount}
                   setReceiveAmount={setToAmount}
-                  fromToken={fromToken}
-                  toToken={toToken}
+                  fromToken={tokens.find(t => t.address === fromTokenMint)}
+                  toToken={tokens.find(t => t.address === toTokenMint)}
                   onFromTokenSelect={() => openTokenSelect("from")}
                   onToTokenSelect={() => openTokenSelect("to")}
                 />
@@ -160,7 +169,7 @@ const TradeSection = () => {
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           handleTokenSelect={handleTokenSelect}
-          availableTokens={filteredTokens}
+          availableTokens={tokens}
         />
 
         <SlippageDialog

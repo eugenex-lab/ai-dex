@@ -9,31 +9,8 @@ import ChartSection from "@/components/dashboard/ChartSection";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 
 const Dashboard = () => {
-  const [currentPair, setCurrentPair] = useState('SOL');
+  const [currentPair, setCurrentPair] = useState('BTCUSDT');
   const [hasAlerts, setHasAlerts] = useState(false);
-  const [selectedChain, setSelectedChain] = useState<'cardano' | 'ethereum' | 'solana'>('solana');
-
-  useEffect(() => {
-    // Handle chain changes from WalletSection
-    const handleChainChange = (event: CustomEvent) => {
-      const chain = event.detail.chain;
-      setSelectedChain(chain);
-      
-      // Set default pair based on chain
-      if (chain === 'solana') {
-        setCurrentPair('SOL');
-      } else if (chain === 'ethereum') {
-        setCurrentPair('ETHUSDT');
-      } else if (chain === 'cardano') {
-        setCurrentPair('ADA');
-      }
-    };
-
-    window.addEventListener('chainChanged', handleChainChange as EventListener);
-    return () => {
-      window.removeEventListener('chainChanged', handleChainChange as EventListener);
-    };
-  }, []);
 
   const handlePairChange = (pair: string) => {
     const cleanPair = pair.replace('BINANCE:', '');

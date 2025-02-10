@@ -1,133 +1,94 @@
 
-const JUPITER_API_URL = 'https://api.jup.ag';
-const JUPITER_API_KEY = ''; // To be added later via env var
+import { Connection, PublicKey } from '@solana/web3.js';
+import { Jupiter, RouteInfo } from '@jup-ag/core';
+import { SwapParams } from '@/types/jupiter';
+import { toast } from '@/hooks/use-toast';
 
-// Common token mint addresses
-const COMMON_TOKENS = {
-  'SOL': 'So11111111111111111111111111111111111111112',
-  'USDC': 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-  'USDT': 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',
-  'BTC': '9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E', // Sollet wrapped BTC
-  'mSOL': 'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So',
-  // Add more common tokens as needed
-};
+// New Jupiter V6 endpoint
+const JUPITER_V6_ENDPOINT = 'https://api.jup.ag/v6';
 
-export interface JupiterToken {
-  address: string;
-  chainId: number;
-  decimals: number;
-  name: string;
-  symbol: string;
-  isNative?: boolean;
-  isWrappedSol?: boolean;
-  logoURI?: string;
-  tags?: string[];
-}
-
-export interface JupiterPrice {
-  data: {
-    price: number;
-    id: string;
-    mintSymbol: string;
-    vsToken: string;
-    vsTokenSymbol: string;
-    timestamp: number;
-  }
-}
-
-export interface JupiterMarketData {
-  price: number;
-  liquidity: number;
-  marketCap: number;
-  volume24h: number;
-  priceChange: {
-    '1h': number;
-    '24h': number;
-    '7d': number;
-    '30d': number;
-  };
-  transactions: {
-    buys: number;
-    sells: number;
-    buyers: number;
-    sellers: number;
-    buyVolume: number;
-    sellVolume: number;
-  };
-}
-
-// Helper to get token mint address
-function getTokenMintAddress(symbol: string): string {
-  const baseSymbol = symbol.replace('USDC', '');
-  if (!COMMON_TOKENS[baseSymbol]) {
-    throw new Error(`Token ${baseSymbol} not supported on Solana`);
-  }
-  return COMMON_TOKENS[baseSymbol];
-}
-
-export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMarketData> {
+export const getJupiterTokens = async () => {
   try {
-    // Define base headers
-    const baseHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    };
-
-    // Conditionally add API key if present
-    const headers = JUPITER_API_KEY 
-      ? { ...baseHeaders, 'x-api-key': JUPITER_API_KEY }
-      : baseHeaders;
-
-    // Get mint address for the token
-    const mintAddress = getTokenMintAddress(symbol);
-    console.log('Fetching Jupiter data for mint:', mintAddress);
-
-    // Use the correct Jupiter V2 price endpoint with proper request structure
-    const priceResponse = await fetch(`${JUPITER_API_URL}/v1/price`, { 
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        ids: [mintAddress]
-      })
-    });
-    
-    if (!priceResponse.ok) {
-      console.error('Failed to fetch Jupiter price data:', await priceResponse.text());
-      throw new Error(`Failed to fetch Jupiter price data: ${priceResponse.status}`);
+    const response = await fetch(JUPITER_V6_ENDPOINT + '/tokens');
+    if (!response.ok) {
+      throw new Error('Failed to fetch Jupiter tokens');
     }
-
-    const priceData = await priceResponse.json();
-    console.log('Jupiter price response:', priceData);
-
-    if (!priceData?.data?.[mintAddress]) {
-      throw new Error('Invalid price data received from Jupiter');
-    }
-
-    const price = priceData.data[mintAddress]?.price || 0;
-
-    // For now, returning mock data for other fields until we integrate with all Jupiter V2 endpoints
-    return {
-      price,
-      liquidity: 1000000,
-      marketCap: 10000000,
-      volume24h: 500000,
-      priceChange: {
-        '1h': 0.5,
-        '24h': -1.2,
-        '7d': 2.5,
-        '30d': 5.1
-      },
-      transactions: {
-        buys: 150,
-        sells: 120,
-        buyers: 90,
-        sellers: 75,
-        buyVolume: 250000,
-        sellVolume: 200000
-      }
-    };
+    const data = await response.json();
+    return data.tokens;
   } catch (error) {
-    console.error('Error fetching Jupiter token data:', error);
+    console.error('Error fetching Jupiter tokens:', error);
     throw error;
   }
-}
+};
+
+export const getRoutes = async (params: SwapParams): Promise<RouteInfo[]> => {
+  try {
+    const queryParams = new URLSearchParams({
+      inputMint: params.inputMint,
+      outputMint: params.outputMint,
+      amount: params.amount,
+      slippageBps: params.slippageBps.toString(),
+      onlyDirectRoutes: (params.onlyDirectRoutes || false).toString()
+    });
+
+    const response = await fetch(`${JUPITER_V6_ENDPOINT}/quote?${queryParams}`);
+    if (!response.ok) {
+      throw new Error('Failed to compute routes');
+    }
+
+    const routesResponse = await response.json();
+    return routesResponse.data;
+  } catch (error) {
+    console.error('Error computing routes:', error);
+    throw error;
+  }
+};
+
+export const executeSwap = async (
+  params: SwapParams,
+  selectedRoute: RouteInfo
+) => {
+  try {
+    const cluster = 'mainnet-beta';
+    const connection = new Connection(cluster);
+    const jupiter = await Jupiter.load({
+      connection,
+      cluster,
+      user: new PublicKey(params.userPublicKey || '11111111111111111111111111111111'),
+      // Add proper compute budgets and priority fees
+      defaultPriorityFee: 10_000,
+      defaultComputeUnits: 600_000,
+    });
+
+    const { execute } = await jupiter.exchange({
+      routeInfo: selectedRoute,
+      computeUnitPriceMicroLamports: 10_000, // Priority fee
+      asLegacyTransaction: params.asLegacyTransaction,
+    });
+
+    const result = await execute();
+    
+    if (!result) {
+      throw new Error('No result from swap execution');
+    }
+
+    toast({
+      title: "Swap Executed Successfully",
+      description: `Transaction signature: ${result.signature}`,
+    });
+
+    return {
+      routeInfo: selectedRoute,
+      swapResult: result,
+      signature: result.signature,
+    };
+  } catch (error) {
+    console.error('Error executing swap:', error);
+    toast({
+      title: "Swap Failed",
+      description: error instanceof Error ? error.message : "Unknown error occurred",
+      variant: "destructive"
+    });
+    throw error;
+  }
+};

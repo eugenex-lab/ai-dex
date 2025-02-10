@@ -13,7 +13,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
   if (error) {
     return (
       <div className="p-4 bg-red-500/10 rounded-lg">
-        <p className="text-red-500">Failed to fetch market data. Please try again later.</p>
+        <p className="text-red-500">{error}</p>
       </div>
     );
   }
@@ -26,20 +26,13 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
     );
   };
 
-  const formatPairSymbol = (symbolStr: string) => {
-    if (!symbolStr) return '';
-    if (symbolStr.includes('/')) return symbolStr;
-    if (symbolStr.includes('USDC')) return symbolStr.replace('USDC', '/USDC');
-    return `${symbolStr}/USDC`;
-  };
-
   return (
     <div className="mb-6 p-4 bg-background/40 rounded-lg">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">{formatPairSymbol(symbol)}</h3>
+          <h3 className="text-lg font-semibold">{symbol.replace('USDT', '/USDT')}</h3>
           <Badge variant="outline" className="text-xs">
-            Jupiter DEX
+            Binance US
           </Badge>
         </div>
       </div>
@@ -50,24 +43,24 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
           <LoadingOrValue value={data?.price ? `$${data.price.toFixed(2)}` : '-'} />
         </div>
         <div>
-          <div className="text-sm text-muted-foreground">LIQUIDITY</div>
-          <LoadingOrValue value={data?.liquidity ? `$${(data.liquidity / 1000000).toFixed(2)}M` : '-'} />
+          <div className="text-sm text-muted-foreground">SUPPLY</div>
+          <LoadingOrValue value={data?.supply || '-'} />
         </div>
         <div>
-          <div className="text-sm text-muted-foreground">24H VOLUME</div>
-          <LoadingOrValue value={data?.volume24h ? `$${(data.volume24h / 1000000).toFixed(2)}M` : '-'} />
+          <div className="text-sm text-muted-foreground">LIQUIDITY</div>
+          <LoadingOrValue value={data?.liquidity || '-'} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <div className="text-sm text-muted-foreground">MKT CAP</div>
-          <LoadingOrValue value={data?.marketCap ? `$${(data.marketCap / 1000000).toFixed(2)}M` : '-'} width="w-32" />
+          <LoadingOrValue value={data?.marketCap || '-'} width="w-32" />
         </div>
       </div>
 
       <div className="grid grid-cols-4 gap-2 mb-4">
-        {data?.priceChange && Object.entries(data.priceChange).map(([period, change]) => (
+        {Object.entries(data?.priceChange || {}).map(([period, change]: [string, any]) => (
           <div key={period}>
             <div className="text-xs text-muted-foreground">{period.toUpperCase()}</div>
             {isLoading ? (
@@ -93,7 +86,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">BUY VOL</span>
-            <LoadingOrValue value={data?.transactions.buyVolume ? `$${(data.transactions.buyVolume / 1000000).toFixed(2)}M` : '-'} />
+            <LoadingOrValue value={data?.transactions.buyVolume || '-'} />
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">BUYERS</span>
@@ -107,7 +100,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">SELL VOL</span>
-            <LoadingOrValue value={data?.transactions.sellVolume ? `$${(data.transactions.sellVolume / 1000000).toFixed(2)}M` : '-'} />
+            <LoadingOrValue value={data?.transactions.sellVolume || '-'} />
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">SELLERS</span>

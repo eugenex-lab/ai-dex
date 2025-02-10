@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Token } from "@/utils/tokenData";
+import { JupiterToken } from "@/services/jupiterTokenService";
 import { TokenSection } from "../TokenSection";
 
 interface LimitOrderFormProps {
@@ -12,8 +12,8 @@ interface LimitOrderFormProps {
   setAmount: (value: string) => void;
   receiveAmount: string;
   setReceiveAmount: (value: string) => void;
-  fromToken: Token;
-  toToken: Token;
+  fromToken?: JupiterToken;
+  toToken?: JupiterToken;
   onFromTokenSelect: () => void;
   onToTokenSelect: () => void;
 }

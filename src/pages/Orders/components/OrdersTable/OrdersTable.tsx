@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown, Clock, DollarSign, Hash, Percent } from "lucide-react";
+import { ArrowUpDown, Clock, DollarSign, Hash, Percent, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type Order } from "../../hooks/useOrders";
 import OrderRow from "./OrderRow";
@@ -56,6 +56,13 @@ const OrdersTable = ({ orders }: OrdersTableProps) => {
               </TableHead>
               <TableHead className="text-right">Total</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>
+                <Button variant="ghost" className="h-8 p-0">
+                  <Link2 className="mr-2 h-4 w-4" />
+                  Transaction
+                </Button>
+              </TableHead>
+              <TableHead className="text-right">Fee</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -64,7 +71,7 @@ const OrdersTable = ({ orders }: OrdersTableProps) => {
             ))}
             {(!orders || orders.length === 0) && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground">
+                <TableCell colSpan={11} className="text-center text-muted-foreground">
                   No orders found
                 </TableCell>
               </TableRow>
