@@ -1,10 +1,10 @@
 
-import { PublicKey, Transaction } from '@solana/web3.js';
-import { Jupiter, RouteInfo } from '@jup-ag/core';
+import { Jupiter, PublicKey, RouteInfo } from '@jup-ag/core';
+import { Connection } from '@solana/web3.js';
 import { supabase } from '@/integrations/supabase/client';
 import { WalletService } from '@/services/walletService';
 import { toast } from '@/hooks/use-toast';
-import { MarketInfo, PlatformFee } from '@/types/jupiter';
+import { MarketInfo } from '@/types/jupiter';
 
 export const executeJupiterSwap = async (
   jupiter: Jupiter,
@@ -71,25 +71,24 @@ export const executeJupiterSwap = async (
     console.log('Created order:', order);
 
     // Execute swap
-    const { swapTransaction } = await jupiter.exchange({
-      routeInfo: bestRoute,
-      userPublicKey: walletPubkey
+    const { execute } = await jupiter.exchange({
+      routeInfo: bestRoute
     });
 
-    // Get transaction signature
-    let signature: string | undefined;
-    if (swapTransaction instanceof Transaction) {
-      signature = swapTransaction.signature?.toString();
+    const swapResult = await execute();
+
+    if (!swapResult) {
+      throw new Error('Swap execution failed');
     }
 
-    console.log('Swap executed with signature:', signature);
+    console.log('Swap executed with signature:', swapResult.signature);
 
     // Update order with transaction details
-    if (order && signature) {
+    if (order && swapResult.signature) {
       const { error: updateError } = await supabase
         .from('orders')
         .update({
-          transaction_signature: signature,
+          transaction_signature: swapResult.signature,
           status: 'filled',
           execution_context: {
             route: JSON.parse(JSON.stringify(bestRoute)),
@@ -106,16 +105,16 @@ export const executeJupiterSwap = async (
       const marketInfo = bestRoute.marketInfos[0] as MarketInfo;
       const platformFee = marketInfo.platformFee;
       
-      if (platformFee && platformFee.feeBps) {
+      if (platformFee && platformFee.amount) {
         const feeAccount = platformFee.feeAccounts?.feeVault?.toString() || userPublicKey;
         
         const { error: feeError } = await supabase
           .from('collected_fees')
           .insert({
             order_id: order.id,
-            fee_amount: Number(platformFee.feeBps),
+            fee_amount: Number(platformFee.amount),
             recipient_address: feeAccount,
-            transaction_signature: signature,
+            transaction_signature: swapResult.signature,
             status: 'confirmed'
           });
 
@@ -127,13 +126,13 @@ export const executeJupiterSwap = async (
 
     toast({
       title: "Swap Executed Successfully", 
-      description: `Transaction signature: ${signature}`,
+      description: `Transaction signature: ${swapResult.signature}`,
     });
 
     return {
-      swapTransaction,
+      swapTransaction: swapResult.txid,
       routeInfo: bestRoute,
-      signature
+      signature: swapResult.signature
     };
 
   } catch (err) {
