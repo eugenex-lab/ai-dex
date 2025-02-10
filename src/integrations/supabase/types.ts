@@ -295,13 +295,17 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          compute_unit_limit: number | null
           created_at: string
+          dynamic_slippage_report: Json | null
           execution_context: Json | null
           fee_amount: number | null
           id: string
           input_amount: number | null
           input_mint: string | null
           jupiter_route_id: string | null
+          jupiter_v6_quote: Json | null
+          jupiter_v6_response: Json | null
           metadata: Json | null
           min_output_amount: number | null
           order_type: string | null
@@ -310,6 +314,7 @@ export type Database = {
           pair: string
           platform_fee: number | null
           price: number
+          priority_fee_lamports: number | null
           route_data: Json | null
           route_id: string | null
           side: string
@@ -324,13 +329,17 @@ export type Database = {
         }
         Insert: {
           amount: number
+          compute_unit_limit?: number | null
           created_at?: string
+          dynamic_slippage_report?: Json | null
           execution_context?: Json | null
           fee_amount?: number | null
           id?: string
           input_amount?: number | null
           input_mint?: string | null
           jupiter_route_id?: string | null
+          jupiter_v6_quote?: Json | null
+          jupiter_v6_response?: Json | null
           metadata?: Json | null
           min_output_amount?: number | null
           order_type?: string | null
@@ -339,6 +348,7 @@ export type Database = {
           pair: string
           platform_fee?: number | null
           price: number
+          priority_fee_lamports?: number | null
           route_data?: Json | null
           route_id?: string | null
           side: string
@@ -353,13 +363,17 @@ export type Database = {
         }
         Update: {
           amount?: number
+          compute_unit_limit?: number | null
           created_at?: string
+          dynamic_slippage_report?: Json | null
           execution_context?: Json | null
           fee_amount?: number | null
           id?: string
           input_amount?: number | null
           input_mint?: string | null
           jupiter_route_id?: string | null
+          jupiter_v6_quote?: Json | null
+          jupiter_v6_response?: Json | null
           metadata?: Json | null
           min_output_amount?: number | null
           order_type?: string | null
@@ -368,6 +382,7 @@ export type Database = {
           pair?: string
           platform_fee?: number | null
           price?: number
+          priority_fee_lamports?: number | null
           route_data?: Json | null
           route_id?: string | null
           side?: string
