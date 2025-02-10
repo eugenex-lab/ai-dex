@@ -59,7 +59,10 @@ export interface JupiterMarketData {
 // Helper to get token mint address
 function getTokenMintAddress(symbol: string): string {
   const baseSymbol = symbol.replace('USDC', '');
-  return COMMON_TOKENS[baseSymbol] || symbol;
+  if (!COMMON_TOKENS[baseSymbol]) {
+    throw new Error(`Token ${baseSymbol} not supported on Solana`);
+  }
+  return COMMON_TOKENS[baseSymbol];
 }
 
 export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMarketData> {
@@ -78,9 +81,15 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
     const mintAddress = getTokenMintAddress(symbol);
     console.log('Fetching Jupiter data for mint:', mintAddress);
 
-    // Use the correct Jupiter V2 price endpoint with ids parameter
-    const priceUrl = `${JUPITER_API_URL}/price/v2/price?ids=${mintAddress}`;
-    const priceResponse = await fetch(priceUrl, { headers });
+    // Use the correct Jupiter V2 price endpoint
+    const priceUrl = `${JUPITER_API_URL}/price/v2`;
+    const priceResponse = await fetch(priceUrl, { 
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        ids: [mintAddress]
+      })
+    });
     
     if (!priceResponse.ok) {
       console.error('Failed to fetch Jupiter price data:', await priceResponse.text());
