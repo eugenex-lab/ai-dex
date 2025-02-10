@@ -22,9 +22,6 @@ import CopyTrade from "./pages/CopyTrade";
 import AIAnalysis from "./pages/AIAnalysis";
 import Alerts from "./pages/Alerts";
 import { Toaster } from "@/components/ui/toaster";
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
 
 // Scroll to top component
 function ScrollToTop() {
@@ -38,47 +35,37 @@ function ScrollToTop() {
 }
 
 function App() {
-  // You can add more wallets here
-  const wallets = [new PhantomWalletAdapter()];
-  
-  // Use Solana devnet cluster endpoint for development
-  const endpoint = clusterApiUrl('devnet');
-
   return (
-    <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
-        <Router>
-          <ScrollToTop />
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <main className="flex-grow">
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/cookies" element={<Cookies />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/careers" element={<Careers />} />
-                <Route path="/roadmap" element={<Roadmap />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/api" element={<API />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/staking" element={<Staking />} />
-                <Route path="/pools" element={<Pools />} />
-                <Route path="/arbitrage" element={<Arbitrage />} />
-                <Route path="/copy-trade" element={<CopyTrade />} />
-                <Route path="/ai-analysis" element={<AIAnalysis />} />
-                <Route path="/alerts" element={<Alerts />} />
-              </Routes>
-            </main>
-            <Footer />
-            <Toaster />
-          </div>
-        </Router>
-      </WalletProvider>
-    </ConnectionProvider>
+    <Router>
+      <ScrollToTop />
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/cookies" element={<Cookies />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/api" element={<API />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/staking" element={<Staking />} />
+            <Route path="/pools" element={<Pools />} />
+            <Route path="/arbitrage" element={<Arbitrage />} />
+            <Route path="/copy-trade" element={<CopyTrade />} />
+            <Route path="/ai-analysis" element={<AIAnalysis />} />
+            <Route path="/alerts" element={<Alerts />} />
+          </Routes>
+        </main>
+        <Footer />
+        <Toaster />
+      </div>
+    </Router>
   );
 }
 

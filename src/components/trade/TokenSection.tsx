@@ -1,14 +1,16 @@
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { JupiterToken } from "@/types/jupiter";
 
 interface TokenSectionProps {
   label: string;
   showButtons?: boolean;
   amount: string;
   setAmount: (amount: string) => void;
-  token?: JupiterToken;
+  token: {
+    icon: string;
+    symbol: string;
+  };
   onTokenSelect: () => void;
 }
 
@@ -60,14 +62,8 @@ export const TokenSection = ({
             className="flex items-center gap-2 bg-background/60 hover:bg-background"
             onClick={onTokenSelect}
           >
-            {token ? (
-              <>
-                {token.logoURI && <img src={token.logoURI} alt={token.symbol || ""} className="w-5 h-5" />}
-                {token.symbol}
-              </>
-            ) : (
-              <span>Select Token</span>
-            )}
+            <img src={token.icon} alt={token.symbol} className="w-5 h-5" />
+            {token.symbol}
           </Button>
           <Input 
             type="text"
