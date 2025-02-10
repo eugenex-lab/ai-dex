@@ -30,7 +30,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
     <div className="mb-6 p-4 bg-background/40 rounded-lg">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">{symbol.replace('USDT', '/USDT')}</h3>
+          <h3 className="text-lg font-semibold">{symbol.replace('USDC', '/USDC')}</h3>
           <Badge variant="outline" className="text-xs">
             Jupiter DEX
           </Badge>
