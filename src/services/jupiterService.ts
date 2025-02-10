@@ -58,7 +58,6 @@ export interface JupiterMarketData {
 
 // Helper to get token mint address
 function getTokenMintAddress(symbol: string): string {
-  // For now, we'll default to USDC quote currency for Solana
   const baseSymbol = symbol.replace('USDC', '');
   return COMMON_TOKENS[baseSymbol] || symbol;
 }
@@ -77,18 +76,24 @@ export async function fetchJupiterTokenData(symbol: string): Promise<JupiterMark
 
     // Get mint address for the token
     const mintAddress = getTokenMintAddress(symbol);
+    console.log('Fetching Jupiter data for mint:', mintAddress);
 
     // Use the correct Jupiter V2 price endpoint with ids parameter
-    const priceResponse = await fetch(
-      `${JUPITER_API_URL}/price/v2/price?ids=${mintAddress}`,
-      { headers }
-    );
+    const priceUrl = `${JUPITER_API_URL}/price/v2/price?ids=${mintAddress}`;
+    const priceResponse = await fetch(priceUrl, { headers });
     
     if (!priceResponse.ok) {
-      throw new Error('Failed to fetch Jupiter price data');
+      console.error('Failed to fetch Jupiter price data:', await priceResponse.text());
+      throw new Error(`Failed to fetch Jupiter price data: ${priceResponse.status}`);
     }
 
     const priceData = await priceResponse.json();
+    console.log('Jupiter price response:', priceData);
+
+    if (!priceData?.data?.[mintAddress]) {
+      throw new Error('Invalid price data received from Jupiter');
+    }
+
     const price = priceData.data[mintAddress]?.price || 0;
 
     // For now, returning mock data for other fields until we integrate with all Jupiter V2 endpoints

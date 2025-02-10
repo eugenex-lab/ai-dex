@@ -13,7 +13,7 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
   if (error) {
     return (
       <div className="p-4 bg-red-500/10 rounded-lg">
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500">Failed to fetch market data. Please try again later.</p>
       </div>
     );
   }
@@ -26,11 +26,18 @@ const TokenStats = ({ symbol }: TokenStatsProps) => {
     );
   };
 
+  const formatPairSymbol = (symbolStr: string) => {
+    if (!symbolStr) return '';
+    if (symbolStr.includes('/')) return symbolStr;
+    if (symbolStr.includes('USDC')) return symbolStr.replace('USDC', '/USDC');
+    return `${symbolStr}/USDC`;
+  };
+
   return (
     <div className="mb-6 p-4 bg-background/40 rounded-lg">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold">{symbol.replace('USDC', '/USDC')}</h3>
+          <h3 className="text-lg font-semibold">{formatPairSymbol(symbol)}</h3>
           <Badge variant="outline" className="text-xs">
             Jupiter DEX
           </Badge>
