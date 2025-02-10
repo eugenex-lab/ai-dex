@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowDown, Settings, AlignHorizontalDistributeCenter, List } from "lucide-react";
 import { Button } from "../ui/button";
@@ -8,6 +7,7 @@ import { TokenSelectDialog } from "./TokenSelectDialog";
 import { SlippageDialog } from "./SlippageDialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import TradeForm from "./TradeForm";
+import { useJupiterQuote } from '@/hooks/useJupiterQuote';
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -98,6 +98,22 @@ const TradeSection = () => {
       </Button>
     </>
   );
+
+  // Add Jupiter quote integration
+  const { data: quoteData, isLoading: isQuoteLoading } = useJupiterQuote({
+    inputMint: fromToken.address,
+    outputMint: toToken.address,
+    amount: fromAmount ? parseFloat(fromAmount) : 0,
+    slippageBps: parseInt(slippage),
+    userPublicKey: undefined, // TODO: Add wallet integration
+  });
+
+  // Update toAmount when quote changes
+  useEffect(() => {
+    if (quoteData?.outAmount) {
+      setToAmount(quoteData.outAmount);
+    }
+  }, [quoteData, setToAmount]);
 
   return (
     <div className="w-full max-w-md mx-auto px-4">
