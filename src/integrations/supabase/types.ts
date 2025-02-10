@@ -179,6 +179,53 @@ export type Database = {
         }
         Relationships: []
       }
+      collected_fees: {
+        Row: {
+          created_at: string | null
+          fee_amount: number
+          fee_type: string | null
+          id: string
+          input_mint: string | null
+          order_id: string | null
+          output_mint: string | null
+          recipient_address: string
+          status: string | null
+          transaction_signature: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          fee_amount: number
+          fee_type?: string | null
+          id?: string
+          input_mint?: string | null
+          order_id?: string | null
+          output_mint?: string | null
+          recipient_address: string
+          status?: string | null
+          transaction_signature?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          fee_amount?: number
+          fee_type?: string | null
+          id?: string
+          input_mint?: string | null
+          order_id?: string | null
+          output_mint?: string | null
+          recipient_address?: string
+          status?: string | null
+          transaction_signature?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collected_fees_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       copy_trade_orders: {
         Row: {
           copy_trade_id: string
@@ -254,54 +301,248 @@ export type Database = {
         }
         Relationships: []
       }
+      jupiter_routes: {
+        Row: {
+          created_at: string
+          id: string
+          in_amount: string
+          market_infos: Json | null
+          order_id: string | null
+          other_amount_threshold: string | null
+          out_amount: string
+          platform_fee: Json | null
+          price_impact_pct: number | null
+          route_map: Json
+          swap_mode: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          in_amount: string
+          market_infos?: Json | null
+          order_id?: string | null
+          other_amount_threshold?: string | null
+          out_amount: string
+          platform_fee?: Json | null
+          price_impact_pct?: number | null
+          route_map: Json
+          swap_mode?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          in_amount?: string
+          market_infos?: Json | null
+          order_id?: string | null
+          other_amount_threshold?: string | null
+          out_amount?: string
+          platform_fee?: Json | null
+          price_impact_pct?: number | null
+          route_map?: Json
+          swap_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jupiter_routes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      jupiter_tokens: {
+        Row: {
+          address: string
+          chain_id: number
+          created_at: string
+          decimals: number
+          is_native: boolean | null
+          is_wrapped_sol: boolean | null
+          logo_uri: string | null
+          name: string
+          symbol: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          chain_id?: number
+          created_at?: string
+          decimals: number
+          is_native?: boolean | null
+          is_wrapped_sol?: boolean | null
+          logo_uri?: string | null
+          name: string
+          symbol: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          chain_id?: number
+          created_at?: string
+          decimals?: number
+          is_native?: boolean | null
+          is_wrapped_sol?: boolean | null
+          logo_uri?: string | null
+          name?: string
+          symbol?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
+          compute_unit_limit: number | null
           created_at: string
+          dynamic_slippage_report: Json | null
+          execution_context: Json | null
+          fee_amount: number | null
           id: string
+          input_amount: number | null
+          input_mint: string | null
+          jupiter_compute_limit: number | null
+          jupiter_in_amount: string | null
+          jupiter_other_amount_threshold: string | null
+          jupiter_out_amount: string | null
+          jupiter_platform_fee: Json | null
+          jupiter_price_impact: number | null
+          jupiter_quote_id: string | null
+          jupiter_route_id: string | null
+          jupiter_route_priority: number | null
+          jupiter_slippage: number | null
+          jupiter_swap_mode: string | null
+          jupiter_v6_quote: Json | null
+          jupiter_v6_response: Json | null
+          jupiter_version: string | null
           metadata: Json | null
+          min_output_amount: number | null
           order_type: string | null
+          output_amount: number | null
+          output_mint: string | null
           pair: string
+          platform_fee: number | null
           price: number
+          priority_fee_lamports: number | null
+          route_data: Json | null
+          route_id: string | null
+          route_info: Json | null
           side: string
+          slippage: number | null
           source_wallet: string | null
           status: string
+          swap_compute_units: number | null
+          swap_mode: string | null
+          swap_priority_fee_lamports: number | null
           total: number
+          transaction_signature: string | null
           type: string
           user_email: string
           wallet_address: string | null
+          wallet_version: string | null
         }
         Insert: {
           amount: number
+          compute_unit_limit?: number | null
           created_at?: string
+          dynamic_slippage_report?: Json | null
+          execution_context?: Json | null
+          fee_amount?: number | null
           id?: string
+          input_amount?: number | null
+          input_mint?: string | null
+          jupiter_compute_limit?: number | null
+          jupiter_in_amount?: string | null
+          jupiter_other_amount_threshold?: string | null
+          jupiter_out_amount?: string | null
+          jupiter_platform_fee?: Json | null
+          jupiter_price_impact?: number | null
+          jupiter_quote_id?: string | null
+          jupiter_route_id?: string | null
+          jupiter_route_priority?: number | null
+          jupiter_slippage?: number | null
+          jupiter_swap_mode?: string | null
+          jupiter_v6_quote?: Json | null
+          jupiter_v6_response?: Json | null
+          jupiter_version?: string | null
           metadata?: Json | null
+          min_output_amount?: number | null
           order_type?: string | null
+          output_amount?: number | null
+          output_mint?: string | null
           pair: string
+          platform_fee?: number | null
           price: number
+          priority_fee_lamports?: number | null
+          route_data?: Json | null
+          route_id?: string | null
+          route_info?: Json | null
           side: string
+          slippage?: number | null
           source_wallet?: string | null
           status?: string
+          swap_compute_units?: number | null
+          swap_mode?: string | null
+          swap_priority_fee_lamports?: number | null
           total: number
+          transaction_signature?: string | null
           type: string
           user_email: string
           wallet_address?: string | null
+          wallet_version?: string | null
         }
         Update: {
           amount?: number
+          compute_unit_limit?: number | null
           created_at?: string
+          dynamic_slippage_report?: Json | null
+          execution_context?: Json | null
+          fee_amount?: number | null
           id?: string
+          input_amount?: number | null
+          input_mint?: string | null
+          jupiter_compute_limit?: number | null
+          jupiter_in_amount?: string | null
+          jupiter_other_amount_threshold?: string | null
+          jupiter_out_amount?: string | null
+          jupiter_platform_fee?: Json | null
+          jupiter_price_impact?: number | null
+          jupiter_quote_id?: string | null
+          jupiter_route_id?: string | null
+          jupiter_route_priority?: number | null
+          jupiter_slippage?: number | null
+          jupiter_swap_mode?: string | null
+          jupiter_v6_quote?: Json | null
+          jupiter_v6_response?: Json | null
+          jupiter_version?: string | null
           metadata?: Json | null
+          min_output_amount?: number | null
           order_type?: string | null
+          output_amount?: number | null
+          output_mint?: string | null
           pair?: string
+          platform_fee?: number | null
           price?: number
+          priority_fee_lamports?: number | null
+          route_data?: Json | null
+          route_id?: string | null
+          route_info?: Json | null
           side?: string
+          slippage?: number | null
           source_wallet?: string | null
           status?: string
+          swap_compute_units?: number | null
+          swap_mode?: string | null
+          swap_priority_fee_lamports?: number | null
           total?: number
+          transaction_signature?: string | null
           type?: string
           user_email?: string
           wallet_address?: string | null
+          wallet_version?: string | null
         }
         Relationships: []
       }
