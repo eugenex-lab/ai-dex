@@ -2,13 +2,17 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Jupiter, RouteInfo } from '@jup-ag/core';
 import { SwapParams } from '@/types/jupiter';
+import { toast } from '@/hooks/use-toast';
 
-// Mainnet Beta URL
-const JUPITER_V4_ENDPOINT = 'https://token.jup.ag/strict';
+// New Jupiter V6 endpoint
+const JUPITER_V6_ENDPOINT = 'https://api.jup.ag/v6';
 
 export const getJupiterTokens = async () => {
   try {
-    const response = await fetch(JUPITER_V4_ENDPOINT);
+    const response = await fetch(JUPITER_V6_ENDPOINT + '/tokens');
+    if (!response.ok) {
+      throw new Error('Failed to fetch Jupiter tokens');
+    }
     const data = await response.json();
     return data.tokens;
   } catch (error) {
@@ -19,23 +23,21 @@ export const getJupiterTokens = async () => {
 
 export const getRoutes = async (params: SwapParams): Promise<RouteInfo[]> => {
   try {
-    const cluster = 'mainnet-beta';
-    const connection = new Connection(cluster);
-    const jupiter = await Jupiter.load({
-      connection,
-      cluster,
-      user: new PublicKey(params.userPublicKey || '11111111111111111111111111111111'),
-    });
-
-    const routes = await jupiter.computeRoutes({
-      inputMint: new PublicKey(params.inputMint),
-      outputMint: new PublicKey(params.outputMint),
+    const queryParams = new URLSearchParams({
+      inputMint: params.inputMint,
+      outputMint: params.outputMint,
       amount: params.amount,
-      slippageBps: params.slippageBps,
-      onlyDirectRoutes: params.onlyDirectRoutes,
+      slippageBps: params.slippageBps.toString(),
+      onlyDirectRoutes: (params.onlyDirectRoutes || false).toString()
     });
 
-    return routes.routesInfos;
+    const response = await fetch(`${JUPITER_V6_ENDPOINT}/quote?${queryParams}`);
+    if (!response.ok) {
+      throw new Error('Failed to compute routes');
+    }
+
+    const routesResponse = await response.json();
+    return routesResponse.data;
   } catch (error) {
     console.error('Error computing routes:', error);
     throw error;
@@ -53,10 +55,15 @@ export const executeSwap = async (
       connection,
       cluster,
       user: new PublicKey(params.userPublicKey || '11111111111111111111111111111111'),
+      // Add proper compute budgets and priority fees
+      defaultPriorityFee: 10_000,
+      defaultComputeUnits: 600_000,
     });
 
     const { execute } = await jupiter.exchange({
       routeInfo: selectedRoute,
+      computeUnitPriceMicroLamports: 10_000, // Priority fee
+      asLegacyTransaction: params.asLegacyTransaction,
     });
 
     const result = await execute();
@@ -65,6 +72,11 @@ export const executeSwap = async (
       throw new Error('No result from swap execution');
     }
 
+    toast({
+      title: "Swap Executed Successfully",
+      description: `Transaction signature: ${result.signature}`,
+    });
+
     return {
       routeInfo: selectedRoute,
       swapResult: result,
@@ -72,6 +84,11 @@ export const executeSwap = async (
     };
   } catch (error) {
     console.error('Error executing swap:', error);
+    toast({
+      title: "Swap Failed",
+      description: error instanceof Error ? error.message : "Unknown error occurred",
+      variant: "destructive"
+    });
     throw error;
   }
 };

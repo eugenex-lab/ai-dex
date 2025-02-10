@@ -183,8 +183,11 @@ export type Database = {
         Row: {
           created_at: string | null
           fee_amount: number
+          fee_type: string | null
           id: string
+          input_mint: string | null
           order_id: string | null
+          output_mint: string | null
           recipient_address: string
           status: string | null
           transaction_signature: string | null
@@ -192,8 +195,11 @@ export type Database = {
         Insert: {
           created_at?: string | null
           fee_amount: number
+          fee_type?: string | null
           id?: string
+          input_mint?: string | null
           order_id?: string | null
+          output_mint?: string | null
           recipient_address: string
           status?: string | null
           transaction_signature?: string | null
@@ -201,8 +207,11 @@ export type Database = {
         Update: {
           created_at?: string | null
           fee_amount?: number
+          fee_type?: string | null
           id?: string
+          input_mint?: string | null
           order_id?: string | null
+          output_mint?: string | null
           recipient_address?: string
           status?: string | null
           transaction_signature?: string | null
@@ -306,6 +315,7 @@ export type Database = {
           jupiter_route_id: string | null
           jupiter_v6_quote: Json | null
           jupiter_v6_response: Json | null
+          jupiter_version: string | null
           metadata: Json | null
           min_output_amount: number | null
           order_type: string | null
@@ -317,15 +327,20 @@ export type Database = {
           priority_fee_lamports: number | null
           route_data: Json | null
           route_id: string | null
+          route_info: Json | null
           side: string
           slippage: number | null
           source_wallet: string | null
           status: string
+          swap_compute_units: number | null
+          swap_mode: string | null
+          swap_priority_fee_lamports: number | null
           total: number
           transaction_signature: string | null
           type: string
           user_email: string
           wallet_address: string | null
+          wallet_version: string | null
         }
         Insert: {
           amount: number
@@ -340,6 +355,7 @@ export type Database = {
           jupiter_route_id?: string | null
           jupiter_v6_quote?: Json | null
           jupiter_v6_response?: Json | null
+          jupiter_version?: string | null
           metadata?: Json | null
           min_output_amount?: number | null
           order_type?: string | null
@@ -351,15 +367,20 @@ export type Database = {
           priority_fee_lamports?: number | null
           route_data?: Json | null
           route_id?: string | null
+          route_info?: Json | null
           side: string
           slippage?: number | null
           source_wallet?: string | null
           status?: string
+          swap_compute_units?: number | null
+          swap_mode?: string | null
+          swap_priority_fee_lamports?: number | null
           total: number
           transaction_signature?: string | null
           type: string
           user_email: string
           wallet_address?: string | null
+          wallet_version?: string | null
         }
         Update: {
           amount?: number
@@ -374,6 +395,7 @@ export type Database = {
           jupiter_route_id?: string | null
           jupiter_v6_quote?: Json | null
           jupiter_v6_response?: Json | null
+          jupiter_version?: string | null
           metadata?: Json | null
           min_output_amount?: number | null
           order_type?: string | null
@@ -385,15 +407,20 @@ export type Database = {
           priority_fee_lamports?: number | null
           route_data?: Json | null
           route_id?: string | null
+          route_info?: Json | null
           side?: string
           slippage?: number | null
           source_wallet?: string | null
           status?: string
+          swap_compute_units?: number | null
+          swap_mode?: string | null
+          swap_priority_fee_lamports?: number | null
           total?: number
           transaction_signature?: string | null
           type?: string
           user_email?: string
           wallet_address?: string | null
+          wallet_version?: string | null
         }
         Relationships: []
       }

@@ -62,6 +62,9 @@ export const executeJupiterSwap = async (
         slippage: bestRoute.priceImpactPct,
         user_email: (await supabase.auth.getUser()).data.user?.email,
         wallet_address: userPublicKey,
+        jupiter_version: 'v6',
+        route_info: bestRoute,
+        swap_mode: 'ExactIn'
       })
       .select()
       .single();
@@ -72,7 +75,8 @@ export const executeJupiterSwap = async (
 
     // Execute swap
     const { execute } = await jupiter.exchange({
-      routeInfo: bestRoute
+      routeInfo: bestRoute,
+      computeUnitPriceMicroLamports: 10_000, // Priority fee
     });
 
     const swapResult = await execute();
@@ -90,8 +94,10 @@ export const executeJupiterSwap = async (
         .update({
           transaction_signature: swapResult.signature,
           status: 'filled',
+          swap_compute_units: swapResult.computeUnits,
+          swap_priority_fee_lamports: swapResult.priorityFeeLamports,
           execution_context: {
-            route: JSON.parse(JSON.stringify(bestRoute)),
+            route: bestRoute,
             timestamp: new Date().toISOString()
           }
         })
@@ -115,7 +121,10 @@ export const executeJupiterSwap = async (
             fee_amount: Number(platformFee.amount),
             recipient_address: feeAccount,
             transaction_signature: swapResult.signature,
-            status: 'confirmed'
+            status: 'confirmed',
+            fee_type: 'platform',
+            input_mint: inputMint,
+            output_mint: bestRoute.marketInfos[0].outputMint.toString()
           });
 
         if (feeError) {
