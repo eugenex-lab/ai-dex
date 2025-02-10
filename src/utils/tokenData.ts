@@ -1,15 +1,17 @@
+
 export interface Token {
   symbol: string;
   name: string;
   icon: string;
   chain: 'cardano' | 'ethereum' | 'solana';
+  address?: string; // Optional Solana token mint address
 }
 
 // Cardano tokens (existing)
 export const cardanoTokens: Token[] = [
   {
     symbol: "ADA",
-    name: "Cardano",
+    name: "Cardano", 
     icon: "/lovable-uploads/d5c93d5c-c63f-4cdc-a6f4-af4d0abeed9d.png",
     chain: "cardano"
   },
@@ -91,31 +93,36 @@ export const solanaTokens: Token[] = [
     symbol: "SOL",
     name: "Solana",
     icon: "/placeholder.svg",
-    chain: "solana"
+    chain: "solana",
+    address: "So11111111111111111111111111111111111111112"
   },
   {
     symbol: "USDC",
     name: "USD Coin",
     icon: "/placeholder.svg",
-    chain: "solana"
+    chain: "solana",
+    address: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
   },
   {
     symbol: "RAY",
     name: "Raydium",
     icon: "/placeholder.svg",
-    chain: "solana"
+    chain: "solana",
+    address: "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"
   },
   {
     symbol: "SRM",
     name: "Serum",
     icon: "/placeholder.svg",
-    chain: "solana"
+    chain: "solana",
+    address: "SRMuApVNdxXokk5GT7XD5cUUgXMBCoAz2LHeuAoKWRt"
   },
   {
     symbol: "BONK",
     name: "Bonk",
     icon: "/placeholder.svg",
-    chain: "solana"
+    chain: "solana", 
+    address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
   }
 ];
 
