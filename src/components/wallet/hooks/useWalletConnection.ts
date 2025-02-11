@@ -1,11 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
 import { usePhantom } from "./usePhantom";
-import { updateWalletConnection, disconnectWallet } from "../utils/walletDatabase";
+import {
+  updateWalletConnection,
+  disconnectWallet,
+} from "../utils/walletDatabase";
 import { type PhantomChain } from "../utils/walletUtils";
+import Cookies from "js-cookie";
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,20 +17,31 @@ export const useWalletConnection = () => {
   const [currentChain, setCurrentChain] = useState<PhantomChain | null>(null);
   const { toast } = useToast();
 
-  const { connect: connectMetaMask, getChainInfo } = useMetaMask(setConnectedAddress, updateWalletConnection);
-  const { connect: connectPhantom } = usePhantom(setConnectedAddress, updateWalletConnection);
+  const { connect: connectMetaMask, getChainInfo } = useMetaMask(
+    setConnectedAddress,
+    updateWalletConnection
+  );
+  const { connect: connectPhantom } = usePhantom(
+    setConnectedAddress,
+    updateWalletConnection
+  );
 
   useEffect(() => {
     const checkConnectionStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('wallet_address, wallet_connection_status')
-          .eq('id', user.id)
+          .from("profiles")
+          .select("wallet_address, wallet_connection_status")
+          .eq("id", user.id)
           .single();
 
-        if (profile?.wallet_address && profile.wallet_connection_status === 'connected') {
+        if (
+          profile?.wallet_address &&
+          profile.wallet_connection_status === "connected"
+        ) {
           setConnectedAddress(profile.wallet_address);
         }
       }
@@ -36,7 +50,10 @@ export const useWalletConnection = () => {
     checkConnectionStatus();
   }, []);
 
-  const handleWalletSelect = async (walletType: string, chain?: PhantomChain) => {
+  const handleWalletSelect = async (
+    walletType: string,
+    chain?: PhantomChain
+  ) => {
     setIsLoading(true);
     setLoadingWallet(walletType);
     setCurrentChain(null);
@@ -44,13 +61,13 @@ export const useWalletConnection = () => {
     try {
       let address: string | null = null;
 
-      if (walletType === 'metamask') {
+      if (walletType === "metamask") {
         address = await connectMetaMask();
         const chainInfo = await getChainInfo();
         setCurrentChain(chainInfo.chain as PhantomChain);
-      } else if (walletType === 'phantom') {
+      } else if (walletType === "phantom") {
         if (!chain) {
-          throw new Error('Chain must be specified for Phantom wallet');
+          throw new Error("Chain must be specified for Phantom wallet");
         }
         address = await connectPhantom(chain);
         setCurrentChain(chain);
@@ -60,11 +77,12 @@ export const useWalletConnection = () => {
         setConnectedAddress(address);
       }
     } catch (error: any) {
-      console.error('Wallet connection error:', error);
+      console.error("Wallet connection error:", error);
       toast({
         title: "Connection Failed",
-        description: error.message || "Failed to connect wallet. Please try again.",
-        variant: "destructive"
+        description:
+          error.message || "Failed to connect wallet. Please try again.",
+        variant: "destructive",
       });
       setConnectedAddress(null);
       setCurrentChain(null);
@@ -77,15 +95,24 @@ export const useWalletConnection = () => {
   const handleDisconnect = async () => {
     try {
       setIsLoading(true);
-      await disconnectWallet();
+      await disconnectWallet(); // Your backend update here
       setConnectedAddress(null);
       setCurrentChain(null);
+      // Set a flag indicating that the user has explicitly disconnected
+      // localStorage.setItem("metamaskDisconnected", "true")
+      Cookies.set("metamaskDisconnected", "true", { expires: 1 / 24 }); // sets a cookie that expires in 1 hour
+      Cookies.remove("connectedWallet"); // removes the connected wallet cookie
+      toast({
+        title: "Disconnected",
+        description: "Wallet has been disconnected successfully.",
+      });
     } catch (error: any) {
-      console.error('Wallet disconnection error:', error);
+      console.error("Wallet disconnection error:", error);
       toast({
         title: "Disconnection Failed",
-        description: error.message || "Failed to disconnect wallet. Please try again.",
-        variant: "destructive"
+        description:
+          error.message || "Failed to disconnect wallet. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -98,6 +125,6 @@ export const useWalletConnection = () => {
     connectedAddress,
     currentChain,
     handleWalletSelect,
-    handleDisconnect
+    handleDisconnect,
   };
 };

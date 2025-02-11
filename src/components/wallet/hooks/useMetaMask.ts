@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isMetaMaskAvailable } from "../utils/walletUtils";
 import { Database } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
+import Cookies from "js-cookie";
 
 type User = Database["public"]["Tables"]["users"]["Row"]; // Type for users table
 
@@ -14,11 +15,28 @@ export const useMetaMask = (
   const [chainId, setChainId] = useState<string | null>(null);
 
   useEffect(() => {
+    // If the user has explicitly disconnected, don't auto-connect.
+    // const wasDisconnected = localStorage.getItem("metamaskDisconnected");
+    const wasDisconnected = Cookies.get("metamaskDisconnected");
+    if (wasDisconnected) return;
+
     if (isMetaMaskAvailable()) {
+      // Check if MetaMask is already connected
+      window.ethereum
+        .request({ method: "eth_accounts" })
+        .then((accounts: string[]) => {
+          if (accounts.length > 0) {
+            setConnectedAddress(accounts[0]);
+          }
+        })
+        .catch(console.error);
+
+      // Listen for account changes
       const handleAccountsChanged = (accounts: string[]) => {
         setConnectedAddress(accounts[0] || null);
       };
 
+      // Listen for chain changes
       const handleChainChanged = (chainId: string) => {
         setChainId(chainId);
       };
@@ -59,6 +77,9 @@ export const useMetaMask = (
   };
 
   const connect = async () => {
+    // localStorage.removeItem("metamaskDisconnected");
+    Cookies.remove("metamaskDisconnected");
+
     if (!isMetaMaskAvailable()) {
       toast({
         title: "MetaMask not found",
@@ -80,6 +101,8 @@ export const useMetaMask = (
       });
 
       const address = accounts[0];
+      // localStorage.setItem("connectedWallet", address); // <-- Store the wallet address
+      Cookies.set("connectedWallet", address, { expires: 1 / 24 });
       const { chain } = await getChainInfo();
 
       // Log the response data

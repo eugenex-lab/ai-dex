@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import CreateAlertForm from "./alerts/components/CreateAlertForm";
 import AlertsList from "./alerts/components/AlertsList";
 import { Alert } from "./alerts/types";
+import Cookies from "js-cookie";
 
 const Alerts = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -13,9 +13,33 @@ const Alerts = () => {
 
   const fetchAlerts = async () => {
     try {
+      // Retrieve the connected wallet from the cookie.
+      const walletAddress = Cookies.get("connectedWallet");
+      if (!walletAddress) {
+        setAlerts([]);
+        return;
+      }
+
+      // Get the user ID from the users table using the wallet address.
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("wallet_address", walletAddress)
+        .single();
+
+      if (userError || !userData) {
+        console.error("Error fetching user:", userError);
+        setAlerts([]);
+        return;
+      }
+
+      const userId = userData.id;
+
+      // Fetch alerts where user_id matches the current user.
       const { data, error } = await supabase
         .from("price_alerts")
         .select("*")
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -40,7 +64,8 @@ const Alerts = () => {
           Price Alerts
         </h1>
         <p className="text-muted-foreground mt-2">
-          Set up custom alerts for your favorite tokens and never miss an opportunity.
+          Set up custom alerts for your favorite tokens and never miss an
+          opportunity.
         </p>
       </div>
 
