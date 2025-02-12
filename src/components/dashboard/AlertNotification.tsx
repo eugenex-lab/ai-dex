@@ -1,15 +1,11 @@
 import { Link } from "react-router-dom";
 import { Bell, MousePointer } from "lucide-react";
-import Cookies from 'js-cookie';
 
 interface AlertNotificationProps {
   hasAlerts: boolean;
 }
 
 const AlertNotification = ({ hasAlerts }: AlertNotificationProps) => {
-  const connectedWallet = Cookies.get("connectedWallet");
-  if (!connectedWallet) return null; // Don't render if wallet is not connected
-
   return (
     <Link
       to="/alerts"
