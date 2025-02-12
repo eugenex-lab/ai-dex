@@ -153,6 +153,10 @@ export const useMetaMask = (
       }
 
       await updateWalletConnection(address, chain);
+      toast({
+        title: "Connected",
+        description: "MetaMask wallet connected successfully!",
+      });
       return address;
     } catch (error: any) {
       console.error("MetaMask connection error:", error);

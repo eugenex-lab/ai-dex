@@ -98,10 +98,12 @@ export const useWalletConnection = () => {
       await disconnectWallet(); // Your backend update here
       setConnectedAddress(null);
       setCurrentChain(null);
-      // Set a flag indicating that the user has explicitly disconnected
-      // localStorage.setItem("metamaskDisconnected", "true")
+
       Cookies.set("metamaskDisconnected", "true", { expires: 1 / 24 }); // sets a cookie that expires in 1 hour
       Cookies.remove("connectedWallet"); // removes the connected wallet cookie
+      Cookies.remove("phantomWallet"); // removes the Phantom wallet cookie
+      Cookies.remove("phantomChain"); // removes the Phantom chain cookie
+
       toast({
         title: "Disconnected",
         description: "Wallet has been disconnected successfully.",

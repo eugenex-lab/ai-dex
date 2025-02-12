@@ -1,13 +1,12 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
@@ -22,11 +21,11 @@ const WalletConnectButton = () => {
     connectedAddress,
     currentChain,
     handleWalletSelect,
-    handleDisconnect
+    handleDisconnect,
   } = useWalletConnection();
 
   const handlePhantomSelect = () => {
-    handleWalletSelect('phantom', 'solana');
+    handleWalletSelect("phantom", "solana");
     setIsOpen(false);
   };
 
@@ -44,22 +43,21 @@ const WalletConnectButton = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button 
-          variant="outline"
-          className="gap-2 min-w-[180px] h-11"
-        >
+        <Button variant="outline" className="gap-2 min-w-[180px] h-11">
           <Wallet className="h-4 w-4" />
           Connect Wallet
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold mb-2">Connect Wallet</DialogTitle>
+          <DialogTitle className="text-xl font-semibold mb-2">
+            Connect Wallet
+          </DialogTitle>
         </DialogHeader>
-        
-        <WalletOptions 
+
+        <WalletOptions
           onSelect={(wallet) => {
-            if (wallet === 'phantom') {
+            if (wallet === "phantom") {
               handlePhantomSelect();
             } else {
               handleWalletSelect(wallet);
@@ -68,7 +66,6 @@ const WalletConnectButton = () => {
           }}
           isLoading={isLoading}
           loadingWallet={loadingWallet || undefined}
-          selectedChain="solana"
         />
       </DialogContent>
     </Dialog>
