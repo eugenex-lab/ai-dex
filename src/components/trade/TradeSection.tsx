@@ -1,13 +1,10 @@
-
 import { useState, useEffect } from "react";
-import { ArrowDown, Settings, AlignHorizontalDistributeCenter, List } from "lucide-react";
+import { ArrowDown } from "lucide-react";
 import { Button } from "../ui/button";
 import { tokens } from "@/utils/tokenData";
 import { TokenSection } from "./TokenSection";
 import { TokenSelectDialog } from "./TokenSelectDialog";
 import { SlippageDialog } from "./SlippageDialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
-import TradeForm from "./TradeForm";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -19,30 +16,33 @@ const TradeSection = () => {
   const [showSlippage, setShowSlippage] = useState(false);
   const [slippage, setSlippage] = useState("0.5");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedChain, setSelectedChain] = useState<"cardano" | "ethereum" | "solana">("cardano");
-  const [activeTradeType, setActiveTradeType] = useState<'market' | 'dip' | 'limit'>('market');
-  const [activeTab, setActiveTab] = useState<'swap' | 'limit'>('swap');
-  const [tradeTab, setTradeTab] = useState<'buy' | 'sell'>('buy');
+  const [selectedChain, setSelectedChain] = useState<
+    "cardano" | "ethereum" | "solana"
+  >("cardano");
 
   // Subscribe to chain changes from WalletSection
   useEffect(() => {
     const handleChainChange = (event: CustomEvent) => {
       setSelectedChain(event.detail.chain);
       // Reset tokens when chain changes
-      const chainTokens = tokens.filter(t => t.chain === event.detail.chain);
+      const chainTokens = tokens.filter((t) => t.chain === event.detail.chain);
       if (chainTokens.length > 0) {
         setFromToken(chainTokens[0]);
         setToToken(chainTokens[1] || chainTokens[0]);
       }
     };
-    
-    window.addEventListener('chainChanged', handleChainChange as EventListener);
+
+    window.addEventListener("chainChanged", handleChainChange as EventListener);
     return () => {
-      window.removeEventListener('chainChanged', handleChainChange as EventListener);
+      window.removeEventListener(
+        "chainChanged",
+        handleChainChange as EventListener
+      );
     };
   }, []);
 
-  const handleTokenSelect = (token: typeof tokens[0]) => {
+  // Handler for when a token is selected in the dialog
+  const handleTokenSelect = (token: (typeof tokens)[0]) => {
     if (selectingFor === "from") {
       setFromToken(token);
     } else {
@@ -57,8 +57,11 @@ const TradeSection = () => {
   };
 
   // Filter tokens based on selected chain
-  const filteredTokens = tokens.filter(token => token.chain === selectedChain);
+  const filteredTokens = tokens.filter(
+    (token) => token.chain === selectedChain
+  );
 
+  // SwapContent renders the swap functionality
   const SwapContent = () => (
     <>
       <TokenSection
@@ -76,6 +79,7 @@ const TradeSection = () => {
           variant="ghost"
           className="rounded-full bg-background/60 hover:bg-background"
           onClick={() => {
+            // Swap the tokens
             const tempToken = fromToken;
             setFromToken(toToken);
             setToToken(tempToken);
@@ -102,73 +106,32 @@ const TradeSection = () => {
   return (
     <div className="w-full max-w-md mx-auto px-4">
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Tabs 
-            defaultValue="swap" 
-            className="flex-1"
-            onValueChange={(value) => setActiveTab(value as 'swap' | 'limit')}
-          >
-            <div className="flex items-center justify-between">
-              <TabsList className="w-full grid grid-cols-2">
-                <TabsTrigger value="swap" className="flex items-center gap-2">
-                  <AlignHorizontalDistributeCenter className="h-4 w-4" />
-                  Swap
-                </TabsTrigger>
-                <TabsTrigger value="limit" className="flex items-center gap-2">
-                  <List className="h-4 w-4" />
-                  Limit Order
-                </TabsTrigger>
-              </TabsList>
-              {activeTab === 'swap' && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 ml-2"
-                  onClick={() => setShowSlippage(true)}
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+        {selectedChain === "cardano" && (
+          <div className="text-center text-lg font-bold">Hello World</div>
+        )}
 
-            <div className="mt-4">
-              <TabsContent value="swap" className="space-y-4">
-                <SwapContent />
-              </TabsContent>
+        {/* Only show SwapContent, TokenSelectDialog, and SlippageDialog if selectedChain is NOT "cardano" */}
+        {selectedChain !== "cardano" && (
+          <>
+            <SwapContent />
 
-              <TabsContent value="limit" className="space-y-4">
-                <TradeForm 
-                  activeTrade="limit"
-                  activeTab={tradeTab}
-                  amount={fromAmount}
-                  setAmount={setFromAmount}
-                  receiveAmount={toAmount}
-                  setReceiveAmount={setToAmount}
-                  fromToken={fromToken}
-                  toToken={toToken}
-                  onFromTokenSelect={() => openTokenSelect("from")}
-                  onToTokenSelect={() => openTokenSelect("to")}
-                />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
+            <TokenSelectDialog
+              showTokenSelect={showTokenSelect}
+              setShowTokenSelect={setShowTokenSelect}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              handleTokenSelect={handleTokenSelect}
+              availableTokens={filteredTokens}
+            />
 
-        <TokenSelectDialog
-          showTokenSelect={showTokenSelect}
-          setShowTokenSelect={setShowTokenSelect}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          handleTokenSelect={handleTokenSelect}
-          availableTokens={filteredTokens}
-        />
-
-        <SlippageDialog
-          showSlippage={showSlippage}
-          setShowSlippage={setShowSlippage}
-          slippage={slippage}
-          setSlippage={setSlippage}
-        />
+            <SlippageDialog
+              showSlippage={showSlippage}
+              setShowSlippage={setShowSlippage}
+              slippage={slippage}
+              setSlippage={setSlippage}
+            />
+          </>
+        )}
       </div>
     </div>
   );
