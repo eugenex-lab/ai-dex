@@ -5,6 +5,8 @@ import { tokens } from "@/utils/tokenData";
 import { TokenSection } from "./TokenSection";
 import { TokenSelectDialog } from "./TokenSelectDialog";
 import { SlippageDialog } from "./SlippageDialog";
+import Swap from "@dexhunterio/swaps";
+import "@dexhunterio/swaps/lib/assets/style.css";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -104,15 +106,34 @@ const TradeSection = () => {
   );
 
   return (
-    <div className="w-full max-w-md mx-auto px-4">
+    <div className="w-full">
       <div className="space-y-4">
         {selectedChain === "cardano" && (
-          <div className="text-center text-lg font-bold">Hello World</div>
+          <div id="dexhunter-container" className="w-full">
+            <div className="text-center text-lg font-bold w-full">
+              <Swap
+                orderTypes={["SWAP", "LIMIT"]}
+                colors={{
+                  background: "#0E0F12",
+                  containers: "#191B23",
+                  subText: "#88919E",
+                  mainText: "#FFFFFF",
+                  buttonText: "#FFFFFF",
+                  accent: "#3b82f6",
+                }}
+                theme="dark"
+                width="100"
+                partnerCode="tr61646472317178706b666364783839656b6d7466373374656d6734366c6d64753078706a647377767561377267617a34676a393674746634687738387678656a37646a786333636a79763977727a6c766364356574707a75336771726c78646d716d793439326ada39a3ee5e6b4b0d3255bfef95601890afd80709"
+                partnerName="tr"
+                // displayType="FULL"
+              />
+            </div>
+          </div>
         )}
 
         {/* Only show SwapContent, TokenSelectDialog, and SlippageDialog if selectedChain is NOT "cardano" */}
         {selectedChain !== "cardano" && (
-          <>
+          <div className="w-full max-w-md mx-auto px-4">
             <SwapContent />
 
             <TokenSelectDialog
@@ -130,7 +151,7 @@ const TradeSection = () => {
               slippage={slippage}
               setSlippage={setSlippage}
             />
-          </>
+          </div>
         )}
       </div>
     </div>

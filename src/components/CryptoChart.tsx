@@ -29,7 +29,7 @@ const CryptoChart = ({
   const formattedPair = `BINANCE:${localPair}`;
 
   return (
-    <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in">
+    <div className="glass-card p-6 rounded-lg  animate-fade-in">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Price Chart</h2>
       </div>

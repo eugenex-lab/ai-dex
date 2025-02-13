@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import MarketStats from "@/components/MarketStats";
@@ -9,26 +8,26 @@ import ChartSection from "@/components/dashboard/ChartSection";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 
 const Dashboard = () => {
-  const [currentPair, setCurrentPair] = useState('BTCUSDT');
+  const [currentPair, setCurrentPair] = useState("BTCUSDT");
   const [hasAlerts, setHasAlerts] = useState(false);
 
   const handlePairChange = (pair: string) => {
-    const cleanPair = pair.replace('BINANCE:', '');
-    console.log('Dashboard: Setting current pair to:', cleanPair);
+    const cleanPair = pair.replace("BINANCE:", "");
+    console.log("Dashboard: Setting current pair to:", cleanPair);
     setCurrentPair(cleanPair);
   };
 
   useEffect(() => {
     // Subscribe to real-time alerts updates
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel("schema-db-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'price_alerts',
-          filter: 'enabled=true'
+          event: "*",
+          schema: "public",
+          table: "price_alerts",
+          filter: "enabled=true",
         },
         (payload) => {
           setHasAlerts(true);
@@ -43,19 +42,22 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background pt-24 px-8">
-      <div className="max-w-7xl mx-auto relative">
-        <div className="flex justify-between items-start mb-8">
+    <div className="min-h-screen bg-background pt-24 px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto relative ">
+        <div className="flex  md:items-start mb-8 flex-col w-full items-center md:flex-row md:justify-between">
           <DashboardHeader />
-          <div className="flex flex-col items-end gap-6">
-            <div className="relative mb-8">
+          <div className="flex flex-col  gap-6 ">
+            <div className="relative mb-8 flex w-full ">
               <AlertNotification hasAlerts={hasAlerts} />
             </div>
             <WalletConnectButton />
           </div>
         </div>
         <MarketStats />
-        <ChartSection currentPair={currentPair} onPairChange={handlePairChange} />
+        <ChartSection
+          currentPair={currentPair}
+          onPairChange={handlePairChange}
+        />
         <CryptoList />
       </div>
     </div>

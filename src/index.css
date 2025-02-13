@@ -173,3 +173,12 @@
   @apply relative max-w-full mx-auto;
   contain: content;
 }
+
+#dexhunter-container {
+  width: 100%;
+  max-width: 100%; /* Optional: Prevents exceeding the viewport width */
+}
+
+#dexhunter-container .dhs-\@container\/appRoot {
+  width: -webkit-fill-available;
+}

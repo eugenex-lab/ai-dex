@@ -7,11 +7,15 @@ import CryptoListRow from "./CryptoListRow";
 
 const CryptoList = () => {
   const { toast } = useToast();
-  
-  const { data: cryptos, isLoading, isError } = useQuery({
-    queryKey: ['cryptos'],
+
+  const {
+    data: cryptos,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["cryptos"],
     queryFn: fetchCryptoData,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    // refetchInterval: 30000, // Refetch every 30 seconds
     retry: 3, // Retry failed requests 3 times
   });
 
@@ -34,7 +38,9 @@ const CryptoList = () => {
       <div className="glass-card rounded-lg p-6">
         <div className="text-center text-warning">
           <p className="font-medium">Unable to load crypto data</p>
-          <p className="text-sm text-muted-foreground">Please try again later</p>
+          <p className="text-sm text-muted-foreground">
+            Please try again later
+          </p>
         </div>
       </div>
     );

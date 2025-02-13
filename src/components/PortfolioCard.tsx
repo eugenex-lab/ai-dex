@@ -1,4 +1,3 @@
-
 import PairDisplay from "./trade/PairDisplay";
 import TokenStats from "./TokenStats";
 import TradeSection from "./trade/TradeSection";
@@ -15,10 +14,10 @@ const PortfolioCard = ({ currentPair }: PortfolioCardProps) => {
         <PairDisplay pair={currentPair} />
       </div>
 
-      <TokenStats symbol={currentPair} />
-      
+      {/* <TokenStats symbol={currentPair} /> */}
+
       <WalletSection />
-      
+
       <TradeSection />
     </div>
   );

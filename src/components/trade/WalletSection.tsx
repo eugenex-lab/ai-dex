@@ -1,12 +1,17 @@
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Coins, Sun, CircleDollarSign } from "lucide-react";
 
 const WalletSection = () => {
   const handleChainChange = (chain: string) => {
     // Dispatch custom event for chain change
-    const event = new CustomEvent('chainChanged', { 
-      detail: { chain }
+    const event = new CustomEvent("chainChanged", {
+      detail: { chain },
     });
     window.dispatchEvent(event);
   };
@@ -19,16 +24,25 @@ const WalletSection = () => {
         </SelectTrigger>
         <SelectContent className="bg-background">
           <SelectItem value="cardano" className="flex items-center gap-2">
-            <CircleDollarSign className="h-4 w-4" />
-            Cardano
+            <div className="flex gap-1 items-center">
+              {" "}
+              <CircleDollarSign className="h-4 w-4" />
+              Cardano
+            </div>
           </SelectItem>
           <SelectItem value="ethereum" className="flex items-center gap-2">
-            <Coins className="h-4 w-4" />
-            Ethereum
+            <div className="flex gap-1 items-center">
+              {" "}
+              <Coins className="h-4 w-4" />
+              Ethereum
+            </div>
           </SelectItem>
           <SelectItem value="solana" className="flex items-center gap-2">
-            <Sun className="h-4 w-4" />
-            Solana
+            <div className="flex gap-1 items-center">
+              {" "}
+              <Sun className="h-4 w-4" />
+              Solana
+            </div>
           </SelectItem>
         </SelectContent>
       </Select>
