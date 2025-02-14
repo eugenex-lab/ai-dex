@@ -112,7 +112,7 @@ const TradeSection = () => {
           <div id="dexhunter-container" className="w-full">
             <div className="text-center text-lg font-bold w-full">
               <Swap
-                orderTypes={["SWAP", "LIMIT"]}
+                // orderTypes={["SWAP", "LIMIT"]}
                 colors={{
                   background: "#0E0F12",
                   containers: "#191B23",
