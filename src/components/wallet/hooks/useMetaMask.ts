@@ -102,7 +102,7 @@ export const useMetaMask = (
 
       const address = accounts[0];
       // localStorage.setItem("connectedWallet", address); // <-- Store the wallet address
-      Cookies.set("connectedWallet", address,);
+      Cookies.set("connectedWallet", address);
       const { chain } = await getChainInfo();
 
       // Log the response data

@@ -27,23 +27,18 @@ export const usePhantom = (
   );
 
   useEffect(() => {
-    const storedAddress = Cookies.get("phantomWallet");
-    if (storedAddress) {
-      setConnectedAddress(storedAddress);
-    }
-
+    // Removed the auto-connection from cookie.
+    // Only setup listeners now.
     const setupPhantomListeners = async () => {
       if (!isPhantomAvailable(selectedChain)) {
         console.log(`Phantom ${selectedChain} provider not available`);
         return;
       }
-
       const provider = window.phantom?.[selectedChain];
       if (!provider) return;
 
       const handleAccountChange = async () => {
         console.log(`Phantom ${selectedChain} account changed event triggered`);
-
         try {
           if (selectedChain === "solana" && window.phantom?.solana?.publicKey) {
             const newAddress = window.phantom.solana.publicKey.toString();
