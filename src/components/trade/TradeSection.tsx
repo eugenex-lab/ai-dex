@@ -122,7 +122,7 @@ const TradeSection = () => {
                   accent: "#007DFF",
                 }}
                 theme="dark"
-                width="100"
+                width="500"
                 partnerCode="tr61646472317178706b666364783839656b6d7466373374656d6734366c6d64753078706a647377767561377267617a34676a393674746634687738387678656a37646a786333636a79763977727a6c766364356574707a75336771726c78646d716d793439326ada39a3ee5e6b4b0d3255bfef95601890afd80709"
                 partnerName="tr"
                 // displayType="FULL"
