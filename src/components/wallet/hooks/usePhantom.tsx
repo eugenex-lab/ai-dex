@@ -49,7 +49,7 @@ export const usePhantom = (
             const newAddress = window.phantom.solana.publicKey.toString();
             console.log("New Phantom address:", newAddress);
             setConnectedAddress(newAddress);
-            Cookies.set("phantomWallet", newAddress, { expires: 1 / 24 });
+            Cookies.set("phantomWallet", newAddress);
           } else if (selectedChain === "ethereum") {
             if (provider.request) {
               const accounts = await provider.request({
@@ -57,7 +57,7 @@ export const usePhantom = (
               });
               if (accounts?.[0]) {
                 setConnectedAddress(accounts[0]);
-                Cookies.set("phantomWallet", accounts[0], { expires: 1 / 24 });
+                Cookies.set("phantomWallet", accounts[0]);
               } else {
                 setConnectedAddress(null);
                 Cookies.remove("phantomWallet");
@@ -107,7 +107,7 @@ export const usePhantom = (
 
     setIsConnecting(true);
     setSelectedChain(chain);
-    Cookies.set("phantomChain", chain, { expires: 7 });
+    Cookies.set("phantomChain", chain);
     console.log(`Attempting to connect Phantom ${chain} wallet`);
 
     if (!isPhantomAvailable(chain)) {
@@ -138,7 +138,7 @@ export const usePhantom = (
       const { address } = await getChainConnection(chain);
 
       console.log(`Phantom ${chain} connected successfully:`, address);
-      Cookies.set("phantomWallet", address, { expires: 1 / 24 });
+      Cookies.set("phantomWallet", address);
 
       // ========= Supabase Integration Start =========
       // Use the chain value as returned (or the selected chain)

@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
 interface StakingOption {
@@ -92,46 +103,61 @@ const StakingCard = ({ option }: { option: StakingOption }) => {
   );
 
   return (
-    <div className="bg-secondary/20 backdrop-blur-lg rounded-lg p-6 flex items-center justify-between space-x-4 animate-fade-in">
-      <div className="flex items-center space-x-4">
-        <img src={option.icon} alt={option.title} className="w-12 h-12" />
-        <span className="text-lg font-medium">{option.title}</span>
+    <div className="bg-secondary/20 backdrop-blur-lg rounded-lg p-4 md:p-6 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 animate-fade-in">
+      <div className="flex items-center space-x-4 md:w-[300px] shrink-0">
+        <img
+          src={option.icon}
+          alt={option.title}
+          className="w-10 h-10 md:w-12 md:h-12"
+        />
+        <span className="text-base md:text-lg font-medium">{option.title}</span>
       </div>
 
-      <div className="flex items-center space-x-8">
-        <div className="text-center">
-          <div className="text-sm text-muted-foreground">TVL</div>
-          <div className="font-medium">{option.tvl}</div>
+      <div className="flex flex-wrap gap-4 md:flex-row md:items-center md:justify-between w-full">
+        <div className="grid grid-cols-3 md:flex md:items-center gap-8 md:gap-16">
+          <div className="text-center">
+            <div className="text-xs md:text-sm text-muted-foreground">TVL</div>
+            <div className="font-medium">{option.tvl}</div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-xs md:text-sm text-muted-foreground">APR</div>
+            <div className="font-medium">{selectedPeriod?.apr}%</div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-xs md:text-sm text-muted-foreground">
+              Rewards
+            </div>
+            <div className="font-medium">{option.earn}</div>
+          </div>
         </div>
 
-        <div className="text-center">
-          <div className="text-sm text-muted-foreground">APR</div>
-          <div className="font-medium">{selectedPeriod?.apr}%</div>
+        <div className="flex items-center space-x-4 w-full md:w-auto md:ml-auto">
+          <Select value={selectedDays} onValueChange={setSelectedDays}>
+            <SelectTrigger className="w-full md:w-[180px] bg-background border-input">
+              <SelectValue placeholder="Lock period" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border-2 border-input">
+              {option.lockPeriods.map((period) => (
+                <SelectItem
+                  key={period.days}
+                  value={period.days.toString()}
+                  className="hover:bg-accent focus:bg-accent"
+                >
+                  {period.days} days
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Button
+            onClick={() => setDialogOpen(true)}
+            className="whitespace-nowrap w-[120px]"
+          >
+            Stake
+          </Button>
         </div>
-
-        <div className="text-center">
-          <div className="text-sm text-muted-foreground">Rewards</div>
-          <div className="font-medium">{option.earn}</div>
-        </div>
-
-        <Select value={selectedDays} onValueChange={setSelectedDays}>
-          <SelectTrigger className="w-32 bg-background border-input">
-            <SelectValue placeholder="Lock period" />
-          </SelectTrigger>
-          <SelectContent className="bg-background border-2 border-input">
-            {option.lockPeriods.map((period) => (
-              <SelectItem 
-                key={period.days} 
-                value={period.days.toString()}
-                className="hover:bg-accent focus:bg-accent"
-              >
-                {period.days} days
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button onClick={() => setDialogOpen(true)}>Stake</Button>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -164,9 +190,11 @@ const StakingCard = ({ option }: { option: StakingOption }) => {
 
 const Staking = () => {
   return (
-    <div className="pt-20 pb-8 px-4 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">Staking</h1>
+    <div className="pt-16 md:pt-20 pb-8 px-4 min-h-screen">
+      <div className="w-full">
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-center">
+          Staking
+        </h1>
         <div className="space-y-4">
           {stakingOptions.map((option) => (
             <StakingCard key={option.id} option={option} />

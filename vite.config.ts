@@ -17,14 +17,14 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    target: "esnext", // This tells Vite to build for an environment that supports top-level await.
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      target: "esnext", // This tells esbuild (used for dependency pre-bundling) to target esnext.
-    },
-    // Alternatively, if issues persist, you can exclude lucid-cardano from optimization:
-    // exclude: ["lucid-cardano"],
-  },
+  // build: {
+  //   target: "esnext", // This tells Vite to build for an environment that supports top-level await.
+  // },
+  // optimizeDeps: {
+  //   esbuildOptions: {
+  //     target: "esnext", // This tells esbuild (used for dependency pre-bundling) to target esnext.
+  //   },
+  //   // Alternatively, if issues persist, you can exclude lucid-cardano from optimization:
+  //   // exclude: ["lucid-cardano"],
+  // },
 }));

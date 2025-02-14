@@ -99,7 +99,7 @@ export const useWalletConnection = () => {
       setConnectedAddress(null);
       setCurrentChain(null);
 
-      Cookies.set("metamaskDisconnected", "true", { expires: 1 / 24 }); // sets a cookie that expires in 1 hour
+      Cookies.set("metamaskDisconnected", "true"); // sets a session cookie that expires when the browser is closed
       Cookies.remove("connectedWallet"); // removes the connected wallet cookie
       Cookies.remove("phantomWallet"); // removes the Phantom wallet cookie
       Cookies.remove("phantomChain"); // removes the Phantom chain cookie

@@ -12,7 +12,7 @@ import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
 import { type PhantomChain } from "./utils/walletUtils";
-import { CardanoWalletSelector } from "use-cardano";
+// import { CardanoWalletSelector } from "use-cardano";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,9 +50,9 @@ const WalletConnectButton = () => {
         </Button>
       </DialogTrigger>
 
-      <div>
+      {/* <div>
         <CardanoWalletSelector />
-      </div>
+      </div> */}
 
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>

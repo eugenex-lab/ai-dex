@@ -48,7 +48,7 @@ export const useCardano = (
       const address = await lucid.wallet.address();
 
       // Optionally, store the connected address in a cookie and update your backend
-      // Cookies.set("connectedWallet", address, { expires: 1 / 24 }); // Expires in 1 hour
+      // Cookies.set("connectedWallet", address, {expires: 1 / 24}); // Expires in 1 hour
       await updateWalletConnection(address, "cardano");
 
       toast({
