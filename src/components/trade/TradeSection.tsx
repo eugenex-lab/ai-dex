@@ -119,7 +119,7 @@ const TradeSection = () => {
                   subText: "#88919E",
                   mainText: "#FFFFFF",
                   buttonText: "#FFFFFF",
-                  accent: "#3b82f6",
+                  accent: "#007DFF",
                 }}
                 theme="dark"
                 width="100"
