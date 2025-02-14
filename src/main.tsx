@@ -3,11 +3,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import "./index.css";
 // import "use-cardano/styles/use-cardano.css";
-import {
-  CardanoProvider,
-  CardanoToaster,
-  UseCardanoOptions,
-} from "use-cardano";
+// import {
+//   CardanoProvider,
+//   CardanoToaster,
+//   UseCardanoOptions,
+// } from "use-cardano";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -29,9 +29,7 @@ const queryClient = new QueryClient({
 // };
 
 createRoot(document.getElementById("root")!).render(
-  // <CardanoProvider options={options}>
   <QueryClientProvider client={queryClient}>
     <App />
   </QueryClientProvider>
-  // </CardanoProvider>
 );
