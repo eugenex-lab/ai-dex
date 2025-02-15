@@ -29,7 +29,7 @@ const PortfolioCard = ({ currentPair }: PortfolioCardProps) => {
     };
   }, []);
   return (
-    <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50  lg:w-[500px]">
+    <div className="glass-card p-6 rounded-lg mb-8 animate-fade-in bg-secondary/50  lg:w-[500px] lg:h-[745px]">
       <div className="mb-4">
         <PairDisplay pair={currentPair} />
       </div>

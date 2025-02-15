@@ -8,7 +8,7 @@ import ChartSection from "@/components/dashboard/ChartSection";
 import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 
 const Dashboard = () => {
-  const [currentPair, setCurrentPair] = useState("BTCUSDT");
+  const [currentPair, setCurrentPair] = useState("ADAUSDT");
   const [hasAlerts, setHasAlerts] = useState(false);
 
   const handlePairChange = (pair: string) => {
@@ -16,6 +16,33 @@ const Dashboard = () => {
     console.log("Dashboard: Setting current pair to:", cleanPair);
     setCurrentPair(cleanPair);
   };
+
+  // Listen for chain changes from WalletSection
+  useEffect(() => {
+    const handleChainChanged = (event: CustomEvent) => {
+      const chain = event.detail.chain;
+      console.log("Dashboard: Chain changed to:", chain);
+      if (chain === "ethereum") {
+        setCurrentPair("ETHUSDT");
+      } else if (chain === "solana") {
+        setCurrentPair("SOLUSDT");
+      } else if (chain === "cardano") {
+        setCurrentPair("ADAUSDT");
+      }
+    };
+
+    window.addEventListener(
+      "chainChanged",
+      handleChainChanged as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "chainChanged",
+        handleChainChanged as EventListener
+      );
+    };
+  }, []);
 
   useEffect(() => {
     // Subscribe to real-time alerts updates
@@ -48,7 +75,7 @@ const Dashboard = () => {
           <DashboardHeader />
           <div className="flex flex-col  gap-6 ">
             {/* <div className="relative mb-8 flex w-full "> */}
-              <AlertNotification hasAlerts={hasAlerts} />
+            <AlertNotification hasAlerts={hasAlerts} />
             {/* </div> */}
             {/* <WalletConnectButton /> */}
           </div>

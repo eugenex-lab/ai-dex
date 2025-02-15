@@ -11,7 +11,7 @@ interface CryptoChartProps {
 
 const CryptoChart = ({
   onPairChange,
-  currentPair = "BTCUSDT",
+  currentPair = "AFCUSDT",
 }: CryptoChartProps) => {
   const [localPair, setLocalPair] = useState(cleanSymbol(currentPair));
 
@@ -33,7 +33,7 @@ const CryptoChart = ({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Price Chart</h2>
       </div>
-      <div className="h-[400px] w-full">
+      <div className="w-full h-[600px] md:h-[640px]">
         <ErrorBoundary>
           <TradingViewChart currentPair={currentPair} />
         </ErrorBoundary>
@@ -49,7 +49,7 @@ interface CryptoChartProps {
   currentPair?: string;
 }
 
-const TradingViewChart = ({ currentPair = "BTCUSDT" }: CryptoChartProps) => {
+const TradingViewChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
   const chartRef = useRef<HTMLDivElement>(null);
   const formattedPair = `BINANCE:${cleanSymbol(currentPair)}`;
 
@@ -68,7 +68,7 @@ const TradingViewChart = ({ currentPair = "BTCUSDT" }: CryptoChartProps) => {
         style: "1",
         locale: "en",
         width: "100%",
-        height: 400,
+        height: 630,
         hide_side_toolbar: false,
         allow_symbol_change: true,
       });
@@ -78,6 +78,6 @@ const TradingViewChart = ({ currentPair = "BTCUSDT" }: CryptoChartProps) => {
   }, [formattedPair]);
 
   return (
-    <div ref={chartRef} id="tradingview-widget" className="h-[400px] w-full" />
+    <div ref={chartRef} id="tradingview-widget" className=" h-[550px] w-full" />
   );
 };

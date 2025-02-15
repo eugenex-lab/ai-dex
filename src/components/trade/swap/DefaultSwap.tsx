@@ -4,10 +4,12 @@ import { TokenSelectDialog } from "../TokenSelectDialog";
 import { SlippageDialog } from "../SlippageDialog";
 import { Tabs, TabsContent } from "../../ui/tabs";
 import TradeForm from "../TradeForm";
-import { useSwap } from "../../contexts/SwapContext";
-import { useChain } from "@/contexts/ChainContext";
+
 import SwapHeader from "./SwapHeader.tsx";
-import SwapForm from "./SwapForm";
+import { useChain } from "@/components/context/ChainContext.tsx";
+import SwapForm from "./SwapForm.tsx";
+import { useSwap } from "@/components/context/SwapContext.tsx";
+// import SwapForm from "./SwapForm";
 
 const DefaultSwap = () => {
   const [fromAmount, setFromAmount] = useState("");
