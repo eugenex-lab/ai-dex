@@ -35,11 +35,11 @@ const PortfolioCard = ({ currentPair }: PortfolioCardProps) => {
       </div>
 
       {/* <TokenStats symbol={currentPair} /> */}
-      <div className="w-full grid grid-cols-2 gap-4">
+      <div className="w-full grid grid-cols-1 gap-4">
         <WalletSection />
-        {(selectedChain === "ethereum" || selectedChain === "solana") && (
+        {/* {(selectedChain === "ethereum" || selectedChain === "solana") && (
           <WalletConnectButton />
-        )}{" "}
+        )}{" "} */}
       </div>
 
       <TradeSection />

@@ -74,10 +74,10 @@ const Dashboard = () => {
         <div className="flex  md:items-start mb-8 flex-col w-full items-center md:flex-row md:justify-between">
           <DashboardHeader />
           <div className="flex flex-col  gap-6 ">
-            {/* <div className="relative mb-8 flex w-full "> */}
-            <AlertNotification hasAlerts={hasAlerts} />
-            {/* </div> */}
-            {/* <WalletConnectButton /> */}
+            <div className="relative mb-8 flex w-full ">
+              <AlertNotification hasAlerts={hasAlerts} />
+            </div>
+            <WalletConnectButton />
           </div>
         </div>
         <MarketStats />

@@ -12,7 +12,6 @@ import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
 import { type PhantomChain } from "./utils/walletUtils";
-// import { CardanoWalletSelector } from "use-cardano";
 
 const WalletConnectButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +26,11 @@ const WalletConnectButton = () => {
 
   const handlePhantomSelect = () => {
     handleWalletSelect("phantom", "solana");
+    setIsOpen(false);
+  };
+
+  const handleCardanoSelect = (walletName: string) => {
+    handleWalletSelect("cardano", undefined, walletName); // Pass the Cardano wallet name
     setIsOpen(false);
   };
 
@@ -50,10 +54,6 @@ const WalletConnectButton = () => {
         </Button>
       </DialogTrigger>
 
-      {/* <div>
-        <CardanoWalletSelector />
-      </div> */}
-
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold mb-2">
@@ -65,6 +65,12 @@ const WalletConnectButton = () => {
           onSelect={(wallet) => {
             if (wallet === "phantom") {
               handlePhantomSelect();
+            } else if (
+              wallet === "yoroi" ||
+              wallet === "eternl" ||
+              wallet === "lace"
+            ) {
+              handleCardanoSelect(wallet); // Handle Cardano wallet selection
             } else {
               handleWalletSelect(wallet);
             }
