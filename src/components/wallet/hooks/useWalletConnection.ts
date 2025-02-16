@@ -132,9 +132,10 @@ export const useWalletConnection = () => {
         if (!cardanoWalletName) {
           throw new Error("Cardano wallet name must be specified");
         }
+        // Connect to the Cardano wallet
         await connectCardano(cardanoWalletName);
 
-        // Use cardanoWalletName directly when fetching the payment address
+        // Fetch the payment address (hex string) and convert it to Bech32
         const paymentAddressHex = await getPaymentAddress(cardanoWalletName);
         if (paymentAddressHex) {
           const paymentAddressConverted = convertHexToBech32(paymentAddressHex);
@@ -145,6 +146,51 @@ export const useWalletConnection = () => {
               "Connected Cardano Wallet - Payment Address:",
               paymentAddressConverted
             );
+
+            // ========= Supabase Integration for Cardano =========
+            const { data: existingUser, error: fetchError } = await supabase
+              .from("users")
+              .select("id, chain")
+              .eq("wallet_address", paymentAddressConverted)
+              .single();
+
+            let userId: string;
+            if (existingUser) {
+              userId = existingUser.id;
+              // Update the chain if it’s not already "cardano"
+              if (existingUser.chain !== "cardano") {
+                const { error: updateError } = await supabase
+                  .from("users")
+                  .update({ chain: "cardano" })
+                  .eq("id", userId);
+                if (updateError) {
+                  console.error("Error updating user chain:", updateError);
+                } else {
+                  console.log(`Updated chain for user ${userId} to cardano`);
+                }
+              }
+            } else {
+              // Insert a new record into the "users" table
+              const { data: newUser, error: insertError } = await supabase
+                .from("users")
+                .insert({
+                  wallet_address: paymentAddressConverted,
+                  chain: "cardano",
+                  auth_provider: "wallet",
+                })
+                .select("id")
+                .single();
+              if (insertError) {
+                console.error(
+                  "Error inserting wallet connection:",
+                  insertError
+                );
+                throw new Error("Failed to save Cardano wallet data.");
+              }
+              userId = newUser.id;
+              console.log("New user created:", userId);
+            }
+            // ======================================================
           } else {
             throw new Error("Failed to convert address to Bech32 format");
           }
