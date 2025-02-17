@@ -7,6 +7,7 @@ import { TokenSelectDialog } from "./TokenSelectDialog";
 import { SlippageDialog } from "./SlippageDialog";
 import Swap from "@dexhunterio/swaps";
 import "@dexhunterio/swaps/lib/assets/style.css";
+import DexHunterSwap from "./swap/DexHunterSwap";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -110,24 +111,7 @@ const TradeSection = () => {
       <div className="space-y-4">
         {selectedChain === "cardano" && (
           <div id="dexhunter-container" className="w-full">
-            <div className="text-center text-lg font-bold w-full">
-              <Swap
-                // orderTypes={["SWAP", "LIMIT"]}
-                colors={{
-                  background: "#0E0F12",
-                  containers: "#191B23",
-                  subText: "#88919E",
-                  mainText: "#FFFFFF",
-                  buttonText: "#FFFFFF",
-                  accent: "#007DFF",
-                }}
-                theme="dark"
-                width="500"
-                partnerCode="tr61646472317178706b666364783839656b6d7466373374656d6734366c6d64753078706a647377767561377267617a34676a393674746634687738387678656a37646a786333636a79763977727a6c766364356574707a75336771726c78646d716d793439326ada39a3ee5e6b4b0d3255bfef95601890afd80709"
-                partnerName="tr"
-                // displayType="FULL"
-              />
-            </div>
+            <DexHunterSwap />
           </div>
         )}
 
