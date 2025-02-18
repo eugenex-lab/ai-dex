@@ -1,6 +1,6 @@
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
 interface LockPeriod {
@@ -16,21 +16,18 @@ interface StepThreeProps {
   avgStakeSize?: number;
 }
 
-// Helper function to calculate max sustainable APR
+// Helper functions (unchanged)
 const calculateMaxSustainableAPR = (
   totalRewardPool: number,
   maxStakers: number,
   avgStakeSize: number,
   days: number
 ): number => {
-  // Calculate how many tokens we can give per staker for this period
   const rewardsPerStaker = totalRewardPool / maxStakers;
-  // Convert to annual rate
   const annualizedRate = (rewardsPerStaker / avgStakeSize) * (365 / days) * 100;
   return parseFloat(annualizedRate.toFixed(2));
 };
 
-// Helper function to calculate suggested APR for a lock period
 const calculateSuggestedAPR = (
   lockPeriodDays: number,
   baseAPR: number,
@@ -38,33 +35,30 @@ const calculateSuggestedAPR = (
   maxStakers: number,
   avgStakeSize: number
 ): number => {
-  // Calculate the max sustainable APR for this period
   const maxSustainableAPR = calculateMaxSustainableAPR(
     totalRewardPool,
     maxStakers,
     avgStakeSize,
     lockPeriodDays
   );
-
-  // Calculate suggested APR with length incentive
-  const lengthMultiplier = Math.min(lockPeriodDays / 30, maxSustainableAPR / baseAPR);
+  const lengthMultiplier = Math.min(
+    lockPeriodDays / 30,
+    maxSustainableAPR / baseAPR
+  );
   const suggestedAPR = parseFloat((baseAPR * lengthMultiplier).toFixed(2));
-
-  // Return the lower of suggested and max sustainable APR
   return Math.min(suggestedAPR, maxSustainableAPR);
 };
 
-// Helper function to validate APRs - now only checks if total rewards needed exceeds pool
 const validateAPRs = (
   lockPeriods: LockPeriod[],
   totalRewardPool: number,
   maxStakers: number,
   avgStakeSize: number
 ): boolean => {
-  // Calculate total rewards needed for each period
   let totalRewardsNeeded = 0;
   for (const period of lockPeriods) {
-    const periodRewards = maxStakers * avgStakeSize * (period.apr / 100) * (period.days / 365);
+    const periodRewards =
+      maxStakers * avgStakeSize * (period.apr / 100) * (period.days / 365);
     totalRewardsNeeded += periodRewards;
   }
 
@@ -76,13 +70,17 @@ const validateAPRs = (
   return true;
 };
 
-export const StepThree = ({ 
-  lockPeriods, 
-  setLockPeriods, 
+export const StepThree = ({
+  lockPeriods,
+  setLockPeriods,
   totalRewardPool,
   maxStakers,
-  avgStakeSize = 1000 // Default value from DB
+  avgStakeSize = 1000,
 }: StepThreeProps) => {
+  // Local state to track the current APR inputs as strings.
+  const [aprInputs, setAprInputs] = useState<string[]>(
+    lockPeriods.map((period) => period.apr.toString())
+  );
 
   const handleAPRChange = (index: number, newAPR: number) => {
     if (isNaN(newAPR) || newAPR < 0) return;
@@ -92,43 +90,50 @@ export const StepThree = ({
 
     if (isNaN(rewardPoolNum) || isNaN(maxStakersNum)) return;
 
-    // Simply update the single period's APR
-    const newPeriods = lockPeriods.map((p, i) => 
+    // Create a new periods array with the updated APR.
+    const newPeriods = lockPeriods.map((p, i) =>
       i === index ? { ...p, apr: newAPR } : p
     );
 
-    console.log('APR update:', {
+    console.log("APR update:", {
       index,
       newAPR,
       newPeriods,
       totalRewardsNeeded: newPeriods.reduce((acc, p) => {
-        return acc + (maxStakersNum * avgStakeSize * (p.apr / 100) * (p.days / 365));
+        return (
+          acc + maxStakersNum * avgStakeSize * (p.apr / 100) * (p.days / 365)
+        );
       }, 0),
-      totalRewardPool: rewardPoolNum
+      totalRewardPool: rewardPoolNum,
     });
 
-    // Only update if validation passes
+    // Only update if validation passes.
     if (validateAPRs(newPeriods, rewardPoolNum, maxStakersNum, avgStakeSize)) {
       setLockPeriods(newPeriods);
     }
   };
 
-  // Initial APR calculation
+  // Initial APR calculation.
   useEffect(() => {
     if (totalRewardPool && maxStakers) {
       const rewardPoolNum = parseFloat(totalRewardPool);
       const maxStakersNum = parseInt(maxStakers);
-      
-      if (!isNaN(rewardPoolNum) && !isNaN(maxStakersNum) && rewardPoolNum > 0 && maxStakersNum > 0) {
-        // Calculate initial base APR that's sustainable
-        const baseAPR = calculateMaxSustainableAPR(
-          rewardPoolNum,
-          maxStakersNum, 
-          avgStakeSize,
-          30 // Base period of 30 days
-        ) / 2; // Start with half of max sustainable APR
-        
-        const suggestedPeriods = lockPeriods.map(period => ({
+
+      if (
+        !isNaN(rewardPoolNum) &&
+        !isNaN(maxStakersNum) &&
+        rewardPoolNum > 0 &&
+        maxStakersNum > 0
+      ) {
+        const baseAPR =
+          calculateMaxSustainableAPR(
+            rewardPoolNum,
+            maxStakersNum,
+            avgStakeSize,
+            30
+          ) / 2;
+
+        const suggestedPeriods = lockPeriods.map((period) => ({
           ...period,
           apr: calculateSuggestedAPR(
             period.days,
@@ -136,20 +141,32 @@ export const StepThree = ({
             rewardPoolNum,
             maxStakersNum,
             avgStakeSize
-          )
+          ),
         }));
-        
-        console.log('Initial APR calculation:', {
+
+        console.log("Initial APR calculation:", {
           baseAPR,
           suggestedPeriods,
           totalRewardPool: rewardPoolNum,
           totalRewardsNeeded: suggestedPeriods.reduce((acc, p) => {
-            return acc + (maxStakersNum * avgStakeSize * (p.apr / 100) * (p.days / 365));
-          }, 0)
+            return (
+              acc +
+              maxStakersNum * avgStakeSize * (p.apr / 100) * (p.days / 365)
+            );
+          }, 0),
         });
 
-        if (validateAPRs(suggestedPeriods, rewardPoolNum, maxStakersNum, avgStakeSize)) {
+        if (
+          validateAPRs(
+            suggestedPeriods,
+            rewardPoolNum,
+            maxStakersNum,
+            avgStakeSize
+          )
+        ) {
           setLockPeriods(suggestedPeriods);
+          // Sync local APR inputs with the suggested values.
+          setAprInputs(suggestedPeriods.map((p) => p.apr.toString()));
         }
       }
     }
@@ -161,24 +178,34 @@ export const StepThree = ({
       <Card className="p-4">
         <div className="grid gap-4">
           {lockPeriods.map((period, index) => {
-            // Calculate suggested APR for this period
             const rewardPoolNum = parseFloat(totalRewardPool);
             const maxStakersNum = parseInt(maxStakers);
-            const suggestedAPR = !isNaN(rewardPoolNum) && !isNaN(maxStakersNum) ? 
-              calculateMaxSustainableAPR(
-                rewardPoolNum,
-                maxStakersNum,
-                avgStakeSize,
-                period.days
-              ) : 0;
+            const suggestedAPR =
+              !isNaN(rewardPoolNum) && !isNaN(maxStakersNum)
+                ? calculateMaxSustainableAPR(
+                    rewardPoolNum,
+                    maxStakersNum,
+                    avgStakeSize,
+                    period.days
+                  )
+                : 0;
 
             return (
               <div key={period.days} className="flex items-center gap-4">
                 <span className="w-24 text-sm">{period.days} days:</span>
                 <Input
                   type="number"
-                  value={period.apr}
-                  onChange={(e) => handleAPRChange(index, parseFloat(e.target.value))}
+                  value={aprInputs[index]}
+                  onChange={(e) => {
+                    const newInput = e.target.value;
+                    const newAprInputs = [...aprInputs];
+                    newAprInputs[index] = newInput;
+                    setAprInputs(newAprInputs);
+                  }}
+                  // When the input loses focus, attempt to validate and update the APR.
+                  onBlur={() =>
+                    handleAPRChange(index, parseFloat(aprInputs[index]))
+                  }
                   className="w-24"
                   placeholder="APR %"
                   min="0"

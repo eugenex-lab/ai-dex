@@ -1,7 +1,6 @@
-
-import { Loader2 } from "lucide-react";
 import { StakingCard } from "./StakingCard";
 import { StakingPool } from "./types";
+import PoolsSkeleton from "../orders/PoolsSkeleton";
 
 interface StakingListProps {
   isLoading: boolean;
@@ -11,8 +10,8 @@ interface StakingListProps {
 export const StakingList = ({ isLoading, stakingPools }: StakingListProps) => {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center pb-12">
+        <PoolsSkeleton />
       </div>
     );
   }

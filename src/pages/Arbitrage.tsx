@@ -4,7 +4,7 @@ import ArbitrageForm from "@/components/arbitrage/ArbitrageForm";
 
 const Arbitrage = () => {
   return (
-    <div className="container mx-auto py-16">
+    <div className=" mx-auto py-16">
       <ArbitrageHeader />
       <ArbitrageSteps />
       <ArbitrageForm />

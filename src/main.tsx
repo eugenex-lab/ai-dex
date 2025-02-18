@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import "./index.css";
+import { WalletProvider } from "./components/wallet/context/WalletContext.tsx";
 // import "use-cardano/styles/use-cardano.css";
 // import {
 //   CardanoProvider,
@@ -13,8 +14,9 @@ import "./index.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000, // 1 minute
-      retry: 3,
+      staleTime: 60 * 1000, // 1 min cache
+      retry: 3, // Retry failed queries 3 times
+      refetchOnWindowFocus: false, // Prevents refetching on tab switch
     },
   },
 });
@@ -30,6 +32,8 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <App />
+    <WalletProvider>
+      <App />{" "}
+    </WalletProvider>
   </QueryClientProvider>
 );

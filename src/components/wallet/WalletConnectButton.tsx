@@ -1,3 +1,4 @@
+// WalletConnectButton.tsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Wallet } from "lucide-react";
@@ -10,8 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
-import { useWalletConnection } from "./hooks/useWalletConnection";
-// import { type PhantomChain } from "./utils/walletUtils"; // if needed
+import { useWallet } from "./context/WalletContext";
 
 interface WalletConnectButtonProps {
   variant?: string; // e.g., "default" or "outline"
@@ -19,8 +19,8 @@ interface WalletConnectButtonProps {
 }
 
 const WalletConnectButton = ({
-  variant = "outline", // default variant if none provided
-  buttonText = "Connect Wallet", // default text if none provided
+  variant = "outline",
+  buttonText = "Connect Wallet",
 }: WalletConnectButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const {
@@ -30,7 +30,7 @@ const WalletConnectButton = ({
     currentChain,
     handleWalletSelect,
     handleDisconnect,
-  } = useWalletConnection();
+  } = useWallet();
 
   const handlePhantomSelect = () => {
     handleWalletSelect("phantom", "solana");

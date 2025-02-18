@@ -17,7 +17,7 @@ const Staking = () => {
 
   return (
     <div className="pt-16 md:pt-20 pb-8  min-h-screen">
-      <div className="w-full max-w-6xl mx-auto">
+      <div className="w-full  mx-auto">
         <StakingHeader
           connectedAddress={connectedAddress}
           onCreatePool={() => setShowCreatePool(true)} onConnectWallet={function (): void {

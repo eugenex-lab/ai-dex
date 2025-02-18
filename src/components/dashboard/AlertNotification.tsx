@@ -9,7 +9,7 @@ const AlertNotification = ({ hasAlerts }: AlertNotificationProps) => {
   return (
     <Link
       to="/alerts"
-      className={`absolute -top-4 right-0 flex items-center gap-2 text-primary hover:text-primary/80 transition-colors ${
+      className={`absolute -top-10 right-2 md:right-0 md:top-0 flex items-center gap-2 text-primary hover:text-primary/80 transition-colors md:relative ${
         hasAlerts ? "animate-pulse" : ""
       }`}
     >
