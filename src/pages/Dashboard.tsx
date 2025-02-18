@@ -69,7 +69,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background pt-24 px-6 lg:px-8">
+    <div className="min-h-screen bg-background pt-24">
       <div className="max-w-7xl mx-auto relative ">
         <div className="flex  md:items-start mb-8 flex-col w-full items-center md:flex-row md:justify-between">
           <DashboardHeader />
@@ -77,7 +77,6 @@ const Dashboard = () => {
             <div className="relative mb-8 flex w-full ">
               <AlertNotification hasAlerts={hasAlerts} />
             </div>
-            <WalletConnectButton />
           </div>
         </div>
         <MarketStats />

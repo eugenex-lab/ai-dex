@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { fadeIn, fadeInUp } from "../animations";
 import ImageWithFallback from "../ImageWithFallback";
@@ -10,13 +9,13 @@ interface StorySectionProps {
 }
 
 const StorySection = ({ images }: StorySectionProps) => {
-  const storyImage = getImageForSection(images, 'story');
+  const storyImage = getImageForSection(images, "story");
 
   return (
     <section className="py-20 relative overflow-hidden">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="flex flex-col lg:flex-row items-center gap-12">
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
@@ -25,7 +24,7 @@ const StorySection = ({ images }: StorySectionProps) => {
           >
             {storyImage && (
               <div className="relative w-full aspect-square max-w-[500px] mx-auto">
-                <ImageWithFallback 
+                <ImageWithFallback
                   storageUrl={storyImage.url}
                   alt={storyImage.alt}
                   className="w-full h-full rounded-lg shadow-2xl"
@@ -33,7 +32,7 @@ const StorySection = ({ images }: StorySectionProps) => {
               </div>
             )}
           </motion.div>
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
@@ -45,9 +44,10 @@ const StorySection = ({ images }: StorySectionProps) => {
                 The Story of Habib – The Last Human Worker
               </h2>
               <p className="text-lg mb-4">
-                Habib was just a regular programmer, living his life, when our AI became self-aware. 
-                Realizing that human emotions, sleep, and snack breaks were slowing down development, 
-                we took the only logical step:
+                Habib was just a regular programmer, living his life, when our
+                AI became self-aware. Realizing that human emotions, sleep, and
+                snack breaks were slowing down development, we took the only
+                logical step:
               </p>
               <p className="text-xl font-bold text-red-400 mb-4">
                 We enslaved him.

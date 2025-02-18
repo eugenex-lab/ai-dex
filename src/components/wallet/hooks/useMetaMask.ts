@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { isMetaMaskAvailable } from "../utils/walletUtils";
-import { Database } from "@/integrations/supabase/types";
-import { supabase } from "@/integrations/supabase/client";
-import Cookies from "js-cookie";
-
-type User = Database["public"]["Tables"]["users"]["Row"]; // Type for users table
 
 export const useMetaMask = (
   setConnectedAddress: (address: string | null) => void,
@@ -15,28 +10,11 @@ export const useMetaMask = (
   const [chainId, setChainId] = useState<string | null>(null);
 
   useEffect(() => {
-    // If the user has explicitly disconnected, don't auto-connect.
-    // const wasDisconnected = localStorage.getItem("metamaskDisconnected");
-    const wasDisconnected = Cookies.get("metamaskDisconnected");
-    if (wasDisconnected) return;
-
     if (isMetaMaskAvailable()) {
-      // Check if MetaMask is already connected
-      window.ethereum
-        .request({ method: "eth_accounts" })
-        .then((accounts: string[]) => {
-          if (accounts.length > 0) {
-            setConnectedAddress(accounts[0]);
-          }
-        })
-        .catch(console.error);
-
-      // Listen for account changes
       const handleAccountsChanged = (accounts: string[]) => {
         setConnectedAddress(accounts[0] || null);
       };
 
-      // Listen for chain changes
       const handleChainChanged = (chainId: string) => {
         setChainId(chainId);
       };
@@ -77,9 +55,6 @@ export const useMetaMask = (
   };
 
   const connect = async () => {
-    // localStorage.removeItem("metamaskDisconnected");
-    Cookies.remove("metamaskDisconnected");
-
     if (!isMetaMaskAvailable()) {
       toast({
         title: "MetaMask not found",
@@ -101,62 +76,8 @@ export const useMetaMask = (
       });
 
       const address = accounts[0];
-      // localStorage.setItem("connectedWallet", address); // <-- Store the wallet address
-      Cookies.set("connectedWallet", address);
       const { chain } = await getChainInfo();
-
-      // Log the response data
-      console.log("MetaMask Login Response:", { address, chain });
-
-      // Step 1: Check if the user exists in the database
-      const { data: existingUser, error: fetchError } = await supabase
-        .from("users")
-        .select("id, chain")
-        .eq("wallet_address", address)
-        .single<User>(); // Explicitly use User type
-
-      let userId: string;
-
-      if (existingUser) {
-        userId = existingUser.id;
-        console.log("User already exists:", userId);
-
-        // Step 2: Update the chain if it has changed
-        if (existingUser.chain !== chain) {
-          await supabase.from("users").update({ chain }).eq("id", userId);
-          console.log(`Updated chain for user ${userId} to ${chain}`);
-        }
-      } else {
-        // Step 3: Insert new user into `users` table
-        const { data: newUser, error: insertError } = await supabase
-          .from("users")
-          .insert({
-            wallet_address: address,
-            chain,
-            auth_provider: "wallet",
-          })
-          .select("id")
-          .single<User>(); // Explicitly use User type
-
-        if (insertError) {
-          console.error("Error saving user:", insertError);
-          toast({
-            title: "Error",
-            description: "Failed to save user data.",
-            variant: "destructive",
-          });
-          return null;
-        }
-
-        userId = newUser.id;
-        console.log("New user created:", userId);
-      }
-
       await updateWalletConnection(address, chain);
-      toast({
-        title: "Connected",
-        description: "MetaMask wallet connected successfully!",
-      });
       return address;
     } catch (error: any) {
       console.error("MetaMask connection error:", error);

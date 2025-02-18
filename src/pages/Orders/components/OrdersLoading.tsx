@@ -1,15 +1,13 @@
-
 import { Table, TableBody, TableHeader } from "@/components/ui/table";
 import OrdersSkeleton from "./OrdersSkeleton";
 
 const OrdersLoading = () => {
   return (
-    <div className="container mx-auto px-4 py-8 mt-16">
+    <div className="container mx-auto py-8 mt-16">
       <div className="rounded-lg border bg-card">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
-            </TableHeader>
+            <TableHeader></TableHeader>
             <TableBody>
               <OrdersSkeleton />
             </TableBody>

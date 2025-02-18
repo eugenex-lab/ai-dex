@@ -8,13 +8,27 @@ import {
   updateWalletConnection,
   disconnectWallet,
 } from "../utils/walletDatabase";
-import { type PhantomChain } from "../utils/walletUtils";
 import Cookies from "js-cookie";
+import {
+  type PhantomChain,
+  isMetaMaskAvailable,
+  isPhantomAvailable,
+} from "../utils/walletUtils";
 
 // Import Cardano serialization library and Buffer polyfill
 import { Address } from "@emurgo/cardano-serialization-lib-browser";
 import { Buffer } from "buffer";
 
+type WalletType =
+  | "phantom"
+  | "metamask"
+  | "cardano"
+  | "yoroi"
+  | "eternl"
+  | "lace"
+  | "safecoin"
+  | "sollet"
+  | "solflare";
 /**
  * Converts a hex-encoded Cardano address to a Bech32 (addr1...) address.
  *
@@ -59,8 +73,20 @@ const getPaymentAddress = async (walletName: string) => {
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWallet, setLoadingWallet] = useState<string | null>(null);
-  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
-  const [currentChain, setCurrentChain] = useState<PhantomChain | null>(null);
+  // const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+  // const [currentChain, setCurrentChain] = useState<PhantomChain | null>(null);
+
+  const [connectedAddress, setConnectedAddress] = useState<string | null>(() =>
+    localStorage.getItem("connectedAddress")
+  );
+  const [currentChain, setCurrentChain] = useState<PhantomChain | null>(
+    () => localStorage.getItem("currentChain") as PhantomChain | null
+  );
+  const [lastConnectedWallet, setLastConnectedWallet] =
+    useState<WalletType | null>(
+      () => localStorage.getItem("lastWalletType") as WalletType | null
+    );
+
   const { toast } = useToast();
 
   const { connect: connectMetaMask, getChainInfo } = useMetaMask(
@@ -82,29 +108,137 @@ export const useWalletConnection = () => {
     disconnect: disconnectCardano,
   } = useCardano();
 
+  const handleWalletConnectionUpdate = (
+    address: string | null,
+    walletType?: WalletType
+  ) => {
+    setConnectedAddress(address);
+    if (address) {
+      localStorage.setItem("connectedAddress", address);
+      if (walletType) {
+        localStorage.setItem("lastWalletType", walletType);
+        setLastConnectedWallet(walletType);
+      }
+    } else {
+      localStorage.removeItem("connectedAddress");
+      localStorage.removeItem("lastWalletType");
+      setLastConnectedWallet(null);
+    }
+  };
+
+  // Handle wallet events with improved error handling
   useEffect(() => {
-    const checkConnectionStatus = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("wallet_address, wallet_connection_status")
-          .eq("id", user.id)
-          .single();
+    const handleAccountsChanged = async (accounts: string[]) => {
+      try {
+        const address = accounts[0] || null;
+        handleWalletConnectionUpdate(address, lastConnectedWallet);
 
         if (
-          profile?.wallet_address &&
-          profile.wallet_connection_status === "connected"
+          address &&
+          lastConnectedWallet === "metamask" &&
+          isMetaMaskAvailable()
         ) {
-          setConnectedAddress(profile.wallet_address);
+          const chainInfo = await getChainInfo();
+          setCurrentChain(chainInfo.chain as PhantomChain);
+          localStorage.setItem("currentChain", chainInfo.chain);
         }
+      } catch (error) {
+        console.error("Error handling accounts changed:", error);
+        handleDisconnect();
+      }
+    };
+
+    const handleDisconnect = () => {
+      handleWalletConnectionUpdate(null);
+      setCurrentChain(null);
+      localStorage.removeItem("currentChain");
+    };
+
+    // Set up MetaMask listeners
+    if (isMetaMaskAvailable() && window.ethereum?.removeListener) {
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("disconnect", handleDisconnect);
+    }
+
+    // Set up Phantom listeners
+    if (window.phantom?.solana) {
+      window.phantom.solana.on("disconnect", handleDisconnect);
+      window.phantom.solana.on("accountChanged", handleAccountsChanged);
+    }
+
+    return () => {
+      if (isMetaMaskAvailable() && window.ethereum?.removeListener) {
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
+        window.ethereum.removeListener("disconnect", handleDisconnect);
+      }
+      if (window.phantom?.solana) {
+        window.phantom.solana.removeListener("disconnect", handleDisconnect);
+        window.phantom.solana.removeListener(
+          "accountChanged",
+          handleAccountsChanged
+        );
+      }
+    };
+  }, [getChainInfo, lastConnectedWallet]);
+
+  useEffect(() => {
+    const checkConnectionStatus = async () => {
+      try {
+        // If we have a last connected wallet type, try to reconnect to that specific wallet
+        if (lastConnectedWallet) {
+          if (lastConnectedWallet === "metamask" && isMetaMaskAvailable()) {
+            const accounts = await window.ethereum.request({
+              method: "eth_accounts",
+            });
+            if (accounts && accounts.length > 0) {
+              const chainInfo = await getChainInfo();
+              handleWalletConnectionUpdate(accounts[0], "metamask");
+              setCurrentChain(chainInfo.chain as PhantomChain);
+              localStorage.setItem("currentChain", chainInfo.chain);
+              return;
+            }
+          } else if (
+            lastConnectedWallet === "phantom" &&
+            window.phantom?.solana?.isConnected
+          ) {
+            const address = window.phantom.solana.publicKey?.toString();
+            if (address) {
+              handleWalletConnectionUpdate(address, "phantom");
+              setCurrentChain("solana");
+              localStorage.setItem("currentChain", "solana");
+              return;
+            }
+          }
+        }
+
+        // Check database connection status
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from("wallets")
+            .select("wallet_address, wallet_connection_status")
+            .eq("id", user.id)
+            .single();
+
+          if (
+            profile?.wallet_address &&
+            profile.wallet_connection_status === true
+          ) {
+            handleWalletConnectionUpdate(profile.wallet_address);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking connection status:", error);
       }
     };
 
     checkConnectionStatus();
-  }, []);
+  }, [getChainInfo, lastConnectedWallet]);
 
   const handleWalletSelect = async (
     walletType: string,
@@ -119,15 +253,28 @@ export const useWalletConnection = () => {
       let address: string | null = null;
 
       if (walletType === "metamask") {
-        address = await connectMetaMask();
-        const chainInfo = await getChainInfo();
-        setCurrentChain(chainInfo.chain as PhantomChain);
-      } else if (walletType === "phantom") {
-        if (!chain) {
-          throw new Error("Chain must be specified for Phantom wallet");
+        if (isMetaMaskAvailable()) {
+          const address = await connectMetaMask();
+          if (address) {
+            const chainInfo = await getChainInfo();
+            setCurrentChain(chainInfo.chain as PhantomChain);
+            handleWalletConnectionUpdate(address, "metamask");
+            localStorage.setItem("currentChain", chainInfo.chain);
+            return;
+          }
         }
-        address = await connectPhantom(chain);
-        setCurrentChain(chain);
+        throw new Error("MetaMask not installed");
+      } else if (walletType === "phantom") {
+        if (window.phantom?.solana) {
+          const address = await connectPhantom("solana");
+          if (address) {
+            setCurrentChain("solana");
+            handleWalletConnectionUpdate(address, "phantom");
+            localStorage.setItem("currentChain", "solana");
+            return;
+          }
+        }
+        throw new Error("Phantom wallet not installed");
       } else if (walletType === "cardano") {
         if (!cardanoWalletName) {
           throw new Error("Cardano wallet name must be specified");
@@ -219,36 +366,14 @@ export const useWalletConnection = () => {
   };
 
   const handleDisconnect = async () => {
-    try {
-      setIsLoading(true);
-      await disconnectWallet();
-      setConnectedAddress(null);
-      setCurrentChain(null);
-
-      Cookies.set("metamaskDisconnected", "true");
-      Cookies.remove("connectedWallet");
-      Cookies.remove("phantomWallet");
-      Cookies.remove("phantomChain");
-
-      if (isConnected) {
-        await disconnectCardano();
-      }
-
-      toast({
-        title: "Disconnected",
-        description: "Wallet has been disconnected successfully.",
-      });
-    } catch (error: any) {
-      console.error("Wallet disconnection error:", error);
-      toast({
-        title: "Disconnection Failed",
-        description:
-          error.message || "Failed to disconnect wallet. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    if (!connectedAddress) {
+      console.error("No connected wallet address to disconnect.");
+      return;
     }
+    await disconnectWallet(connectedAddress); // Pass the wallet address here
+    handleWalletConnectionUpdate(null);
+    setCurrentChain(null);
+    localStorage.removeItem("currentChain");
   };
 
   return {

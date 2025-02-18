@@ -8,7 +8,7 @@ import ContactSection from "@/components/terms/ContactSection";
 
 const Terms = () => {
   return (
-    <div className="container mx-auto px-4 pt-24 pb-12">
+    <div className="container mx-auto pt-24 pb-12">
       <div className="max-w-4xl mx-auto space-y-8 text-foreground/90">
         <TermsHeader />
         <GeneralSection />

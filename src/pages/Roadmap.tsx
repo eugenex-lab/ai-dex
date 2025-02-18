@@ -70,13 +70,17 @@ const Roadmap = () => {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-16 min-h-screen">
+    <div className="container mx-auto py-16 min-h-screen">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-6">Tradenly Road Map & Milestones</h1>
+          <h1 className="text-4xl font-bold mb-6">
+            Tradenly Road Map & Milestones
+          </h1>
           <p className="text-muted-foreground">
-            At Tradenly, our mission is to empower traders with innovative tools, seamless integrations, and privacy-first technologies.
-            Below is our strategic roadmap, outlining our progress and future goals to redefine crypto trading.
+            At Tradenly, our mission is to empower traders with innovative
+            tools, seamless integrations, and privacy-first technologies. Below
+            is our strategic roadmap, outlining our progress and future goals to
+            redefine crypto trading.
           </p>
         </div>
 
@@ -90,10 +94,15 @@ const Roadmap = () => {
               className="relative"
             >
               <div className="glass-card p-8 rounded-lg relative overflow-hidden group traveling-light">
-                <h2 className="text-2xl font-semibold mb-4 text-primary">{phase.title}</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-primary">
+                  {phase.title}
+                </h2>
                 <ul className="space-y-3">
                   {phase.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className="text-muted-foreground flex items-start">
+                    <li
+                      key={itemIndex}
+                      className="text-muted-foreground flex items-start"
+                    >
                       <span className="mr-2">•</span>
                       <span>{item}</span>
                     </li>
@@ -105,14 +114,19 @@ const Roadmap = () => {
         </div>
 
         <div className="text-center mt-16 space-y-6">
-          <h2 className="text-2xl font-semibold text-primary">Why Choose Tradenly?</h2>
+          <h2 className="text-2xl font-semibold text-primary">
+            Why Choose Tradenly?
+          </h2>
           <p className="text-muted-foreground">
-            Our roadmap reflects our dedication to delivering cutting-edge solutions for retail traders, developers, and businesses
-            alike. By combining blockchain innovation, AI-driven optimization, and an open-source philosophy, Tradenly aims to
-            set a new standard in crypto trading.
+            Our roadmap reflects our dedication to delivering cutting-edge
+            solutions for retail traders, developers, and businesses alike. By
+            combining blockchain innovation, AI-driven optimization, and an
+            open-source philosophy, Tradenly aims to set a new standard in
+            crypto trading.
           </p>
           <p className="text-muted-foreground">
-            Stay tuned as we bring these milestones to life and redefine how you trade in the digital age.
+            Stay tuned as we bring these milestones to life and redefine how you
+            trade in the digital age.
           </p>
           <div className="pt-6">
             <motion.p

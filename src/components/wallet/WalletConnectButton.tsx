@@ -11,9 +11,17 @@ import {
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
 import { useWalletConnection } from "./hooks/useWalletConnection";
-import { type PhantomChain } from "./utils/walletUtils";
+// import { type PhantomChain } from "./utils/walletUtils"; // if needed
 
-const WalletConnectButton = () => {
+interface WalletConnectButtonProps {
+  variant?: string; // e.g., "default" or "outline"
+  buttonText?: string;
+}
+
+const WalletConnectButton = ({
+  variant = "outline", // default variant if none provided
+  buttonText = "Connect Wallet", // default text if none provided
+}: WalletConnectButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const {
     isLoading,
@@ -30,7 +38,7 @@ const WalletConnectButton = () => {
   };
 
   const handleCardanoSelect = (walletName: string) => {
-    handleWalletSelect("cardano", undefined, walletName); // Pass the Cardano wallet name
+    handleWalletSelect("cardano", undefined, walletName);
     setIsOpen(false);
   };
 
@@ -48,9 +56,9 @@ const WalletConnectButton = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2 min-w-[180px] h-11">
+        <Button variant={variant} className="gap-2 min-w-[180px] h-11">
           <Wallet className="h-4 w-4" />
-          Connect Wallet
+          {buttonText}
         </Button>
       </DialogTrigger>
 
@@ -70,7 +78,7 @@ const WalletConnectButton = () => {
               wallet === "eternl" ||
               wallet === "lace"
             ) {
-              handleCardanoSelect(wallet); // Handle Cardano wallet selection
+              handleCardanoSelect(wallet);
             } else {
               handleWalletSelect(wallet);
             }

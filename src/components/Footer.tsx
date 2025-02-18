@@ -6,7 +6,7 @@ import LegalLinks from "./footer/LegalLinks";
 const Footer = () => {
   return (
     <footer className="bg-background py-12">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <AboutLinks />
           <HelpLinks />
@@ -15,7 +15,9 @@ const Footer = () => {
         </div>
 
         <div className="mt-12 pt-8 text-center text-sm text-foreground/60">
-          <p>© {new Date().getFullYear()} Tradenly AI DEX. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} Tradenly AI DEX. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

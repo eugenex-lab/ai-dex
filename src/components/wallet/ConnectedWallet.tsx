@@ -36,7 +36,7 @@ const ConnectedWallet = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" className="gap-2 min-w-[180px] h-11">
+        <Button variant="secondary" className="gap-2 min-w-[208px] h-11">
           <Wallet className="h-4 w-4" />
           {displayAddress} {chain && `(${chain})`}
         </Button>

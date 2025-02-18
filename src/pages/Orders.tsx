@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useOrders, type Order } from "./Orders/hooks/useOrders";
 import { useOrdersRealtime } from "./Orders/hooks/useOrdersRealtime";
@@ -27,7 +26,7 @@ const Orders = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-16">
+    <div className="container mx-auto py-8 mt-16">
       <OrdersTable orders={orders} />
     </div>
   );

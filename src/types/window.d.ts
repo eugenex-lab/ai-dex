@@ -1,6 +1,8 @@
 
 interface Window {
   ethereum?: {
+    [x: string]: any;
+    [x: string]: any;
     isMetaMask?: boolean;
     request: (request: { method: string; params?: any[] }) => Promise<any>;
     on: (event: string, callback: (params: any) => void) => void;

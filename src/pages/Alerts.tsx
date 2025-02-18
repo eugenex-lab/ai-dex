@@ -57,7 +57,7 @@ const Alerts = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-16">
+    <div className="container mx-auto py-8 mt-16">
       <div className="mb-8">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Bell className="h-8 w-8" />

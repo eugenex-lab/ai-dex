@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import {
   Card,
   CardContent,
   CardDescription,
@@ -25,13 +25,13 @@ const jobPositions: JobPosition[] = [
       "Expertise in React, Node.js, and cloud development",
       "Strong proficiency in JavaScript, TypeScript, SQL, and frameworks like React or Angular",
       "Experience with databases such as PostgreSQL, MySQL, or MongoDB",
-      "Familiarity with blockchain technologies and decentralized finance (DeFi)"
+      "Familiarity with blockchain technologies and decentralized finance (DeFi)",
     ],
     role: [
       "Build and maintain our front-end features for Tradenly's trading platform",
       "Work closely with front-end and back-end teams to create a seamless user experience",
-      "Optimize the platform's performance and security"
-    ]
+      "Optimize the platform's performance and security",
+    ],
   },
   {
     title: "Front-End Developers",
@@ -39,26 +39,26 @@ const jobPositions: JobPosition[] = [
       "Proficiency in React, JavaScript, TypeScript, and CSS/HTML",
       "Experience with responsive design and UI/UX patterns",
       "Familiarity with state management libraries like Redux or Context API",
-      "Understanding of REST/GraphQL APIs and WebSocket/WebRTC for real-time data"
+      "Understanding of REST/GraphQL APIs and WebSocket/WebRTC for real-time data",
     ],
     role: [
       "Design and implement beautiful and responsive user interfaces",
       "Collaborate with designers and back-end teams to bring ideas to life",
-      "Ensure compatibility across devices and browsers"
-    ]
+      "Ensure compatibility across devices and browsers",
+    ],
   },
   {
     title: "System Engineers",
     requirements: [
       "In-depth knowledge of cloud infrastructure (AWS, Google Cloud, or Azure)",
       "Experience with CI/CD pipelines and infrastructure automation",
-      "Strong understanding of networking, security, and server optimization"
+      "Strong understanding of networking, security, and server optimization",
     ],
     role: [
       "Architect, deploy, and maintain our cloud-based trading platform",
       "Monitor system performance and implement improvements",
-      "Implement best practices for security and scalability"
-    ]
+      "Implement best practices for security and scalability",
+    ],
   },
   {
     title: "Smart Contract Developers (Ethereum and Cardano)",
@@ -66,13 +66,13 @@ const jobPositions: JobPosition[] = [
       "Proficiency in Solidity and/or Plutus",
       "Experience designing and testing contracts on testnet and mainnet",
       "Familiarity with blockchain security practices and auditing tools",
-      "Understanding of DeFi protocols and smart contract patterns"
+      "Understanding of DeFi protocols and smart contract patterns",
     ],
     role: [
       "Develop and deploy secure and efficient smart contracts",
       "Integrate contracts with front-end and back-end systems",
-      "Conduct audit and testing to ensure contract security and reliability"
-    ]
+      "Conduct audit and testing to ensure contract security and reliability",
+    ],
   },
   {
     title: "Social Media Marketers",
@@ -80,13 +80,13 @@ const jobPositions: JobPosition[] = [
       "Proven experience managing social media platforms",
       "Strong content creation and copywriting skills",
       "Knowledge of cryptocurrency and DeFi markets",
-      "Proficiency with analytics tools and social media scheduling software"
+      "Proficiency with analytics tools and social media scheduling software",
     ],
     role: [
       "Plan and execute effective social media campaigns",
       "Engage with the crypto community to build brand awareness",
-      "Analyze metrics to optimize reach and increase engagement"
-    ]
+      "Analyze metrics to optimize reach and increase engagement",
+    ],
   },
   {
     title: "Server-Side Developers",
@@ -94,13 +94,13 @@ const jobPositions: JobPosition[] = [
       "Proficiency in back-end languages like Node.js, Python, Go, or Java",
       "Experience with database design, management (SQL and NoSQL)",
       "Understanding of RESTful APIs and WebSocket protocols",
-      "Knowledge of blockchain protocols for real-time data transmission"
+      "Knowledge of blockchain protocols for real-time data transmission",
     ],
     role: [
       "Build and optimize the back-end architecture supporting the trading platform",
       "Develop and manage APIs for seamless front-end integration",
-      "Ensure high performance and reliability of server-side operations"
-    ]
+      "Ensure high performance and reliability of server-side operations",
+    ],
   },
   {
     title: "Bot Builders",
@@ -108,14 +108,14 @@ const jobPositions: JobPosition[] = [
       "Experience building trading bots for automated trade",
       "Strong programming skills in Python, Node.js, or similar languages",
       "Knowledge of crypto trading platforms and APIs",
-      "Familiarity with algorithmic trading strategies and backtesting frameworks"
+      "Familiarity with algorithmic trading strategies and backtesting frameworks",
     ],
     role: [
       "Design and develop trading bots for cryptocurrency markets",
       "Optimize bots for high-frequency trading, arbitrage, and custom strategies",
-      "Test and refine bot performance based on real-world scenarios"
-    ]
-  }
+      "Test and refine bot performance based on real-world scenarios",
+    ],
+  },
 ];
 
 const CareersPage = () => {
@@ -129,7 +129,7 @@ const CareersPage = () => {
     resume: "",
     github: "",
     telegram: "",
-    coverLetter: ""
+    coverLetter: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,7 +160,7 @@ const CareersPage = () => {
         resume: "",
         github: "",
         telegram: "",
-        coverLetter: ""
+        coverLetter: "",
       });
     } catch (error) {
       console.error("Error submitting application:", error);
@@ -174,36 +174,53 @@ const CareersPage = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
   return (
     // ... keep existing code (job positions display)
-    <div className="container mx-auto px-4 py-16 min-h-screen">
+    <div className="container mx-auto py-16 min-h-screen">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-foreground">Join the Tradenly Team</h1>
+          <h1 className="text-4xl font-bold text-foreground">
+            Join the Tradenly Team
+          </h1>
           <p className="text-lg text-muted-foreground">
-            At Tradenly, we are building the future of decentralized trading, and we're looking for passionate, talented individuals to join our team. Whether you're a developer, engineer, or marketer, there's a place for you at Tradenly to help shape the next generation of crypto trading tools.
+            At Tradenly, we are building the future of decentralized trading,
+            and we're looking for passionate, talented individuals to join our
+            team. Whether you're a developer, engineer, or marketer, there's a
+            place for you at Tradenly to help shape the next generation of
+            crypto trading tools.
           </p>
         </div>
 
         <div className="grid gap-8">
           {jobPositions.map((job, index) => (
-            <Card key={index} className="bg-secondary/20 border border-white/10">
+            <Card
+              key={index}
+              className="bg-secondary/20 border border-white/10"
+            >
               <CardHeader>
-                <CardTitle className="text-2xl text-primary">{job.title}</CardTitle>
+                <CardTitle className="text-2xl text-primary">
+                  {job.title}
+                </CardTitle>
                 <CardDescription className="text-lg text-muted-foreground">
                   What We're Looking For:
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="font-semibold mb-2 text-foreground">Requirements:</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">
+                    Requirements:
+                  </h3>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     {job.requirements.map((req, i) => (
                       <li key={i}>{req}</li>
@@ -211,7 +228,9 @@ const CareersPage = () => {
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2 text-foreground">Your Role:</h3>
+                  <h3 className="font-semibold mb-2 text-foreground">
+                    Your Role:
+                  </h3>
                   <ul className="list-disc pl-5 space-y-1 text-muted-foreground">
                     {job.role.map((r, i) => (
                       <li key={i}>{r}</li>
