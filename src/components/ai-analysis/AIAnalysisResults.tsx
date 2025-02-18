@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import AlertDialog from "./AlertDialog";
-import { Progress } from "@/components/ui/progress";
 import { useWalletConnection } from "@/components/wallet/hooks/useWalletConnection";
 
 interface AnalysisResult {
@@ -102,13 +101,13 @@ const AIAnalysisResults = () => {
   const { connectedAddress } = useWalletConnection();
 
   useEffect(() => {
-    fetchResults();
-  }, []);
+    if (connectedAddress) {
+      fetchResults();
+    }
+  }, [connectedAddress]);
 
   const fetchResults = async () => {
-    if (!connectedAddress) {
-      return;
-    }
+    if (!connectedAddress) return;
 
     const { data, error } = await supabase
       .from("ai_analysis_results")
