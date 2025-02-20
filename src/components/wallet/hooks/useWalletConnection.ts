@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
@@ -8,53 +9,21 @@ import {
   updateWalletConnection,
   disconnectWallet,
 } from "../utils/walletDatabase";
-import Cookies from "js-cookie";
-import {
-  type PhantomChain,
-  isMetaMaskAvailable,
-  isPhantomAvailable,
-} from "../utils/walletUtils";
+import { type PhantomChain } from "../utils/walletUtils";
 import { Address } from "@emurgo/cardano-serialization-lib-browser";
 import { Buffer } from "buffer";
-
-export const convertHexToBech32 = (hexAddress: string): string | null => {
-  try {
-    const addressBytes = Buffer.from(hexAddress, "hex");
-    const address = Address.from_bytes(addressBytes);
-    return address.to_bech32();
-  } catch (error) {
-    console.error("Conversion error:", error);
-    return null;
-  }
-};
-
-const getPaymentAddress = async (walletName: string) => {
-  if (!window.cardano || !window.cardano[walletName]) {
-    throw new Error("Cardano wallet not found");
-  }
-  try {
-    const api = await window.cardano[walletName].enable();
-    const addresses = await api.getUsedAddresses();
-    return addresses.length > 0
-      ? addresses[0]
-      : (await api.getUnusedAddresses())[0] || null;
-  } catch (error) {
-    console.error("Failed to fetch payment address:", error);
-    throw new Error("This wallet does not support address retrieval.");
-  }
-};
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingWallet, setLoadingWallet] = useState<string | null>(null);
-  const [connectedAddress, setConnectedAddress] = useState<string | null>(() =>
-    localStorage.getItem("connectedAddress")
+  const [connectedAddress, setConnectedAddress] = useState<string | null>(
+    () => Cookies.get("connectedAddress") || null
   );
   const [currentChain, setCurrentChain] = useState<PhantomChain | null>(
-    () => localStorage.getItem("currentChain") as PhantomChain | null
+    () => (Cookies.get("currentChain") as PhantomChain) || null
   );
   const [lastConnectedWallet, setLastConnectedWallet] = useState<string | null>(
-    () => localStorage.getItem("lastWalletType")
+    () => Cookies.get("lastWalletType") || null
   );
 
   const { toast } = useToast();
@@ -69,18 +38,79 @@ export const useWalletConnection = () => {
   const { connect: connectCardano, disconnect: disconnectCardano } =
     useCardano();
 
+  /**
+   * Converts a hex-encoded Cardano address to a Bech32 (addr1...) address.
+   */
+  const convertHexToBech32 = (hexAddress: string): string | null => {
+    try {
+      const addressBytes = Buffer.from(hexAddress, "hex");
+      const address = Address.from_bytes(addressBytes);
+      return address.to_bech32();
+    } catch (error) {
+      console.error("Conversion error:", error);
+      return null;
+    }
+  };
+
+  /**
+   * Retrieves the Cardano payment address from the connected wallet.
+   * Returns a Bech32 formatted address.
+   */
+  const getCardanoPaymentAddress = async (
+    walletName: string
+  ): Promise<string | null> => {
+    if (!window.cardano || !window.cardano[walletName]) {
+      throw new Error("Cardano wallet not found");
+    }
+
+    try {
+      const api = await window.cardano[walletName].enable();
+      const addresses = await api.getUsedAddresses();
+
+      let hexAddress = addresses.length > 0 ? addresses[0] : null;
+      if (!hexAddress) {
+        const unusedAddresses = await api.getUnusedAddresses();
+        hexAddress = unusedAddresses.length > 0 ? unusedAddresses[0] : null;
+      }
+
+      if (!hexAddress) {
+        throw new Error("No payment address found");
+      }
+
+      // Convert HEX to Bech32 format
+      const paymentAddressConverted = convertHexToBech32(hexAddress);
+      if (!paymentAddressConverted) {
+        throw new Error("Failed to convert Cardano address to Bech32 format.");
+      }
+
+      return paymentAddressConverted;
+    } catch (error) {
+      console.error("Failed to fetch Cardano payment address:", error);
+      throw new Error("This wallet does not support address retrieval.");
+    }
+  };
+
+  useEffect(() => {
+    const storedChain = Cookies.get("currentChain") as PhantomChain | null;
+    if (storedChain) {
+      setCurrentChain(storedChain);
+    }
+  }, []);
+
   useEffect(() => {
     const checkConnectionStatus = async () => {
       try {
         const {
           data: { user },
         } = await supabase.auth.getUser();
+
         if (user) {
           const { data: profile } = await supabase
             .from("users")
             .select("wallet_address, wallet_connection_status")
             .eq("id", user.id)
             .single();
+
           if (profile?.wallet_address && profile.wallet_connection_status) {
             setConnectedAddress(profile.wallet_address);
           }
@@ -100,37 +130,31 @@ export const useWalletConnection = () => {
     setIsLoading(true);
     setLoadingWallet(walletType);
     setCurrentChain(null);
+
     try {
       let address: string | null = null;
+
       if (walletType === "metamask") {
         address = await connectMetaMask();
         const chainInfo = await getChainInfo();
         setCurrentChain(chainInfo.chain as PhantomChain);
+        Cookies.set("currentChain", chainInfo.chain as PhantomChain);
       } else if (walletType === "phantom" && chain) {
         address = await connectPhantom(chain);
         setCurrentChain(chain);
+        Cookies.set("currentChain", chain);
       } else if (walletType === "cardano" && cardanoWalletName) {
         await connectCardano(cardanoWalletName);
-        const paymentAddressHex = await getPaymentAddress(cardanoWalletName);
-        if (paymentAddressHex) {
-          const paymentAddressConverted = convertHexToBech32(paymentAddressHex);
-          if (paymentAddressConverted) {
-            address = paymentAddressConverted;
-            setCurrentChain("cardano");
-            console.log(
-              "Connected Cardano Wallet - Payment Address:",
-              paymentAddressConverted
-            );
-            // Save the Cardano wallet to the "wallets" table
-            await updateWalletConnection(paymentAddressConverted, "cardano");
-          } else {
-            throw new Error("Failed to convert address to Bech32 format");
-          }
-        } else {
-          throw new Error("No payment address found");
-        }
+        address = await getCardanoPaymentAddress(cardanoWalletName);
+        if (!address) throw new Error("Failed to retrieve Cardano address.");
+        setCurrentChain("cardano");
+        Cookies.set("currentChain", "cardano");
+        await updateWalletConnection(address, "cardano");
       }
+
       if (address) {
+        Cookies.set("connectedAddress", address);
+        Cookies.set("lastWalletType", walletType);
         setConnectedAddress(address);
       }
     } catch (error: any) {
@@ -153,13 +177,11 @@ export const useWalletConnection = () => {
     try {
       setIsLoading(true);
       await disconnectWallet();
+      Cookies.remove("connectedAddress");
+      Cookies.remove("currentChain");
+      Cookies.remove("lastWalletType");
       setConnectedAddress(null);
       setCurrentChain(null);
-      Cookies.set("metamaskDisconnected", "true");
-      Cookies.remove("connectedWallet");
-      if (connectedAddress) {
-        await disconnectCardano();
-      }
       toast({
         title: "Disconnected",
         description: "Wallet has been disconnected successfully.",
