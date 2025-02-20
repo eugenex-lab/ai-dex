@@ -33,7 +33,7 @@ const CryptoChart = ({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Price Chart</h2>
       </div>
-      <div className="w-full h-[600px] md:h-[640px]">
+      <div className="w-full h-[600px] md:h-[560px]">
         <ErrorBoundary>
           <TradingViewChart currentPair={currentPair} />
         </ErrorBoundary>
@@ -68,7 +68,7 @@ const TradingViewChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
         style: "1",
         locale: "en",
         width: "100%",
-        height: 630,
+        height: 550,
         hide_side_toolbar: false,
         allow_symbol_change: true,
       });

@@ -56,7 +56,7 @@ const WalletConnectButton = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={variant} className="gap-2 min-w-[180px] h-11">
+        <Button variant={variant} className="gap-2 min-w-[225px] h-11">
           <Wallet className="h-4 w-4" />
           {buttonText}
         </Button>
@@ -76,7 +76,7 @@ const WalletConnectButton = ({
             } else if (
               wallet === "yoroi" ||
               wallet === "eternl" ||
-              wallet === "lace"
+              wallet === "lace" 
             ) {
               handleCardanoSelect(wallet);
             } else {

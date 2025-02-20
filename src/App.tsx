@@ -34,7 +34,6 @@ function ScrollToTop() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-
   return null;
 }
 
@@ -44,7 +43,7 @@ function App() {
       <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-grow pt-10 px-6 lg:px-8">
+        <main className="flex-grow pt-10 px-6 lg:px-8 container">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />
