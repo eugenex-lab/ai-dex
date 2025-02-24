@@ -8,6 +8,14 @@
   }
 }
 
+@layer base {
+  :root {
+    --chart-grid: 228 10% 22%;
+    --chart-up: 174 63% 40%;
+    --chart-down: 0 84% 60%;
+  }
+}
+
 @keyframes pulse-subtle {
   0%,
   100% {
