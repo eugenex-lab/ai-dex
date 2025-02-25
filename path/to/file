@@ -1,0 +1,45 @@
+<div
+  class="container mx-auto px-6 md:px-12 relative z-10 flex items-center py-24 xl:py-40"
+>
+  <div class="lg:w-3/5 xl:w-2/5 flex flex-col items-start relative z-10">
+    // ... existing content ...
+  </div>
+
+  <!-- Replace the image with this SVG -->
+  <svg
+    class="hidden sm:block absolute bottom-0 right-0 -mr-40 lg:mr-0"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 645.06 372.73"
+  >
+    <defs>
+      <radialGradient
+        id="a"
+        cx="416.96"
+        cy="273.37"
+        r="226.21"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" stop-color="#6e3f63" />
+        <stop offset=".15" stop-color="#633d62" />
+        <stop offset=".41" stop-color="#473660" />
+        <stop offset=".5" stop-color="#3b335f" />
+        <stop offset=".6" stop-color="#38315c" stop-opacity=".88" />
+        <stop offset=".76" stop-color="#302b55" stop-opacity=".57" />
+        <stop offset=".97" stop-color="#242249" stop-opacity=".07" />
+        <stop offset="1" stop-color="#222147" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    // ... rest of the SVG path data ...
+  </svg>
+
+  <!-- Keep the background gradient SVG -->
+  <svg
+    class="absolute left-0 bottom-0 w-full h-full"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    viewBox="0 0 662.41 385.07"
+    preserveAspectRatio="xMinYMax slice"
+  >
+    // ... existing background SVG code ...
+  </svg>
+</div>

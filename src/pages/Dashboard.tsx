@@ -96,7 +96,7 @@ const Dashboard = () => {
         {tokens && (
           <TokenMarquee
             tokens={tokens}
-            quoteCurrency="USD"
+            quoteCurrency="ADA"
             onTokenSelect={(token) => handlePairChange(token.ticker)}
           />
         )}

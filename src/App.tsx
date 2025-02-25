@@ -43,7 +43,7 @@ function App() {
       <ScrollToTop />
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-grow pt-10 px-6 lg:px-8 container">
+        <main className="flex-grow pt-10 px-4 md:px-6 lg:px-8 container">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<About />} />

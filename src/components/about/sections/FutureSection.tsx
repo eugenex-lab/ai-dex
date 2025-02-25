@@ -1,5 +1,5 @@
-import { motion } from "framer-motion";
-import { fadeInUp } from "../animations";
+import { motion } from "framer-motion"; // Ensure this import is correct
+import { fadeInUp } from "../animations"; // Ensure this import is correct
 import ImageWithFallback from "../ImageWithFallback";
 import { AboutImage } from "../types";
 import { getImageForSection } from "../useAboutImages";
@@ -19,18 +19,18 @@ const FutureSection = ({ images }: FutureSectionProps) => {
       variants={fadeInUp}
       className="py-20 relative"
     >
-      <div className="container mx-auto">
+      <div className="container mx-auto px-4">
         <div className="text-center max-w-4xl mx-auto">
           <h2 className="text-3xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
             The Future of Trading Is Now
           </h2>
           <div className="glass-card p-8 rounded-lg backdrop-blur-lg bg-secondary/30">
             {futureImage && (
-              <div className="mb-8">
+              <div className="mb-8 h-[400px] overflow-hidden rounded-lg">
                 <ImageWithFallback
                   storageUrl={futureImage.url}
                   alt={futureImage.alt}
-                  className="w-full max-w-2xl mx-auto rounded-lg shadow-2xl"
+                  className="w-full h-full object-cover rounded-lg shadow-2xl "
                 />
               </div>
             )}

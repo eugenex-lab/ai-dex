@@ -27,7 +27,7 @@ export const QuoteCurrencySelect = ({
 }: QuoteCurrencySelectProps) => {
   return (
     <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="w-[100px]">
+      <SelectTrigger className="w-[120px]">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

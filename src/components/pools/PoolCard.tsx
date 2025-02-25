@@ -25,7 +25,7 @@ export const PoolCard = ({ pool, onStake }: PoolCardProps) => {
     <div className="bg-secondary/20 backdrop-blur-lg rounded-lg p-4 lg:p-6 animate-fade-in">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         {/* Token Pair Section */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-7">
           <div className="relative">
             <img
               src={pool.token1.icon}

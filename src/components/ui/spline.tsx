@@ -1,6 +1,6 @@
-'use client';
-import Spline from '@splinetool/react-spline';
-import { useEffect, useState } from 'react';
+"use client";
+import Spline from "@splinetool/react-spline";
+import { useEffect, useState } from "react";
 
 interface SplineSceneProps {
   scene: string;
@@ -21,10 +21,7 @@ export function SplineScene({ scene, className }: SplineSceneProps) {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       )}
-      <Spline
-        scene={scene}
-        onLoad={onLoad}
-      />
+      <Spline scene={scene} onLoad={onLoad} />
     </div>
   );
 }

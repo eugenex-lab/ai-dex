@@ -83,7 +83,7 @@ export const TokenHeader = ({
         <Button
           size="icon"
           onClick={onOpenTokenSelect}
-          className="rounded-full"
+          className="rounded-full hidden lg:flex"
         >
           <Plus className="h-4 w-4" />
         </Button>

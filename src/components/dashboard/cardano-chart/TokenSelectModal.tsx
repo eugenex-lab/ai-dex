@@ -40,7 +40,8 @@ export const TokenSelectModal = ({
     error,
   } = useQuery<TokenData[]>({
     queryKey: ["topTokens"],
-    queryFn: () => api.getTopTokens(1, 10), // Ensure the function matches the expected parameters
+    queryFn: () => api.getTopTokens(), // ✅ Increased limit to get more tokens
+    staleTime: 60000, // ✅ Cache tokens for 60 seconds
   });
 
   if (error) {
@@ -53,6 +54,7 @@ export const TokenSelectModal = ({
     );
   }
 
+  // ✅ Filter out tokens that are already selected & match search query
   const filteredTokens = tokens.filter(
     (token) =>
       !excludeTokens.includes(token.ticker) &&
@@ -62,6 +64,7 @@ export const TokenSelectModal = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
+        {/* ✅ Search Input */}
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
@@ -72,10 +75,15 @@ export const TokenSelectModal = ({
           />
         </div>
 
+        {/* ✅ Token List */}
         <ScrollArea className="h-[400px] pr-4">
           {isLoading ? (
             <div className="text-center text-muted-foreground">
               Loading tokens...
+            </div>
+          ) : filteredTokens.length === 0 ? (
+            <div className="text-center text-muted-foreground">
+              No tokens found.
             </div>
           ) : (
             <div className="space-y-2">
@@ -84,8 +92,8 @@ export const TokenSelectModal = ({
                   key={token.ticker}
                   className="w-full p-3 rounded-lg hover:bg-secondary flex items-center justify-between transition-colors"
                   onClick={() => {
-                    onSelect(token.ticker);
-                    onClose();
+                    onSelect(token.ticker); // ✅ Call handleAddToken
+                    onClose(); // ✅ Close modal after selection
                   }}
                 >
                   <div className="flex items-center gap-3">
@@ -108,3 +116,5 @@ export const TokenSelectModal = ({
     </Dialog>
   );
 };
+
+export default TokenSelectModal;

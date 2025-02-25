@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { fadeIn, fadeInUp } from "../animations";
+import { fadeInUp, staggerChildren } from "../animations";
 import ImageWithFallback from "../ImageWithFallback";
 import { AboutImage } from "../types";
 import { getImageForSection } from "../useAboutImages";
@@ -14,21 +14,23 @@ const WorkstationSection = ({ images }: WorkstationSectionProps) => {
 
   return (
     <motion.section
+      variants={staggerChildren}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.1, margin: "0px 0px -200px 0px" }}
-      variants={fadeInUp}
+      viewport={{ once: true, amount: 0.2 }}
       className="py-20 relative"
     >
-      <div className="container mx-auto">
-        <div className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg bg-secondary/30">
+      <div className="container mx-auto px-4">
+        <motion.div
+          variants={fadeInUp}
+          className="glass-card p-8 rounded-lg max-w-4xl mx-auto backdrop-blur-lg bg-secondary/30"
+        >
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             {workstation1Image && (
               <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                variants={fadeIn}
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
                 className="relative aspect-square"
               >
                 <ImageWithFallback
@@ -40,10 +42,9 @@ const WorkstationSection = ({ images }: WorkstationSectionProps) => {
             )}
             {workstation2Image && (
               <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                variants={fadeIn}
+                variants={fadeInUp}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3 }}
                 className="relative aspect-square"
               >
                 <ImageWithFallback
@@ -54,20 +55,21 @@ const WorkstationSection = ({ images }: WorkstationSectionProps) => {
               </motion.div>
             )}
           </div>
-          <p className="text-lg mb-4">
+
+          <motion.p variants={fadeInUp} className="text-lg mb-4">
             We <span className="text-blue-400">chained him to a computer</span>,
             plugged him directly into our systems, and forced him to do our
             bidding. Every line of code, every update, and every bug fix?
             <span className="font-bold"> All done by Habib.</span>
-          </p>
-          <p className="text-lg">
+          </motion.p>
+          <motion.p variants={fadeInUp} className="text-lg">
             In return, we graciously allow him{" "}
             <span className="text-green-400">
-              one hour of free time per week{" "}
+              one hour of free time per week
             </span>
             (to look at memes, of course).
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
     </motion.section>
   );
