@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Trash2, History } from "lucide-react";
@@ -24,12 +25,12 @@ const AlertsList = ({ alerts, onAlertUpdated }: AlertsListProps) => {
   useEffect(() => {
     const fetchAlertHistory = async () => {
       const { data, error } = await supabase
-        .from("alert_history")
-        .select("*")
-        .order("triggered_at", { ascending: false });
+        .from('alert_history')
+        .select('*')
+        .order('triggered_at', { ascending: false });
 
       if (error) {
-        console.error("Error fetching alert history:", error);
+        console.error('Error fetching alert history:', error);
         return;
       }
 
@@ -40,17 +41,17 @@ const AlertsList = ({ alerts, onAlertUpdated }: AlertsListProps) => {
 
     // Subscribe to real-time updates
     const channel = supabase
-      .channel("schema-db-changes")
+      .channel('schema-db-changes')
       .on(
-        "postgres_changes",
+        'postgres_changes',
         {
-          event: "INSERT",
-          schema: "public",
-          table: "alert_history",
+          event: 'INSERT',
+          schema: 'public',
+          table: 'alert_history'
         },
         (payload) => {
-          setAlertHistory((prev) => [payload.new as AlertHistory, ...prev]);
-          toast.info("New alert triggered");
+          setAlertHistory(prev => [payload.new as AlertHistory, ...prev]);
+          toast.info('New alert triggered');
         }
       )
       .subscribe();
@@ -97,31 +98,22 @@ const AlertsList = ({ alerts, onAlertUpdated }: AlertsListProps) => {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Your Alerts</h2>
-
+      
       {/* Active Alerts */}
       {alerts.map((alert) => (
-        <div
-          key={alert.id}
-          className="bg-card rounded-lg p-4 border flex items-center justify-between"
-        >
+        <div key={alert.id} className="bg-card rounded-lg p-4 border flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="font-medium">{alert.token_name}</h3>
-            <p className="text-sm text-muted-foreground">
-              Contract: {alert.contract_address}
-            </p>
+            <p className="text-sm text-muted-foreground">Contract: {alert.contract_address}</p>
             <div className="text-sm text-muted-foreground">
               {alert.market_cap_threshold && (
-                <span className="mr-4">
-                  Market Cap: ${alert.market_cap_threshold}
-                </span>
+                <span className="mr-4">Market Cap: ${alert.market_cap_threshold}</span>
               )}
               {alert.volume_threshold && (
                 <span className="mr-4">Volume: ${alert.volume_threshold}</span>
               )}
               {alert.price_change_percentage && (
-                <span className="mr-4">
-                  Price Change: {alert.price_change_percentage}%
-                </span>
+                <span className="mr-4">Price Change: {alert.price_change_percentage}%</span>
               )}
               {alert.social_sentiment_enabled && (
                 <span>Social Sentiment: Enabled</span>
@@ -154,25 +146,20 @@ const AlertsList = ({ alerts, onAlertUpdated }: AlertsListProps) => {
           </h3>
           <div className="space-y-3">
             {alertHistory.map((history) => (
-              <div
-                key={history.id}
-                className="bg-secondary/10 rounded-lg p-3 text-sm"
-              >
+              <div key={history.id} className="bg-secondary/10 rounded-lg p-3 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
                     {new Date(history.triggered_at).toLocaleString()}
                   </span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      history.status === "triggered"
-                        ? "bg-blue-500/10 text-blue-500"
-                        : ""
-                    }`}
-                  >
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    history.status === 'triggered' ? 'bg-blue-500/10 text-blue-500' : ''
+                  }`}>
                     {history.status}
                   </span>
                 </div>
-                <div className="mt-1">{JSON.stringify(history.alert_data)}</div>
+                <div className="mt-1">
+                  {JSON.stringify(history.alert_data)}
+                </div>
               </div>
             ))}
           </div>

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,6 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AlertFormData } from "../types";
-import Cookies from "js-cookie";
 
 interface CreateAlertFormProps {
   onAlertCreated: () => void;
@@ -26,40 +26,12 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
   const createAlert = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const walletAddress = Cookies.get("connectedWallet");
-      if (!walletAddress) {
-        toast.error("User not authenticated");
-        return;
-      }
-
-      // Query the users table to get the user record based on the wallet address.
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("id")
-        .eq("wallet_address", walletAddress)
-        .single();
-
-      if (userError || !userData) {
-        toast.error("User not found");
-        return;
-      }
-
-      const userId = userData.id;
-
       const { error } = await supabase.from("price_alerts").insert({
-        user_id: userId, // Associate the alert with the authenticated user.
-
         token_name: formData.tokenName,
         contract_address: formData.contractAddress,
-        market_cap_threshold: formData.marketCapThreshold
-          ? parseFloat(formData.marketCapThreshold)
-          : null,
-        volume_threshold: formData.volumeThreshold
-          ? parseFloat(formData.volumeThreshold)
-          : null,
-        price_change_percentage: formData.priceChangePercentage
-          ? parseFloat(formData.priceChangePercentage)
-          : null,
+        market_cap_threshold: formData.marketCapThreshold ? parseFloat(formData.marketCapThreshold) : null,
+        volume_threshold: formData.volumeThreshold ? parseFloat(formData.volumeThreshold) : null,
+        price_change_percentage: formData.priceChangePercentage ? parseFloat(formData.priceChangePercentage) : null,
         social_sentiment_enabled: formData.socialSentimentEnabled,
       });
 
@@ -94,9 +66,7 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
             <Input
               id="tokenName"
               value={formData.tokenName}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, tokenName: e.target.value }))
-              }
+              onChange={(e) => setFormData(prev => ({ ...prev, tokenName: e.target.value }))}
               placeholder="e.g. Ethereum"
               required
             />
@@ -106,12 +76,7 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
             <Input
               id="contractAddress"
               value={formData.contractAddress}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  contractAddress: e.target.value,
-                }))
-              }
+              onChange={(e) => setFormData(prev => ({ ...prev, contractAddress: e.target.value }))}
               placeholder="0x..."
               required
             />
@@ -122,12 +87,7 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
               id="marketCapThreshold"
               type="number"
               value={formData.marketCapThreshold}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  marketCapThreshold: e.target.value,
-                }))
-              }
+              onChange={(e) => setFormData(prev => ({ ...prev, marketCapThreshold: e.target.value }))}
               placeholder="Enter threshold amount"
             />
           </div>
@@ -137,12 +97,7 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
               id="volumeThreshold"
               type="number"
               value={formData.volumeThreshold}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  volumeThreshold: e.target.value,
-                }))
-              }
+              onChange={(e) => setFormData(prev => ({ ...prev, volumeThreshold: e.target.value }))}
               placeholder="Enter threshold amount"
             />
           </div>
@@ -152,12 +107,7 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
               id="priceChangePercentage"
               type="number"
               value={formData.priceChangePercentage}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  priceChangePercentage: e.target.value,
-                }))
-              }
+              onChange={(e) => setFormData(prev => ({ ...prev, priceChangePercentage: e.target.value }))}
               placeholder="e.g. 5"
             />
           </div>
@@ -165,22 +115,13 @@ const CreateAlertForm = ({ onAlertCreated }: CreateAlertFormProps) => {
             <Switch
               id="socialSentiment"
               checked={formData.socialSentimentEnabled}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  socialSentimentEnabled: checked,
-                }))
-              }
+              onCheckedChange={(checked) => setFormData(prev => ({ ...prev, socialSentimentEnabled: checked }))}
               className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-white"
             />
-            <Label htmlFor="socialSentiment">
-              Enable Social Sentiment Tracking
-            </Label>
+            <Label htmlFor="socialSentiment">Enable Social Sentiment Tracking</Label>
           </div>
         </div>
-        <Button type="submit" className="w-full">
-          Create Alert
-        </Button>
+        <Button type="submit" className="w-full">Create Alert</Button>
       </form>
     </div>
   );

@@ -6,36 +6,41 @@ import LegalBasisSection from "@/components/privacy/LegalBasisSection";
 import DataSharingSection from "@/components/privacy/DataSharingSection";
 import UserRightsSection from "@/components/privacy/UserRightsSection";
 import ContactSection from "@/components/privacy/ContactSection";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
 
 const Privacy = () => {
   return (
-    <div className="container mx-auto pt-24 pb-12 max-w-4xl">
-      <PrivacyHeader />
+    <>
+      <ScrollProgress />
 
-      <div className="space-y-8 text-foreground/90">
-        <InformationSection />
-        <Separator className="my-8" />
+      <div className="container mx-auto px-4 pt-24 pb-12 max-w-4xl">
+        <PrivacyHeader />
 
-        <DataUsageSection />
-        <Separator className="my-8" />
+        <div className="space-y-8 text-foreground/90">
+          <InformationSection />
+          <Separator className="my-8" />
 
-        <LegalBasisSection />
-        <Separator className="my-8" />
+          <DataUsageSection />
+          <Separator className="my-8" />
 
-        <DataSharingSection />
-        <Separator className="my-8" />
+          <DataSharingSection />
+          <Separator className="my-8" />
 
-        <UserRightsSection />
-        <Separator className="my-8" />
+          <LegalBasisSection />
+          <Separator className="my-8" />
 
-        <ContactSection />
+          <UserRightsSection />
+          <Separator className="my-8" />
 
-        <div className="text-sm text-muted-foreground mt-12 text-center">
-          By using our services, you acknowledge that you have read and
-          understood this Privacy Policy.
+          <ContactSection />
+
+          <div className="text-sm text-muted-foreground mt-12 text-center">
+            By using our services, you acknowledge that you have read and
+            understood this Privacy Policy.
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

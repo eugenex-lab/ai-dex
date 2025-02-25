@@ -8,6 +8,7 @@ interface CopyTradeDetailsProps {
   selectedChain: string;
   maxBuyAmount: string;
   copySellEnabled: boolean;
+  copyBuysEnabled: boolean;
   isPaused: boolean;
   setIsPaused: (value: boolean) => void;
   onDeleteCopyTrade: () => void;
@@ -20,6 +21,7 @@ const CopyTradeDetails = ({
   selectedChain,
   maxBuyAmount,
   copySellEnabled,
+  copyBuysEnabled,
   isPaused,
   setIsPaused,
   onDeleteCopyTrade,
@@ -29,7 +31,7 @@ const CopyTradeDetails = ({
       <p><span className="font-medium">Target Wallet:</span> {targetWallet}</p>
       <p><span className="font-medium">Slippage:</span> {slippage}% <span className="font-medium">Wallet Tag:</span> {walletTag || "Not set"}</p>
       <p><span className="font-medium">Chain:</span> {selectedChain} <span className="font-medium">Max Buy Amount:</span> {maxBuyAmount || "0"} {selectedChain === "cardano" ? "ADA" : selectedChain === "ethereum" ? "ETH" : "SOL"}</p>
-      <p><span className="font-medium">Copy Sell:</span> {copySellEnabled ? "ON" : "OFF"}</p>
+      <p><span className="font-medium">Copy Buys:</span> {copyBuysEnabled ? "ON" : "OFF"} <span className="font-medium">Copy Sell:</span> {copySellEnabled ? "ON" : "OFF"}</p>
       <div className="flex gap-4 items-center pt-4">
         <Button 
           className={`flex-1 ${isPaused ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}`}

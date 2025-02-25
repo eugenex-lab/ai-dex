@@ -101,13 +101,17 @@ const HeroSection = ({ images }: HeroSectionProps) => {
             className="flex-1 text-center lg:text-left"
           >
             <motion.h1
-              variants={aggressiveFadeInUp}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="text-4xl lg:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400"
             >
               The Rise of Tradenly AI
             </motion.h1>
             <motion.p
-              variants={aggressiveFadeInUp}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="text-xl text-muted-foreground mb-8"
             >
               The first AI-powered trading platform that eliminated human

@@ -4,11 +4,15 @@ import CopyTradeInstructions from "../components/copy-trade/CopyTradeInstruction
 
 const CopyTrade = () => {
   return (
-    <div className="container mx-auto py-24 min-h-screen">
+    // <ChainProvider>
+    //   <CardanoWalletProvider>
+    <div className="container mx-auto px-4 py-24 min-h-screen">
       <CopyTradeHeader />
       <CopyTradeInstructions />
       <CopyTradeForm />
     </div>
+    //   </CardanoWalletProvider>
+    // </ChainProvider>
   );
 };
 
