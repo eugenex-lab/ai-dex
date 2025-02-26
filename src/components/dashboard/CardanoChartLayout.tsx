@@ -12,7 +12,7 @@ import { TokenMarquee } from "./cardano-chart/TokenMarquee";
 import { TokenSelectModal } from "./cardano-chart/TokenSelectModal";
 import GraphLoader from "./graph-loader";
 
-export default function CardanoChart() {
+export default function CardanoChartLayout() {
   const [selectedTokens, setSelectedTokens] = useState<string[]>(["SNEK"]);
   const [activeToken, setActiveToken] = useState<string>("SNEK");
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);

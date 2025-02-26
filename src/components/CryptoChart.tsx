@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { cleanSymbol } from "@/utils/symbolUtils";
 import ErrorBoundary from "./ErrorBoundary";
-import CardanoChart from "./dashboard/CardanoChartLayout";
+import CardanoChartLayout from "./dashboard/CardanoChartLayout";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { TokenSelectModal } from "./dashboard/cardano-chart/TokenSelectModal";
@@ -47,7 +47,7 @@ const CryptoChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
 
       {currentChain === "cardano" ? (
         <div className="flex items-center justify-center text-2xl font-bold">
-          <CardanoChart />
+          <CardanoChartLayout />
         </div>
       ) : (
         <div className="w-full h-[600px] md:h-[560px]">

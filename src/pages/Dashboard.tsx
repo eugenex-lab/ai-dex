@@ -9,7 +9,7 @@ import WalletConnectButton from "@/components/wallet/WalletConnectButton";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { TokenMarquee } from "@/components/dashboard/cardano-chart/TokenMarquee";
-import CardanoChart from "@/components/dashboard/CardanoChartLayout";
+import CardanoChartLayout from "@/components/dashboard/CardanoChartLayout";
 
 const Dashboard = () => {
   const [currentPair, setCurrentPair] = useState("");
