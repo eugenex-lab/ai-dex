@@ -11,6 +11,8 @@ import { PriceChart } from "./cardano-chart/PriceChart";
 import { TokenMarquee } from "./cardano-chart/TokenMarquee";
 import { TokenSelectModal } from "./cardano-chart/TokenSelectModal";
 import GraphLoader from "./graph-loader";
+import { Button } from "../ui/button";
+import { Plus } from "lucide-react";
 
 export default function CardanoChartLayout() {
   const [selectedTokens, setSelectedTokens] = useState<string[]>(["SNEK"]);
@@ -109,7 +111,21 @@ export default function CardanoChartLayout() {
   const shouldShowTradingView = ["USD", "USDT"].includes(quoteCurrency);
 
   return (
-    <div className="text-foreground flex flex-col w-full space-y-4 justify-between h-full">
+    <div className="text-foreground flex flex-col w-full space-y-0 justify-between h-full">
+      <div className="flex items-center justify-between ">
+        <h2 className="text-xl font-semibold">Price Chart</h2>
+
+        {/* ✅ Button to Open Token Select Modal */}
+        <Button
+          onClick={() => setIsTokenSelectOpen(true)}
+          className="rounded-full flex gap-1"
+          size="fix_width"
+        >
+          <span>Add Ticker</span>
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
+
       <TokenHeader
         selectedTokens={selectedTokens}
         activeToken={activeToken}
@@ -134,7 +150,7 @@ export default function CardanoChartLayout() {
           quoteCurrency={quoteCurrency}
         /> */}
 
-        <div className="h-[450px]">
+        <div className="h-[500px]">
           {isComparisonMode ? (
             tokenQueries.isLoading ? (
               <div className="h-full flex items-center justify-center">

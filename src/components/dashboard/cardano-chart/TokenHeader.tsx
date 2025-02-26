@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuoteCurrencySelect } from "./QuoteCurrencySelect";
+import { TokenIcon } from "./TokenIcon";
 
 interface TokenHeaderProps {
   selectedTokens: string[];
@@ -43,6 +44,7 @@ export const TokenHeader = ({
             )}
             onClick={() => onTokenSelect(token)}
           >
+            <TokenIcon ticker={token} unit={.} />
             <span>
               {token}/{quoteCurrency}
             </span>

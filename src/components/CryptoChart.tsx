@@ -35,14 +35,15 @@ const CryptoChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
 
   return (
     <div className="glass-card p-6 rounded-lg animate-fade-in h-[660px] flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">Price Chart</h2>
-
-        {/* ✅ Button to Open Token Select Modal */}
-        <Button className="rounded-full flex gap-1" size="fix_width">
-          <span>Add Ticker</span>
-          <Plus className="h-4 w-4" />
-        </Button>
+      <div className="flex items-center justify-between">
+        <>
+          {currentChain !== "cardano" && (
+            <>
+              {/* ✅ Button to Open Token Select Modal */}
+              <h2 className="text-xl font-semibold">Price Chart</h2>
+            </>
+          )}
+        </>
       </div>
 
       {currentChain === "cardano" ? (
