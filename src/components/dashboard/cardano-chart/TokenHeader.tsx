@@ -44,7 +44,7 @@ export const TokenHeader = ({
             )}
             onClick={() => onTokenSelect(token)}
           >
-            <TokenIcon ticker={token} unit={.} />
+            {/* <TokenIcon ticker={token} unit={token} /> */}
             <span>
               {token}/{quoteCurrency}
             </span>
