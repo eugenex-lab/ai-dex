@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
@@ -48,29 +49,27 @@ export const ComparisonChart = ({
   useEffect(() => {
     // Combine data from all tokens into a single array for the chart
     const timePoints = new Set<number>();
-    Object.values(data).forEach((tokenData) => {
-      tokenData.forEach((point) => timePoints.add(point.time));
+    Object.values(data).forEach(tokenData => {
+      tokenData.forEach(point => timePoints.add(point.time));
     });
 
-    const combined = Array.from(timePoints)
-      .sort()
-      .map((time) => {
-        const point: any = { time: new Date(time * 1000) };
-        tokens.forEach((token) => {
-          const tokenData = data[token.ticker]?.find((d) => d.time === time);
-          if (tokenData) {
-            point[`${token.ticker}_${showVolume ? "volume" : "price"}`] =
-              showVolume ? tokenData.volume : tokenData.close;
-          }
-        });
-        return point;
+    const combined = Array.from(timePoints).sort().map(time => {
+      const point: any = { time: new Date(time * 1000) };
+      tokens.forEach(token => {
+        const tokenData = data[token.ticker]?.find(d => d.time === time);
+        if (tokenData) {
+          point[`${token.ticker}_${showVolume ? 'volume' : 'price'}`] = 
+            showVolume ? tokenData.volume : tokenData.close;
+        }
       });
+      return point;
+    });
 
     setCombinedData(combined);
   }, [data, tokens, showVolume]);
 
   return (
-    <div className="w-full rounded-lg  glass-effect">
+    <div className="w-full rounded-lg border glass-effect">
       <div className="p-4">
         <ResponsiveContainer width="100%" height={height}>
           <LineChart data={combinedData}>
@@ -85,8 +84,10 @@ export const ComparisonChart = ({
               minTickGap={50}
             />
             <YAxis
-              tickFormatter={(value) =>
-                showVolume ? value.toLocaleString() : value.toFixed(6)
+              tickFormatter={(value) => 
+                showVolume 
+                  ? value.toLocaleString()
+                  : value.toFixed(6)
               }
               width={80}
               domain={["auto", "auto"]}
@@ -102,27 +103,18 @@ export const ComparisonChart = ({
                       {format(data.time, "MMM d, HH:mm")}
                     </p>
                     {tokens.map((token, i) => {
-                      const value =
-                        data[
-                          `${token.ticker}_${showVolume ? "volume" : "price"}`
-                        ];
+                      const value = data[`${token.ticker}_${showVolume ? 'volume' : 'price'}`];
                       return (
-                        <div
-                          key={token.ticker}
-                          className="flex items-center gap-2"
-                        >
+                        <div key={token.ticker} className="flex items-center gap-2">
                           <div
                             className="w-2 h-2 rounded-full"
-                            style={{
-                              backgroundColor: COLORS[i % COLORS.length],
-                            }}
+                            style={{ backgroundColor: COLORS[i % COLORS.length] }}
                           />
                           <span>{token.ticker}:</span>
                           <span className="font-mono">
-                            {showVolume
-                              ? value?.toLocaleString()
-                              : value?.toFixed(6)}{" "}
-                            {quoteCurrency}
+                            {showVolume 
+                              ? value?.toLocaleString() 
+                              : value?.toFixed(6)} {quoteCurrency}
                           </span>
                         </div>
                       );
@@ -136,7 +128,7 @@ export const ComparisonChart = ({
               <Line
                 key={token.ticker}
                 type="monotone"
-                dataKey={`${token.ticker}_${showVolume ? "volume" : "price"}`}
+                dataKey={`${token.ticker}_${showVolume ? 'volume' : 'price'}`}
                 stroke={COLORS[i % COLORS.length]}
                 dot={false}
                 name={token.ticker}

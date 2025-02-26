@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { TokenData } from "@/services/api";
+import { AdvancedChart } from "react-tradingview-embed";
 
 declare global {
   interface Window {
@@ -18,16 +19,14 @@ export const TradingViewChart = ({
   height = 600,
   containerId = "tradingview_chart",
 }: TradingViewChartProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/tv.js";
-    script.async = true;
-    script.onload = () => {
-      if (window.TradingView && containerRef.current) {
-        new window.TradingView.widget({
-          autosize: true,
+  return (
+    <div
+      id={containerId}
+      style={{ height }}
+      className="w-full rounded-lg glass-effect"
+    >
+      <AdvancedChart
+        widgetProps={{
           symbol: `${tokenData?.ticker || "SNEK"}USD`,
           interval: "60",
           timezone: "Etc/UTC",
@@ -38,17 +37,16 @@ export const TradingViewChart = ({
           allow_symbol_change: false,
           hide_side_toolbar: false,
           withdateranges: true,
-          container_id: containerId,
           toolbar_bg: "#f1f3f6",
           studies: [
-            // "Volume@tv-basicstudies",
+            "Volume@tv-basicstudies",
             // "RSI@tv-basicstudies",
             // "MASimple@tv-basicstudies",
             // "MACD@tv-basicstudies",
             // "BB@tv-basicstudies",
             // "StochasticRSI@tv-basicstudies",
             // "AwesomeOscillator@tv-basicstudies",
-            // "ChaikinOscillator@tv-basicstudies",
+            // "ChaikinOscillator@tv-basicstudies"
           ],
           drawings_access: {
             type: "all",
@@ -71,24 +69,8 @@ export const TradingViewChart = ({
               { name: "LineToolFibChannel" },
             ],
           },
-        });
-      }
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, [tokenData, containerId]);
-
-  return (
-    <div
-      id={containerId}
-      ref={containerRef}
-      style={{ height }}
-      className="w-full rounded-lg  glass-effect"
-    />
+        }}
+      />
+    </div>
   );
 };

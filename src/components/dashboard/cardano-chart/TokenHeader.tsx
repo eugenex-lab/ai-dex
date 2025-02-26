@@ -2,9 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuoteCurrencySelect } from "./QuoteCurrencySelect";
-import { TokenIcon } from "./TokenIcon"; // Importing TokenIcon component
-import { useQuery } from "@tanstack/react-query";
-import { api, TokenData } from "@/services/api";
 
 interface TokenHeaderProps {
   selectedTokens: string[];
@@ -33,53 +30,31 @@ export const TokenHeader = ({
   onToggleVolume,
   onQuoteCurrencyChange,
 }: TokenHeaderProps) => {
-  // ✅ Fetch tokens to get the full object (same as TokenMarquee & TokenSelectModal)
-  const { data: tokens } = useQuery({
-    queryKey: ["topTokens"],
-    queryFn: api.getTopTokens,
-  });
-
   return (
     <header className="">
-      <div className="flex items-center gap-2">
-        {selectedTokens.map((ticker) => {
-          // ✅ Find the full token object by matching ticker
-          const token = tokens?.find((t: TokenData) => t.ticker === ticker);
-
-          return (
-            <Button
-              size="fix_width"
-              key={ticker}
-              variant={activeToken === ticker ? "outline" : "ghost"}
-              className={cn(
-                "px-4 py-2 rounded-full flex items-center gap-2 transition-colors border",
-                activeToken !== ticker && "bg-secondary border-secondary"
-              )}
-              onClick={() => !isComparisonMode && onTokenSelect(ticker)}
-            >
-              {/* ✅ Now TokenIcon receives the correct `unit` */}
-
-              <span className="text-sm font-medium flex gap-1 flex items-center">
-                <TokenIcon
-                  ticker={ticker}
-                  unit={token?.unit}
-                  className="h-5 w-5"
-                />{" "}
-                <span>
-                  {ticker}/{quoteCurrency}
-                </span>
-                <X
-                  className="h-4 w-4 text-muted-foreground hover:text-foreground"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveToken(ticker);
-                  }}
-                />
-              </span>
-            </Button>
-          );
-        })}
-
+      <div className="py-4 flex items-center gap-2">
+        {selectedTokens.map((token) => (
+          <Button
+            key={token}
+            variant={activeToken === token ? "outline" : "ghost"}
+            className={cn(
+              "px-4 py-2 rounded-full flex items-center gap-2 transition-colors border",
+              activeToken !== token && "bg-secondary border-secondary"
+            )}
+            onClick={() => onTokenSelect(token)}
+          >
+            <span>
+              {token}/{quoteCurrency}
+            </span>
+            <X
+              className="h-4 w-4 text-muted-foreground hover:text-foreground"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemoveToken(token);
+              }}
+            />
+          </Button>
+        ))}
         <Button
           size="icon"
           onClick={onOpenTokenSelect}

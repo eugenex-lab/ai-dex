@@ -12,6 +12,7 @@ import {
 import { TokenData } from "@/services/api";
 import { TokenDetails } from "./TokenDetails";
 import { ArrowUpDown } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface PriceChartProps {
   data: {
@@ -54,9 +55,9 @@ export const PriceChart = ({
   }));
 
   return (
-    <div className="w-full rounded-lg border glass-effect flex">
+    <div className="w-full rounded-lg  glass-effect flex">
       <div className="flex-1">
-        <div className="flex items-center justify-between p-4 border-b border-border/20">
+        <div className="flex items-center justify-between p-0 ">
           <div className="space-x-2">
             {timeframes.map((tf) => (
               <button
@@ -96,7 +97,7 @@ export const PriceChart = ({
           </div>
         </div>
 
-        <div className="p-4 pr-0">
+        <div className="p-4">
           <ResponsiveContainer width="100%" height={height}>
             <AreaChart data={chartData}>
               <defs>
@@ -121,25 +122,25 @@ export const PriceChart = ({
               <XAxis
                 dataKey="time"
                 tickFormatter={(time) => format(time, "HH:mm")}
-                minTickGap={40}
-                tick={{ fontSize: 12 }} // Adjust font size
+                minTickGap={30}
+                className="text-xs"
               />
               <YAxis
                 tickFormatter={(value) =>
                   showVolume ? value.toLocaleString() : value.toFixed(6)
                 }
-                width={70}
+                width={55}
                 domain={["auto", "auto"]}
                 orientation="right"
-                tick={{ fontSize: 12 }} // Adjust font size
+                className="text-xs"
               />
               <Tooltip
                 content={({ active, payload }) => {
                   if (!active || !payload?.length) return null;
                   const data = payload[0].payload;
                   return (
-                    <div className="rounded-lg border p-2 bg-background shadow-lg">
-                      <p className="font-medium text-md">
+                    <div className="rounded-lg  p-2 bg-background shadow-lg">
+                      <p className="font-medium">
                         {format(data.time, "MMM d, HH:mm")}
                       </p>
                       {!showVolume ? (

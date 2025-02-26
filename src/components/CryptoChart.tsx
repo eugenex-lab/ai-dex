@@ -4,11 +4,12 @@ import ErrorBoundary from "./ErrorBoundary";
 import CardanoChart from "./dashboard/CardanoChartLayout";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import TokenSelectModal from "./dashboard/cardano-chart/TokenSelectModal";
+import { TokenSelectModal } from "./dashboard/cardano-chart/TokenSelectModal";
 
 interface CryptoChartProps {
   onPairChange?: (pair: string) => void;
   currentPair?: string;
+  handleAddToken?: (token: string) => void; // Add this line
 }
 
 const CryptoChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
@@ -38,17 +39,7 @@ const CryptoChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
         <h2 className="text-xl font-semibold">Price Chart</h2>
 
         {/* ✅ Button to Open Token Select Modal */}
-        <Button
-          onClick={() => {
-            if (handleAddToken) {
-              setIsTokenSelectOpen(true);
-            } else {
-              console.warn("handleAddToken is not set yet!");
-            }
-          }}
-          className="rounded-full flex gap-1"
-          size="fix_width"
-        >
+        <Button className="rounded-full flex gap-1" size="fix_width">
           <span>Add Ticker</span>
           <Plus className="h-4 w-4" />
         </Button>
@@ -56,12 +47,7 @@ const CryptoChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
 
       {currentChain === "cardano" ? (
         <div className="flex items-center justify-center text-2xl font-bold">
-          <CardanoChart
-            onOpenTokenSelect={() => setIsTokenSelectOpen(true)}
-            isTokenSelectOpen={isTokenSelectOpen}
-            onCloseTokenSelect={() => setIsTokenSelectOpen(false)}
-            setHandleAddToken={setHandleAddToken} // ✅ Pass function setter
-          />
+          <CardanoChart />
         </div>
       ) : (
         <div className="w-full h-[600px] md:h-[560px]">

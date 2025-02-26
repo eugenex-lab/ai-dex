@@ -3,6 +3,8 @@ import { cleanSymbol } from "@/utils/symbolUtils";
 import TradingViewChart from "./TradingViewChart"; // Import the TradingViewChart component
 import ErrorBoundary from "@/components/ErrorBoundary";
 import CardanoChart from "./CardanoChart"; // Import the new CardanoChart component
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 interface CryptoChartProps {
   onPairChange?: (pair: string) => void;
