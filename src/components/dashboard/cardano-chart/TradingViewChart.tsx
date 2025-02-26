@@ -32,6 +32,7 @@ export const TradingViewChart = ({
           timezone: "Etc/UTC",
           theme: "dark",
           style: "1",
+          height: "100%",
           locale: "en",
           enable_publishing: false,
           allow_symbol_change: false,
@@ -39,7 +40,7 @@ export const TradingViewChart = ({
           withdateranges: true,
           toolbar_bg: "#f1f3f6",
           studies: [
-            "Volume@tv-basicstudies",
+            // "Volume@tv-basicstudies",
             // "RSI@tv-basicstudies",
             // "MASimple@tv-basicstudies",
             // "MACD@tv-basicstudies",
