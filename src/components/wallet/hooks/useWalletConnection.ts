@@ -4,14 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMetaMask } from "./useMetaMask";
 import { usePhantom } from "./usePhantom";
-import { useCardano } from "@cardano-foundation/cardano-connect-with-wallet";
+import { useCardano } from "./useCardano"; // Import the useCardano hook
 import {
   updateWalletConnection,
   disconnectWallet,
 } from "../utils/walletDatabase";
 import { type PhantomChain } from "../utils/walletUtils";
-import { Address } from "@emurgo/cardano-serialization-lib-browser";
-import { Buffer } from "buffer";
 
 export const useWalletConnection = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,61 +33,12 @@ export const useWalletConnection = () => {
     setConnectedAddress,
     updateWalletConnection
   );
-  const { connect: connectCardano, disconnect: disconnectCardano } =
-    useCardano();
-
-  /**
-   * 
-   * Converts a hex-encoded Cardano address to a Bech32 (addr1...) address.
-   */
-  const convertHexToBech32 = (hexAddress: string): string | null => {
-    try {
-      const addressBytes = Buffer.from(hexAddress, "hex");
-      const address = Address.from_bytes(addressBytes);
-      return address.to_bech32();
-    } catch (error) {
-      console.error("Conversion error:", error);
-      return null;
-    }
-  };
-
-  /**
-   * Retrieves the Cardano payment address from the connected wallet.
-   * Returns a Bech32 formatted address.
-   */
-  const getCardanoPaymentAddress = async (
-    walletName: string
-  ): Promise<string | null> => {
-    if (!window.cardano || !window.cardano[walletName]) {
-      throw new Error("Cardano wallet not found");
-    }
-
-    try {
-      const api = await window.cardano[walletName].enable();
-      const addresses = await api.getUsedAddresses();
-
-      let hexAddress = addresses.length > 0 ? addresses[0] : null;
-      if (!hexAddress) {
-        const unusedAddresses = await api.getUnusedAddresses();
-        hexAddress = unusedAddresses.length > 0 ? unusedAddresses[0] : null;
-      }
-
-      if (!hexAddress) {
-        throw new Error("No payment address found");
-      }
-
-      // Convert HEX to Bech32 format
-      const paymentAddressConverted = convertHexToBech32(hexAddress);
-      if (!paymentAddressConverted) {
-        throw new Error("Failed to convert Cardano address to Bech32 format.");
-      }
-
-      return paymentAddressConverted;
-    } catch (error) {
-      console.error("Failed to fetch Cardano payment address:", error);
-      throw new Error("This wallet does not support address retrieval.");
-    }
-  };
+  const {
+    connect: connectCardano,
+    disconnect: disconnectCardano,
+    isConnected: isCardanoConnected,
+    cardanoAddress,
+  } = useCardano(); // Use the useCardano hook
 
   useEffect(() => {
     const storedChain = Cookies.get("currentChain") as PhantomChain | null;
@@ -145,8 +94,8 @@ export const useWalletConnection = () => {
         setCurrentChain(chain);
         Cookies.set("currentChain", chain);
       } else if (walletType === "cardano" && cardanoWalletName) {
-        await connectCardano(cardanoWalletName);
-        address = await getCardanoPaymentAddress(cardanoWalletName);
+        await connectCardano(cardanoWalletName); // Use connectCardano from useCardano
+        address = cardanoAddress; // Use the cardanoAddress from useCardano
         if (!address) throw new Error("Failed to retrieve Cardano address.");
         setCurrentChain("cardano");
         Cookies.set("currentChain", "cardano");
@@ -177,7 +126,14 @@ export const useWalletConnection = () => {
   const handleDisconnect = async () => {
     try {
       setIsLoading(true);
-      await disconnectWallet();
+
+      // Disconnect based on the last connected wallet type
+      if (lastConnectedWallet === "cardano") {
+        await disconnectCardano(); // Use disconnectCardano from useCardano
+      } else {
+        await disconnectWallet();
+      }
+
       Cookies.remove("connectedAddress");
       Cookies.remove("currentChain");
       Cookies.remove("lastWalletType");
