@@ -18,12 +18,12 @@ export interface WalletOptionsProps {
 }
 
 const WALLET_OPTIONS: WalletOption[] = [
-  {
-    id: "metamask",
-    name: "MetaMask",
-    icon: "Metamask Icon.png",
-    chain: "Ethereum",
-  },
+  // {
+  //   id: "metamask",
+  //   name: "MetaMask",
+  //   icon: "Metamask Icon.png",
+  //   chain: "Ethereum",
+  // },
   {
     id: "phantom",
     name: "Phantom",

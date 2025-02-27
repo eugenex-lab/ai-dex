@@ -1,20 +1,19 @@
-import { useState } from "react";
-import Cookies from "js-cookie";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useCardano } from "@cardano-foundation/cardano-connect-with-wallet";
-import {
-  updateWalletConnection,
-  disconnectWallet,
-} from "../utils/walletDatabase";
-import { Address } from "@emurgo/cardano-serialization-lib-browser";
 import { Buffer } from "buffer";
+import { Address } from "@emurgo/cardano-serialization-lib-browser";
 
-export const useCardanoWallets = () => {
+export const useCardanoWallets = (
+  setConnectedAddress: (address: string | null) => void,
+  updateWalletConnection: (address: string, walletType: string) => Promise<void>
+) => {
   const { toast } = useToast();
   const [isConnecting, setIsConnecting] = useState(false);
-  const { connect: connectCardano, disconnect: disconnectCardano } =
-    useCardano();
+  const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
 
+  /**
+   * Converts a hex-encoded Cardano address to a Bech32 (addr1...) address.
+   */
   const convertHexToBech32 = (hexAddress: string): string | null => {
     try {
       const addressBytes = Buffer.from(hexAddress, "hex");
@@ -26,6 +25,10 @@ export const useCardanoWallets = () => {
     }
   };
 
+  /**
+   * Retrieves the Cardano payment address from the connected wallet.
+   * Returns a Bech32 formatted address.
+   */
   const getCardanoPaymentAddress = async (
     walletName: string
   ): Promise<string | null> => {
@@ -47,6 +50,7 @@ export const useCardanoWallets = () => {
         throw new Error("No payment address found");
       }
 
+      // Convert HEX to Bech32 format
       const paymentAddressConverted = convertHexToBech32(hexAddress);
       if (!paymentAddressConverted) {
         throw new Error("Failed to convert Cardano address to Bech32 format.");
@@ -59,20 +63,38 @@ export const useCardanoWallets = () => {
     }
   };
 
-  const connectCardanoWallet = async (walletName: string) => {
+  /**
+   * Connects to a Cardano wallet and retrieves the payment address.
+   */
+  const connect = async (walletName: string) => {
+    if (isConnecting) {
+      console.log("Connection already in progress");
+      return null;
+    }
+
     setIsConnecting(true);
+    setSelectedWallet(walletName);
+
     try {
-      await connectCardano(walletName);
       const address = await getCardanoPaymentAddress(walletName);
-      if (!address) throw new Error("Failed to retrieve Cardano address.");
-      Cookies.set("currentChain", "cardano");
-      await updateWalletConnection(address, "cardano");
+      if (!address) {
+        throw new Error("Failed to retrieve Cardano address.");
+      }
+
+      await updateWalletConnection(address, `cardano-${walletName}`);
+      toast({
+        title: "Wallet Connected",
+        description: `Cardano wallet (${walletName}) connected successfully`,
+      });
+
       return address;
-    } catch (error) {
-      console.error("Cardano connection error:", error);
+    } catch (error: any) {
+      console.error("Cardano wallet connection error:", error);
       toast({
         title: "Connection Failed",
-        description: error.message || "Failed to connect Cardano wallet.",
+        description:
+          error.message ||
+          "Failed to connect Cardano wallet. Please try again.",
         variant: "destructive",
       });
       return null;
@@ -81,25 +103,36 @@ export const useCardanoWallets = () => {
     }
   };
 
-  const disconnectCardanoWallet = async () => {
+  /**
+   * Disconnects the Cardano wallet.
+   */
+  const disconnect = async () => {
     try {
-      await disconnectCardano();
-      Cookies.remove("connectedAddress");
-      Cookies.remove("currentChain");
-      Cookies.remove("lastWalletType");
+      setIsConnecting(true);
+      setConnectedAddress(null);
+      setSelectedWallet(null);
       toast({
         title: "Disconnected",
         description: "Cardano wallet has been disconnected successfully.",
       });
-    } catch (error) {
-      console.error("Cardano disconnection error:", error);
+    } catch (error: any) {
+      console.error("Cardano wallet disconnection error:", error);
       toast({
         title: "Disconnection Failed",
-        description: error.message || "Failed to disconnect wallet.",
+        description:
+          error.message ||
+          "Failed to disconnect Cardano wallet. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
-  return { connectCardanoWallet, disconnectCardanoWallet, isConnecting };
+  return {
+    isConnecting,
+    selectedWallet,
+    connect,
+    disconnect,
+  };
 };
