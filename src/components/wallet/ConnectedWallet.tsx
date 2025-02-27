@@ -33,6 +33,7 @@ const ConnectedWallet = ({
     });
   };
 
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

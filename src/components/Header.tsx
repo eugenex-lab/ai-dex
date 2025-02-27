@@ -3,6 +3,7 @@ import { Grid, Database, List, Menu, X, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import WalletConnectButton from "./wallet/WalletConnectButton";
+import { CardanoHeaderWalletConnect } from "./wallet/CardanoHeaderWalletConnect";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,7 +13,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background shadow-md">
-      <div className="container mx-auto px-6 md:px-8 ">
+      <div className="container mx-auto px-6 md:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <Link to="/" className="flex items-center space-x-2">
             <img
@@ -55,10 +56,10 @@ const Header = () => {
               <span>Orders</span>
             </Link>
 
-            {/* Desktop Wallet Connect Button (hide on home page) */}
-            {!isHome && (
-              <div className="hidden  w-52 md:flex justify-center items-center">
-                <WalletConnectButton />
+            {/* Desktop: Render CardanoHeaderWalletConnect only for /ai-analysis */}
+            {location.pathname === "/ai-analysis" && (
+              <div className="hidden  md:flex justify-center items-center">
+                <CardanoHeaderWalletConnect />
               </div>
             )}
           </nav>
@@ -110,10 +111,10 @@ const Header = () => {
               <List className="h-4 w-4" />
               <span>Orders</span>
             </Link>
-            {/* Mobile Wallet Connect Button (hide on home page) */}
-            {!isHome && (
+            {/* Mobile: Render CardanoHeaderWalletConnect only for /ai-analysis */}
+            {location.pathname === "/ai-analysis" && (
               <div className="px-4">
-                <WalletConnectButton />
+                <CardanoHeaderWalletConnect />
               </div>
             )}
           </div>

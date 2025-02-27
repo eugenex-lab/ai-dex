@@ -4,58 +4,99 @@ import { useWalletConnection } from "@/components/wallet/hooks/useWalletConnecti
 import WalletWarning from "./components/WalletWarning";
 import { useAnalysisForm } from "./hooks/useAnalysisForm";
 import { useEffect, useState } from "react";
+import CardanoWalletOptions from "../wallet/CardanoWalletOptions";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Wallet } from "lucide-react";
+import { toast } from "sonner";
+import { useWallet } from "../wallet/context/WalletContext";
 
 const AIAnalysisForm = () => {
   const { connectedAddress } = useWalletConnection();
   const { loading, formData, setFormData, handleSubmit } =
     useAnalysisForm(connectedAddress);
   const [isFormReady, setIsFormReady] = useState(false);
+  const { isConnected, connectToWallet, availableWallets } = useWallet();
+  const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
+  const [quoteCurrency, setQuoteCurrency] = useState("USD");
+  const [isComparisonMode, setIsComparisonMode] = useState(false);
+  const [showVolume, setShowVolume] = useState(false);
+  const [loadingWallet, setLoadingWallet] = useState<string | undefined>(
+    undefined
+  );
+  const [isWalletConnecting, setIsWalletConnecting] = useState(false);
+  const [isWalletDialogOpen, setIsWalletDialogOpen] = useState(false);
 
-  const [forceRender, setForceRender] = useState(false);
+  const handleWalletSelect = async (walletId: string) => {
+    setLoadingWallet(walletId);
+    setIsWalletConnecting(true);
 
-  useEffect(() => {
-    const handleWalletConnected = (event: CustomEvent) => {
-      const { address } = event.detail;
-      if (address) {
-        console.log("Wallet connected event received:", address);
-        setIsFormReady(true);
-        setForceRender((prev) => !prev); // Force re-render
-      }
-    };
-
-    const handleWalletDisconnected = () => {
-      console.log("Wallet disconnected event received");
-      setIsFormReady(false);
-      setForceRender((prev) => !prev); // Force re-render
-    };
-
-    window.addEventListener(
-      "walletConnected",
-      handleWalletConnected as EventListener
-    );
-    window.addEventListener("walletDisconnected", handleWalletDisconnected);
-
-    if (connectedAddress) {
-      console.log("Initial wallet state - connected:", connectedAddress);
-      setIsFormReady(true);
-      setForceRender((prev) => !prev); // Force re-render
+    try {
+      await connectToWallet(walletId);
+      setIsWalletDialogOpen(false);
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
+      toast.error(`Failed to connect to ${walletId}`);
+    } finally {
+      setLoadingWallet(undefined);
+      setIsWalletConnecting(false);
     }
-
-    return () => {
-      window.removeEventListener(
-        "walletConnected",
-        handleWalletConnected as EventListener
-      );
-      window.removeEventListener(
-        "walletDisconnected",
-        handleWalletDisconnected
-      );
-    };
-  }, [connectedAddress]);
-
+  };
   // Render form only when wallet is connected and form is ready
-  if (!connectedAddress || !isFormReady) {
-    return <WalletWarning />;
+  if (!isConnected) {
+    return (
+      <div className=" bg-background text-foreground flex flex-col mb-6">
+        <div className="flex-1 flex items-center justify-center flex-col px-8">
+          <Card className="max-w-xl w-full border border-border rounded-lg shadow-lg glass-card">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-center">
+                Connect Your Wallet
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <p className="text-muted-foreground text-center mb-6">
+                Please connect your Cardano wallet to use the AI analysis
+                feature.
+              </p>
+
+              <Dialog
+                open={isWalletDialogOpen}
+                onOpenChange={setIsWalletDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    variant="default"
+                    className="mb-2 w-full flex gap-2 justify-center items-center"
+                  >
+                    <Wallet className="h-4 w-4" />
+                    Connect Wallet
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold">
+                      Select a Cardano Wallet
+                    </DialogTitle>
+                  </DialogHeader>
+                  <CardanoWalletOptions
+                    onSelect={handleWalletSelect}
+                    isLoading={isWalletConnecting}
+                    loadingWallet={loadingWallet}
+                    selectedChain="Cardano"
+                  />
+                </DialogContent>
+              </Dialog>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

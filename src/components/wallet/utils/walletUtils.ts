@@ -1,4 +1,10 @@
-export type PhantomChain = "solana" | "ethereum";
+export type PhantomChain =
+  | "solana"
+  | "ethereum"
+  | "Solana"
+  | "Ethereum"
+  | "Cardano"
+  | "Bitcoin";
 
 export const isPhantomAvailable = (chain: PhantomChain = "solana") => {
   // Check if we're in a browser environment
@@ -128,4 +134,30 @@ export const getChainConnection = async (chain: PhantomChain) => {
     console.error(`Error connecting to ${chain}:`, error);
     throw error;
   }
+};
+
+export const isCardanoWallet = (walletId: string): boolean => {
+  const cardanoWallets = [
+    "yoroi",
+    "eternl",
+    "lace",
+    "begin",
+    "tokeo",
+    "vespr",
+    "nami",
+    "flint",
+    "nufi",
+    "gerowallet",
+  ];
+  return cardanoWallets.includes(walletId.toLowerCase());
+};
+
+export const isSolanaWallet = (walletId: string): boolean => {
+  const solanaWallets = ["phantom", "solflare", "slope", "sollet"];
+  return solanaWallets.includes(walletId.toLowerCase());
+};
+
+export const isEthereumWallet = (walletId: string): boolean => {
+  const ethereumWallets = ["metamask", "coinbase", "trust", "rainbow"];
+  return ethereumWallets.includes(walletId.toLowerCase());
 };

@@ -96,6 +96,8 @@ export const useWalletConnection = () => {
       } else if (walletType === "cardano" && cardanoWalletName) {
         await connectCardano(cardanoWalletName); // Use connectCardano from useCardano
         address = cardanoAddress; // Use the cardanoAddress from useCardano
+
+        console.log("Cardano address:", address);
         if (!address) throw new Error("Failed to retrieve Cardano address.");
         setCurrentChain("cardano");
         Cookies.set("currentChain", "cardano");

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWalletConnection } from "@/components/wallet/hooks/useWalletConnection";
@@ -72,17 +71,17 @@ const AIAnalysisResults = () => {
     fetchResults();
 
     const channel = supabase
-      .channel('public:ai_analysis_results')
+      .channel("public:ai_analysis_results")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'ai_analysis_results',
-          filter: `wallet_address=eq.${connectedAddress}`
+          event: "INSERT",
+          schema: "public",
+          table: "ai_analysis_results",
+          filter: `wallet_address=eq.${connectedAddress}`,
         },
         () => {
-          console.log('New analysis result detected, refreshing...');
+          console.log("New analysis result detected, refreshing...");
           fetchResults();
         }
       )
@@ -93,14 +92,16 @@ const AIAnalysisResults = () => {
     };
   }, [connectedAddress]);
 
-  const convertDBResultToAnalysisResult = (dbResult: AnalysisResultFromDB): AnalysisResult => {
+  const convertDBResultToAnalysisResult = (
+    dbResult: AnalysisResultFromDB
+  ): AnalysisResult => {
     let analysisData: AnalysisResults | undefined;
     let confidenceFromAnalysis = "0.5";
-    
-    if (dbResult.analysis && typeof dbResult.analysis === 'object') {
+
+    if (dbResult.analysis && typeof dbResult.analysis === "object") {
       const analysis = dbResult.analysis as Record<string, any>;
-      
-      if (analysis.confidence && typeof analysis.confidence === 'string') {
+
+      if (analysis.confidence && typeof analysis.confidence === "string") {
         confidenceFromAnalysis = analysis.confidence;
       }
 
@@ -116,26 +117,29 @@ const AIAnalysisResults = () => {
             riskAssessment: analysis.reasoning.riskAssessment || [],
             socialSentiment: analysis.reasoning.socialSentiment || [],
             bullishFactors: analysis.reasoning.bullishFactors || [],
-            bearishFactors: analysis.reasoning.bearishFactors || []
-          }
+            bearishFactors: analysis.reasoning.bearishFactors || [],
+          },
         };
       }
     }
 
     const calculatedConfidenceScore = Math.round(
-      (parseFloat(confidenceFromAnalysis) * 100) * 0.2 +
-      (dbResult.market_activity_score || 0) * 0.2 +
-      (100 - (dbResult.risk_score || 0)) * 0.2 +
-      (dbResult.social_sentiment_score || 0) * 0.2 +
-      (dbResult.value_opportunity_score || 0) * 0.2
+      parseFloat(confidenceFromAnalysis) * 100 * 0.2 +
+        (dbResult.market_activity_score || 0) * 0.2 +
+        (100 - (dbResult.risk_score || 0)) * 0.2 +
+        (dbResult.social_sentiment_score || 0) * 0.2 +
+        (dbResult.value_opportunity_score || 0) * 0.2
     );
 
-    const finalConfidenceScore = Math.max(0, Math.min(100, calculatedConfidenceScore));
+    const finalConfidenceScore = Math.max(
+      0,
+      Math.min(100, calculatedConfidenceScore)
+    );
 
     return {
       ...dbResult,
       confidence_score: finalConfidenceScore,
-      analysis: analysisData
+      analysis: analysisData,
     };
   };
 
@@ -147,8 +151,8 @@ const AIAnalysisResults = () => {
     const { data, error } = await supabase
       .from("ai_analysis_results")
       .select("*")
-      .eq('wallet_address', connectedAddress)
-      .order('created_at', { ascending: false })
+      .eq("wallet_address", connectedAddress)
+      .order("created_at", { ascending: false })
       .limit(10);
 
     if (!error && data) {
@@ -162,10 +166,13 @@ const AIAnalysisResults = () => {
   if (results.length === 0) {
     return (
       <div className="text-center p-8">
-        <h2 className="text-2xl font-bold text-foreground mb-4">Recent Analyses</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-4">
+          Recent Analysis
+        </h2>
         <div className="bg-secondary/5 backdrop-blur-sm border border-secondary/10 rounded-xl p-8">
           <p className="text-muted-foreground">
-            No analysis reports found. Run your first analysis above to get started.
+            No analysis reports found. Run your first analysis above to get
+            started.
           </p>
         </div>
       </div>
@@ -174,14 +181,11 @@ const AIAnalysisResults = () => {
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold text-foreground">Recent Analyses</h2>
-      
+      <h2 className="text-2xl font-bold text-foreground">Recent Analysis</h2>
+
       <div className="space-y-6">
         {results.map((result) => (
-          <AnalysisCard 
-            key={result.id} 
-            result={result}
-          />
+          <AnalysisCard key={result.id} result={result} />
         ))}
       </div>
     </div>

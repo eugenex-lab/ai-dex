@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import WalletOptions from "./WalletOptions";
 import ConnectedWallet from "./ConnectedWallet";
-import { useWallet } from "./context/WalletContext";
+import { useWallet } from './context/WalletContext';
 
 interface WalletConnectButtonProps {
   variant?: string; // e.g., "default" or "outline"
@@ -56,7 +56,7 @@ const WalletConnectButton = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant={variant} className="gap-2 min-w-[225px] h-11">
+        <Button variant={variant} className="gap-2 min-w-[225px] h-10">
           <Wallet className="h-4 w-4" />
           {buttonText}
         </Button>

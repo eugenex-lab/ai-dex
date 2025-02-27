@@ -72,6 +72,7 @@ export const useCardano = () => {
       const address = await getCardanoPaymentAddress(walletName);
       if (!address) throw new Error("Failed to retrieve Cardano address.");
 
+      console.log("Cardano address:", address);
       setCardanoAddress(address);
       setIsConnected(true);
       await updateWalletConnection(address, "cardano");

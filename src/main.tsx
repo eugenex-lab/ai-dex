@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import "./index.css";
 import { WalletProvider } from "./components/wallet/context/WalletContext.tsx";
+import { TooltipProvider } from "./components/ui/tooltip.tsx";
 // import "use-cardano/styles/use-cardano.css";
 // import {
 //   CardanoProvider,
@@ -32,8 +33,10 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
-    <WalletProvider>
-      <App />{" "}
-    </WalletProvider>
+    <TooltipProvider>
+      <WalletProvider>
+        <App />{" "}
+      </WalletProvider>
+    </TooltipProvider>
   </QueryClientProvider>
 );
