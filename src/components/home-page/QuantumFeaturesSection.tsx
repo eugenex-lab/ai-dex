@@ -75,7 +75,7 @@ export const QuantumFeaturesSection = () => {
             backdrop-filter: blur(10px);
             background-color: rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(0, 255, 255, 0.1);
-            transition: all 0.3s ease;
+            transition: all 0.3s ease-in-out;
           }
 
           .feature-card:hover {
@@ -84,7 +84,7 @@ export const QuantumFeaturesSection = () => {
           }
 
           .feature-icon {
-            transition: all 0.3s ease;
+            transition: all 0.5s ease-in-out;
           }
 
           .feature-card:hover .feature-icon {
@@ -113,9 +113,9 @@ export const QuantumFeaturesSection = () => {
             <motion.div
               key={index}
               whileHover={{ scale: 1.05, y: -10 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               className={`feature-card rounded-lg p-6 floating`}
-              style={{ animationDelay: `${index}s` }}
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
               <div
                 className={`text-5xl mb-4 ${feature.iconColor} feature-icon`}

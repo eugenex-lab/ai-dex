@@ -22,9 +22,6 @@ import { TokenGateModal } from "../wallet/token-gate/TokenGateModal";
 import WalletOptions from "../wallet/WalletOptions";
 
 const AIAnalysisForm = () => {
-  const { connectedAddress } = useWalletConnection();
-  const { loading, formData, setFormData, handleSubmit } =
-    useAnalysisForm(connectedAddress);
   const [isFormReady, setIsFormReady] = useState(false);
   const {
     isConnected,
@@ -34,6 +31,8 @@ const AIAnalysisForm = () => {
     availableWallets,
     bech32Address,
   } = useWallet();
+  const { loading, formData, setFormData, handleSubmit } =
+    useAnalysisForm(bech32Address);
   const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
   const [quoteCurrency, setQuoteCurrency] = useState("USD");
   const [isComparisonMode, setIsComparisonMode] = useState(false);

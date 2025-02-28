@@ -95,7 +95,7 @@ export const TokenomicsSection = () => {
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 md:translate-x-0 -translate-y-1/2 text-center">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 md:translate-x-[20px] -translate-y-1/2 text-center">
               <p className="text-white text-lg font-medium">Total Supply</p>
               <p className="text-white text-2xl font-bold">70M</p>
             </div>
