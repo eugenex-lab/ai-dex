@@ -58,7 +58,7 @@ const Header = () => {
 
             {/* Desktop: Render CardanoHeaderWalletConnect only for /ai-analysis */}
             {location.pathname === "/ai-analysis" && (
-              <div className="hidden  md:flex justify-center items-center">
+              <div className="hidden md:flex justify-center items-center">
                 <CardanoHeaderWalletConnect />
               </div>
             )}

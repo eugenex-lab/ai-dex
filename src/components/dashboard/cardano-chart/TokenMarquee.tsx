@@ -26,6 +26,20 @@ export const TokenMarquee = ({
     return () => clearInterval(interval);
   }, [tokens.length, isPaused]);
 
+  // Helper function to render price change with proper color and sign
+  const renderPriceChange = (priceChange: number) => {
+    // Format to 2 decimal places
+    const formattedChange = Math.abs(priceChange).toFixed(2);
+
+    if (priceChange > 0) {
+      return <span className="text-emerald-500">+{formattedChange}%</span>;
+    } else if (priceChange < 0) {
+      return <span className="text-rose-500">-{formattedChange}%</span>;
+    } else {
+      return <span className="text-slate-400">0.00%</span>;
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full overflow-hidden border-t bg-card/50 backdrop-blur-sm z-50">
       <div
@@ -51,7 +65,7 @@ export const TokenMarquee = ({
             <span>
               {token.price.toFixed(6)} {quoteCurrency}
             </span>
-            <span className="text-emerald-500">+2.45%</span>
+            {renderPriceChange(token.priceChange24h || 0)}
           </div>
         ))}
       </div>

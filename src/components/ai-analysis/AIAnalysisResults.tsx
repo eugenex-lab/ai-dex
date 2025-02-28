@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useWalletConnection } from "@/components/wallet/hooks/useWalletConnection";
 import { AnalysisCard } from "./components/AnalysisCard";
 import { Json } from "@/integrations/supabase/types";
+import { useWallet } from "../wallet/context/WalletContext";
 
 interface AnalysisReasoning {
   priceAnalysis: string[];
@@ -65,7 +65,17 @@ interface AnalysisResult {
 
 const AIAnalysisResults = () => {
   const [results, setResults] = useState<AnalysisResult[]>([]);
-  const { connectedAddress } = useWalletConnection();
+  const {
+    isConnected,
+    hasRequiredToken,
+    isCheckingToken,
+    connectToWallet,
+    bech32Address,
+    walletAddress,
+    availableWallets,
+  } = useWallet();
+
+  console.log("Available log" + bech32Address);
 
   useEffect(() => {
     fetchResults();
@@ -78,7 +88,7 @@ const AIAnalysisResults = () => {
           event: "INSERT",
           schema: "public",
           table: "ai_analysis_results",
-          filter: `wallet_address=eq.${connectedAddress}`,
+          filter: `wallet_address=eq.${bech32Address}`,
         },
         () => {
           console.log("New analysis result detected, refreshing...");
@@ -90,7 +100,7 @@ const AIAnalysisResults = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [connectedAddress]);
+  }, [bech32Address, hasRequiredToken]);
 
   const convertDBResultToAnalysisResult = (
     dbResult: AnalysisResultFromDB
@@ -144,14 +154,14 @@ const AIAnalysisResults = () => {
   };
 
   const fetchResults = async () => {
-    if (!connectedAddress) {
+    if (isConnected && !hasRequiredToken) {
       return;
     }
 
     const { data, error } = await supabase
       .from("ai_analysis_results")
       .select("*")
-      .eq("wallet_address", connectedAddress)
+      .eq("wallet_address", bech32Address)
       .order("created_at", { ascending: false })
       .limit(10);
 

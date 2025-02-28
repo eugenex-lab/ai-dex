@@ -20,6 +20,7 @@ export function CardanoHeaderWalletConnect() {
     bech32Address,
     connectedWallet,
     availableWallets,
+    hasRequiredToken,
     connectToWallet,
     disconnect,
   } = useWallet();
@@ -67,6 +68,12 @@ export function CardanoHeaderWalletConnect() {
 
   // Format address for display (first 8 chars ... last 4 chars)
   const formatAddress = (address: string): string => {
+    if (!address || address.length < 12) return address;
+    return `${address.substring(0, 4)}...${address.substring(
+      address.length - 4
+    )}`;
+  };
+  const formatAddress2 = (address: string): string => {
     if (!address || address.length < 12) return address;
     return `${address.substring(0, 8)}...${address.substring(
       address.length - 4
@@ -117,7 +124,15 @@ export function CardanoHeaderWalletConnect() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="h-11">
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen((prev) => !prev);
+          }}
+          variant="outline"
+          size="sm"
+          className="h-11 w-60"
+        >
           {isConnected ? (
             <>
               {walletIcon ? (
@@ -147,8 +162,15 @@ export function CardanoHeaderWalletConnect() {
                 {walletAddress
                   ? formatAddress(bech32Address || walletAddress)
                   : connectedWallet}
-                <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
-                  Cardano
+                <span className="flex gap-1">
+                  <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                    Cardano
+                  </span>
+                  {hasRequiredToken && (
+                    <span className="text-xs bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded-full">
+                      Botly
+                    </span>
+                  )}
                 </span>
               </span>
             </>
@@ -180,10 +202,7 @@ export function CardanoHeaderWalletConnect() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className="w-[200px] glass_card glass-card"
-      >
+      <DropdownMenuContent align="end" className="w-60 glass_card glass-card">
         {!connectedWallet ? (
           availableWallets.length > 0 ? (
             availableWallets.map((wallet) => {
@@ -234,15 +253,14 @@ export function CardanoHeaderWalletConnect() {
               <>
                 <div className="p-2 text-sm text-muted-foreground">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-semibold text-foreground">
-                      Your Address:
-                    </span>
+                    <div className="break-all">
+                      {walletAddress
+                        ? formatAddress2(bech32Address || walletAddress)
+                        : connectedWallet}{" "}
+                    </div>
                     <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
                       Cardano
                     </span>
-                  </div>
-                  <div className="break-all">
-                    {bech32Address || walletAddress}
                   </div>
                 </div>
                 <DropdownMenuItem
