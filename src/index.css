@@ -15,8 +15,6 @@
     --chart-down: 0 84% 60%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 220 13% 91%;
-
- 
   }
 }
 
@@ -199,4 +197,59 @@ div#dexhunter-container {
   width: -webkit-fill-available;
   display: flex;
   justify-content: center;
+}
+
+/* Marque  */
+
+/* Better marquee animations for the partners section */
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% - 1rem));
+  }
+}
+
+@keyframes marquee-right {
+  0% {
+    transform: translateX(calc(-100% - 1rem));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Marquee container styles */
+.marquee-container {
+  @apply relative flex overflow-hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 5%,
+    black 95%,
+    transparent
+  );
+}
+
+/* Marquee track styles */
+.marquee-track {
+  @apply flex flex-shrink-0 items-center;
+  min-width: 100%;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* Animation classes */
+.animate-marquee-left {
+  animation: marquee-left 25s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 25s linear infinite;
+}
+
+/* Pause on hover */
+.marquee-container:hover .marquee-track {
+  animation-play-state: paused;
 }

@@ -7,6 +7,10 @@ import { DiscordIcon } from "@/components/icons/DiscordIcon";
 import { MediumIcon } from "@/components/icons/MediumIcon";
 import { TokenomicsSection } from "@/components/home-page/TokenomicsSection";
 import { QuantumFeaturesSection } from "@/components/home-page/QuantumFeaturesSection";
+import { SupportedChainsSection } from "@/components/home-page/SupportedChainsSection";
+import { Marquee } from "@/components/ui/marque";
+import { partnersRow1, partnersRow2 } from "@/constants/general";
+import Footer from "@/components/Footer";
 
 const colors = [
   "rgba(255, 255, 255, 0.8)", // warm white
@@ -65,7 +69,7 @@ const Index = () => {
     <div className="relative min-h-screen bg-background">
       {/* Animated background */}
       <div
-        className="absolute inset-0 w-full h-full blur-3xl opacity-50 transition-all duration-1000"
+        className="absolute inset-0 w-full  blur-3xl opacity-50 transition-all duration-1000"
         style={{
           background: `radial-gradient(circle at center, ${currentColor} 0%, transparent 70%)`,
           transform: "scale(1.2)",
@@ -171,9 +175,42 @@ const Index = () => {
 
         {/* Quantum Features Section */}
         <QuantumFeaturesSection />
-
+        {/* Supported Chains Section */}
+        <SupportedChainsSection />
         {/* Tokenomics Section */}
         <TokenomicsSection />
+
+        {/* Partners Section */}
+        <div className="w-full px-4 py-16 flex flex-col items-center justify-center overflow-hidden">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 pb-2">
+              Partners, Collaborators, & Integrated Tech
+            </h2>
+          </motion.div>
+
+          {/* Partners Marquee - Row 1 - Moving Left */}
+          <div className="w-full mb-8">
+            <Marquee direction="left" className="py-4">
+              {partnersRow1.map((partner, index) => (
+                <PartnerItem key={`${partner}-${index}`} name={partner} />
+              ))}
+            </Marquee>
+          </div>
+
+          {/* Partners Marquee - Row 2 - Moving Right */}
+          <div className="w-full">
+            <Marquee direction="right" className="py-4">
+              {partnersRow2.map((partner, index) => (
+                <PartnerItem key={`${partner}-${index}`} name={partner} />
+              ))}
+            </Marquee>
+          </div>
+        </div>
 
         {/* Community Section */}
         <div className="w-full px-4 py-16 flex flex-col items-center justify-center bg-opacity-50 backdrop-blur-sm">
@@ -235,3 +272,12 @@ const Index = () => {
 };
 
 export default Index;
+
+// Component for a single partner item
+const PartnerItem = ({ name }: { name: string }) => (
+  <div className="px-8 mx-2 my-0">
+    <span className="text-3xl font-bold whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 animate-pulse-subtle">
+      {name}
+    </span>
+  </div>
+);

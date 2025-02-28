@@ -20,6 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api, TokenData } from "@/services/api";
 import { TokenGateModal } from "../wallet/token-gate/TokenGateModal";
 import WalletOptions from "../wallet/WalletOptions";
+import { CardanoWalletDisconnect } from "../wallet/CardanoWalletDisconnect";
 
 const AIAnalysisForm = () => {
   const [isFormReady, setIsFormReady] = useState(false);
@@ -161,9 +162,18 @@ const AIAnalysisForm = () => {
                   <Shield className="h-4 w-4 mr-1.5" />
                   <span>Premium access required</span>
                 </div>
-                <span className="flex items-center  text-xs bg-primary px-2 py-0.5  border rounded-2xl">
-                  Botly Token
-                </span>
+                <Button
+                  className="flex items-center text-xs bg-primary px-2 py-0.5 border rounded-2xl "
+                  onClick={() =>
+                    window.open(
+                      "https://app.axo.trade/?pair=BOTLY_ADA",
+                      "_blank"
+                    )
+                  }
+                  size="iconx"
+                >
+                  Buy Botly Token
+                </Button>
               </div>
 
               <Button
@@ -240,13 +250,16 @@ const AIAnalysisForm = () => {
         </div>
       </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-primary hover:bg-primary/90 text-white font-medium"
-        disabled={loading}
-      >
-        {loading ? "Analyzing..." : "Run Analysis"}
-      </Button>
+      <div className="space-y-2">
+        <Button
+          type="submit"
+          className="w-full bg-primary hover:bg-primary/90 text-white font-medium"
+          disabled={loading}
+        >
+          {loading ? "Analyzing..." : "Run Analysis"}
+        </Button>
+        <CardanoWalletDisconnect />
+      </div>
     </form>
   );
 };

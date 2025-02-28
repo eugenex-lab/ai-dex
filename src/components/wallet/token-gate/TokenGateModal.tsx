@@ -395,6 +395,22 @@ export function TokenGateModal({ isOpen, onClose }: TokenGateModalProps) {
                   Acquire more Botly tokens to access exclusive features.
                 </p>
 
+                <div className=" flex  items-center justify-center w-full">
+                  <a
+                    href="https://app.axo.trade/?pair=BOTLY_ADA"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="animate-bounce focus:animate-none hover:animate-none text-md font-medium bg-indigo-900 mt-3 px-4 py-2 rounded-lg tracking-wide text-white w-40 space-x-2 justify-center items-center flex"
+                  >
+                    <span>Buy Botly</span>{" "}
+                    <img
+                      src="/public/lovable-uploads/3fba76e3-54af-4dc2-ba9e-4d6ca67ac92c.png"
+                      alt="Security Shield"
+                      className="h-4 w-4"
+                    />
+                  </a>
+                </div>
+
                 <div className="flex flex-col sm:flex-row gap-2 mt-3 justify-center">
                   {/* Retry button */}
                   <Button

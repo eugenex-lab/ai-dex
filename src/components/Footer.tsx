@@ -5,8 +5,8 @@ import LegalLinks from "./footer/LegalLinks";
 
 const Footer = () => {
   return (
-    <footer className="bg-background py-12">
-      <div className="container mx-auto">
+    <footer className="bg-background py-12 z-20 ">
+      <div className="container mx-auto max-w-4xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <AboutLinks />
           <HelpLinks />

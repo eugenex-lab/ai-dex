@@ -109,23 +109,48 @@ export const QuantumFeaturesSection = () => {
           QUANTUM FEATURES
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.05, y: -10 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className={`feature-card rounded-lg p-6 floating`}
-              style={{ animationDelay: `${index * 0.2}s` }}
-            >
-              <div
-                className={`text-5xl mb-4 ${feature.iconColor} feature-icon`}
+          {features.map((feature, index) => {
+            if (index === 2) {
+              return (
+                <div
+                  key={index}
+                  className="md:col-span-2 flex justify-center lg:col-auto"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -10 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="feature-card rounded-lg p-6 floating w-auto md:max-w-80 lg:max-w-max"
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div
+                      className={`text-5xl mb-4 ${feature.iconColor} feature-icon`}
+                    >
+                      <FontAwesomeIcon icon={feature.icon} />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">{feature.title}</h3>
+                    <p className="text-gray-300">{feature.description}</p>
+                  </motion.div>
+                </div>
+              );
+            }
+            return (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.05, y: -10 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="feature-card rounded-lg p-6 floating"
+                style={{ animationDelay: `${index * 0.2}s` }}
               >
-                <FontAwesomeIcon icon={feature.icon} />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
-            </motion.div>
-          ))}
+                <div
+                  className={`text-5xl mb-4 ${feature.iconColor} feature-icon`}
+                >
+                  <FontAwesomeIcon icon={feature.icon} />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-gray-300">{feature.description}</p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
