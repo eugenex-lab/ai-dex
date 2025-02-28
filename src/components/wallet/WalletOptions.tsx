@@ -33,7 +33,7 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: "nami",
     name: "Nami",
-    icon: "nami.png",
+    icon: "nami.svg",
     chain: "Cardano",
     popular: true,
   },
@@ -55,7 +55,7 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: "flint",
     name: "Flint",
-    icon: "flint.png",
+    icon: "flint.jpg",
     chain: "Cardano",
   },
   {
@@ -67,7 +67,7 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: "gerowallet",
     name: "Gero",
-    icon: "gerowallet.png",
+    icon: "gero.jpg",
     chain: "Cardano",
   },
   {
@@ -91,25 +91,25 @@ const WALLET_OPTIONS: WalletOption[] = [
   {
     id: "typhon",
     name: "Typhon",
-    icon: "typhon.png",
+    icon: "typon.svg",
     chain: "Cardano",
   },
   {
     id: "typhoncip30",
     name: "Typhoncip30",
-    icon: "typhoncip30.png",
+    icon: "typon.svg",
     chain: "Cardano",
   },
   {
     id: "exodus",
     name: "Exodus",
-    icon: "exodus.png",
+    icon: "exodus.jpg",
     chain: "Cardano",
   },
   {
     id: "okxwallet",
     name: "OKX Wallet",
-    icon: "okxwallet.png",
+    icon: "okx.png",
     chain: "Cardano",
   },
 ];
