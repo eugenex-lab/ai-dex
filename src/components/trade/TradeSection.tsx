@@ -8,6 +8,7 @@ import { SlippageDialog } from "./SlippageDialog";
 import Swap from "@dexhunterio/swaps";
 import "@dexhunterio/swaps/lib/assets/style.css";
 import DexHunterSwap from "./swap/DexHunterSwap";
+import JupiterSwap from "./swap/JupiterSwap";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -114,27 +115,14 @@ const TradeSection = () => {
             <DexHunterSwap />
           </div>
         )}
-
-        {/* Only show SwapContent, TokenSelectDialog, and SlippageDialog if selectedChain is NOT "cardano" */}
-        {selectedChain !== "cardano" && (
-          <div className="w-full max-w-md mx-auto px-4">
-            <SwapContent />
-
-            <TokenSelectDialog
-              showTokenSelect={showTokenSelect}
-              setShowTokenSelect={setShowTokenSelect}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              handleTokenSelect={handleTokenSelect}
-              availableTokens={filteredTokens}
-            />
-
-            <SlippageDialog
-              showSlippage={showSlippage}
-              setShowSlippage={setShowSlippage}
-              slippage={slippage}
-              setSlippage={setSlippage}
-            />
+        {selectedChain === "ethereum" && (
+          <div id="dexhunter-container" className="w-full">
+            {/* <UniswapSwap /> */}
+          </div>
+        )}
+        {selectedChain === "solana" && (
+          <div id="dexhunter-container" className="w-full">
+            <JupiterSwap />
           </div>
         )}
       </div>

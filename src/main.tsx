@@ -4,12 +4,16 @@ import App from "./App.tsx";
 import "./index.css";
 import { WalletProvider } from "./components/wallet/context/WalletContext.tsx";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
+import { JupiterProvider } from "@jup-ag/react-hook";
+import { Connection } from "@solana/web3.js";
 // import "use-cardano/styles/use-cardano.css";
 // import {
 //   CardanoProvider,
 //   CardanoToaster,
 //   UseCardanoOptions,
 // } from "use-cardano";
+
+const connection = new Connection("https://api.mainnet-beta.solana.com");
 
 // Create a client
 const queryClient = new QueryClient({
@@ -34,9 +38,11 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <WalletProvider>
-        <App />{" "}
-      </WalletProvider>
+      {/* <JupiterProvider connection={connection} cluster="mainnet-beta"> */}
+        <WalletProvider>
+          <App />{" "}
+        </WalletProvider>{" "}
+      {/* </JupiterProvider> */}
     </TooltipProvider>
   </QueryClientProvider>
 );

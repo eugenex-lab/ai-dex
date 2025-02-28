@@ -12,7 +12,7 @@ import { TokenMarquee } from "@/components/dashboard/cardano-chart/TokenMarquee"
 import CardanoChartLayout from "@/components/dashboard/CardanoChartLayout";
 
 const Dashboard = () => {
-  const [currentPair, setCurrentPair] = useState("");
+  const [currentPair, setCurrentPair] = useState("ADAUSD");
   const [currentChain, setCurrentChain] = useState("");
   const [hasAlerts, setHasAlerts] = useState(false);
 
@@ -35,10 +35,14 @@ const Dashboard = () => {
       setCurrentChain(chain);
 
       // Only change currentPair for Ethereum and Solana
-      if (chain === "ethereum") {
-        setCurrentPair("ETHUSDT");
+      if (chain === "cardano") {
+        // cspell: disable-line
+        setCurrentPair("ADAUSD"); // cspell: disable-line
+      } else if (chain === "ethereum") {
+        setCurrentPair("ETHUSDT"); // cspell: disable-line
       } else if (chain === "solana") {
-        setCurrentPair("SOLUSDT");
+        // cspell: disable-line
+        setCurrentPair("SOLUSDT"); // cspell: disable-line
       }
     };
 
@@ -89,10 +93,7 @@ const Dashboard = () => {
             </div>
           </div> */}
         </div>
-
         <MarketStats />
-
-        {/* Token Marquee Component */}
         {tokens && (
           <TokenMarquee
             tokens={tokens}
@@ -100,14 +101,11 @@ const Dashboard = () => {
             onTokenSelect={(token) => handlePairChange(token.ticker)}
           />
         )}
-
         {/* Show CardanoChart if the chain is Cardano */}
-
         <ChartSection
           currentPair={currentPair}
           onPairChange={handlePairChange}
         />
-
         <CryptoList />
       </div>
     </div>

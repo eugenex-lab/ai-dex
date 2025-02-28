@@ -36,13 +36,9 @@ const CryptoChart = ({
         <h2 className="text-xl font-semibold">Price Chart</h2>
       </div>
       <div className="w-full h-[600px] md:h-[640px]">
-        {currentPair === "ADAUSDT" ? (
-          <CardanoChart /> // Render the CardanoChart component when currentPair is "ADAUSDT"
-        ) : (
-          <ErrorBoundary>
-            <TradingViewChart currentPair={currentPair} />
-          </ErrorBoundary>
-        )}
+        <ErrorBoundary>
+          <TradingViewChart currentPair={currentPair} />
+        </ErrorBoundary>
       </div>
     </div>
   );

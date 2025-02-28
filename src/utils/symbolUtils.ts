@@ -8,7 +8,7 @@ export const ALLOWED_PAIRS = [
   // "ADAUSDT",
   "ETHUSDT",
   "BNBUSDT",
-  // "ADAUSDT",
+  "ADAUSDT",
   "DOGEUSDT",
   "XRPUSDT",
 ];
