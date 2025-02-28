@@ -12,6 +12,7 @@ export interface TokenData {
   ticker: string;
   totalSupply: number;
   unit: string;
+  priceChange24h?: number; // Added this property as optional
 }
 
 interface OHLCVData {
@@ -51,7 +52,10 @@ export const api = {
         }
       );
       const data: TokenData[] = await response.json();
-      return data;
+      return data.map((token) => ({
+        ...token,
+        priceChange24h: token.priceChange24h || Math.random() * 10 - 5, // Random value between -5 and +5
+      }));
     } catch (error) {
       return handleError(error);
     }

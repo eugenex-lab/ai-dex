@@ -83,11 +83,11 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto relative">
         <div className="flex md:items-start mb-8 flex-col w-full items-center md:flex-row md:justify-between relative">
           <DashboardHeader />
-          <div className="flex flex-col gap-6">
+          {/* <div className="flex flex-col gap-6">
             <div className="mb-8 flex w-full">
               <AlertNotification hasAlerts={hasAlerts} />
             </div>
-          </div>
+          </div> */}
         </div>
 
         <MarketStats />

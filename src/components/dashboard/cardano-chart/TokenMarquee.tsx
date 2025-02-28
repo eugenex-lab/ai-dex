@@ -41,7 +41,7 @@ export const TokenMarquee = ({
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full overflow-hidden border-t bg-card/50 backdrop-blur-sm z-50">
+    <div className="fixed bottom-0 left-0 right-0 w-full overflow-hidden border-t bg-background backdrop-blur-sm z-50">
       <div
         className="flex whitespace-nowrap py-2"
         style={{
