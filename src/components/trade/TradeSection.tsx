@@ -28,7 +28,7 @@ const TradeSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChain, setSelectedChain] = useState<
     "cardano" | "ethereum" | "solana"
-  >("solana");
+  >("cardano");
 
   // Subscribe to chain changes from WalletSection
   useEffect(() => {
