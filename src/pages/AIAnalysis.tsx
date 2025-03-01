@@ -6,7 +6,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 
 const AIAnalysis = () => {
   return (
-    <div className="c ontainer mx-auto pt-16 pb-8">
+    <div className="container mx-auto pt-16 pb-8">
       <AIAnalysisHeader />
       <ErrorBoundary>
         <AIAnalysisForm />

@@ -18,7 +18,7 @@ const WalletSection = () => {
 
   return (
     <div className="relative">
-      <Select onValueChange={handleChainChange} defaultValue="cardano">
+      <Select onValueChange={handleChainChange} defaultValue="solana">
         <SelectTrigger className="w-full mb-4 bg-background">
           <SelectValue placeholder="Choose Chain" />
         </SelectTrigger>

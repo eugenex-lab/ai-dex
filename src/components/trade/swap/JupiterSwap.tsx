@@ -1,115 +1,109 @@
-import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-// import styles from "./DexHunterMobile.module.css";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
-import { useWalletConnection } from "@/components/wallet/hooks/useWalletConnection";
+import { useEffect } from "react";
 
-const JupiterSwap = () => {
-  const [containerWidth, setContainerWidth] = useState(480);
-  const [isMobile, setIsMobile] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const { connectedAddress } = useWalletConnection();
-  const { toast } = useToast();
+declare global {
+  interface Window {
+    Jupiter?: any;
+  }
+}
 
-  // Check whether we're on a mobile device
-  const isMobileDevice = useMemo(() => {
-    return (
-      typeof window !== "undefined" &&
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      )
-    );
-  }, []);
-
-  // Adjust container width based on viewport
+const JupiterTerminalComponent = () => {
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
+  
 
-      const parentElement =
-        document.getElementById("jupiter-root")?.parentElement;
-      if (parentElement) {
-        const parentWidth = parentElement.clientWidth;
-        const parentPadding = 20;
-        const desktopWidth = Math.min(parentWidth - parentPadding, 600);
-        const mobileWidth = Math.min(parentWidth - parentPadding * 2, 400);
-        setContainerWidth(mobile ? mobileWidth : desktopWidth);
+    // Function to initialize Jupiter
+    const initJupiter = () => {
+      try {
+        if (window.Jupiter) {
+          window.Jupiter.init({
+            integratedTargetId: "integrated-terminal",
+            defaultExplorer: "Solscan",
+            displayMode: "integrated",
+            endpoint:
+              "https://devnet.helius-rpc.com/?api-key=43afb310-7af6-4c00-9cd9-519473f51b98",
+            // strictTokenList: false,
+            connectionConfig: {
+              commitment: "confirmed",
+              disableRetryOnRateLimit: false,
+              httpHeaders: {
+                "Content-Type": "application/json",
+                "solana-client": "Tradenly/1.0.0",
+              },
+            },
+            disableRetryOnRateLimit: false,
+            confirmTransactionInitialTimeout: 60000,
+            onTransaction: ({ txid, swapResult }: any) => {
+              console.log("Transaction in progress:", txid);
+            },
+            onRequestConnectWallet: () => {
+              console.log("Wallet connection requested");
+            },
+            onSuccess: ({ txid }: { txid: string }) => {
+              console.log("Transaction successful:", txid);
+            },
+            onError: (error: any) => {
+              console.error("Transaction error:", error);
+            },
+          });
+        }
+      } catch (error) {
+        console.error("Jupiter initialization error:", error);
       }
     };
 
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    // Synchronously load the Jupiter script by not using async/defer
+    if (
+      !document.querySelector(
+        'script[src="https://terminal.jup.ag/main-v2.js"]'
+      )
+    ) {
+      const script = document.createElement("script");
+      script.src = "https://terminal.jup.ag/main-v2.js";
+      // Removing async and defer to load synchronously
+      script.onload = initJupiter;
+      script.onerror = () => {
+        console.error("Failed to load Jupiter script");
+      };
+      document.body.appendChild(script);
+    } else if (window.Jupiter) {
+      initJupiter();
+    }
+
+    // Clean up on component unmount
+    return () => {
+      if (window.Jupiter && typeof window.Jupiter.destroy === "function") {
+        window.Jupiter.destroy();
+      }
+    };
   }, []);
 
-  // Create the Jupiter widget URL with minimal necessary parameters
-  const jupiterWidgetUrl = useMemo(() => {
-    const url = new URL("https://jup.ag/swap");
-
-    // Essential parameters
-    url.searchParams.set("platform", "tradenly");
-    url.searchParams.set("referralTarget", window.location.hostname);
-
-    // Set connected address if available (as a convenience, not required)
-    if (connectedAddress) {
-      url.searchParams.set("userPublicKey", connectedAddress);
-    }
-
-    // Mobile optimizations
-    if (isMobileDevice || isMobile) {
-      url.searchParams.set("responsive", "true");
-    }
-
-    return url.toString();
-  }, [connectedAddress, isMobileDevice, isMobile]);
-
-  // Standard Jupiter iframe for all browsers
   return (
     <div
-      id="jupiter-root"
-      // className={styles.container}
       style={{
-        width: `${containerWidth}px`,
-        height: "480px",
-        margin: "0 auto",
-        backgroundColor: "#0E0F12",
-        borderRadius: "12px",
-        overflow: "hidden",
-        position: "relative",
+        textAlign: "center",
+        color: "white",
+        backgroundColor: "black",
+        // minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "start",
+        borderRadius: "16px"
       }}
     >
-      <iframe
-        ref={iframeRef}
-        src={jupiterWidgetUrl}
-        width="100%"
-        height="100%"
+      <div
+        id="integrated-terminal"
         style={{
-          border: "none",
-          borderRadius: "12px",
+          width: "100%",
+          height: "500px",
+          maxWidth: "1200px",
+          margin: "20px auto",
+          borderRadius: "16px",
+          overflow: "hidden",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
         }}
-        title="Jupiter Swap"
-        allow="clipboard-write; web-share; cross-origin-isolated; storage-access"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-downloads allow-storage-access-by-user-activation allow-forms allow-modals allow-top-navigation"
-        referrerPolicy="origin"
-      />
-
-      {/* External link button for mobile devices */}
-      {isMobileDevice && (
-        <div className="absolute bottom-4 right-4">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => window.open(jupiterWidgetUrl, "_blank")}
-            className="shadow-lg bg-background/80"
-          >
-            <ExternalLink size={16} />
-          </Button>
-        </div>
-      )}
+      ></div>
     </div>
   );
 };
 
-export default JupiterSwap;
+export default JupiterTerminalComponent;

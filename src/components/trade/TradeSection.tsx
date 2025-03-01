@@ -9,6 +9,11 @@ import Swap from "@dexhunterio/swaps";
 import "@dexhunterio/swaps/lib/assets/style.css";
 import DexHunterSwap from "./swap/DexHunterSwap";
 import JupiterSwap from "./swap/JupiterSwap";
+import TradenlyAI from "./swap/JupiterSwap";
+import WalletTerminal from "./swap/JupiterSwap";
+import JupiterTerminalComponent from "./swap/JupiterSwap";
+import JupiterTerminal from "./swap/JupiterSwap";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -22,7 +27,7 @@ const TradeSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedChain, setSelectedChain] = useState<
     "cardano" | "ethereum" | "solana"
-  >("cardano");
+  >("solana");
 
   // Subscribe to chain changes from WalletSection
   useEffect(() => {
@@ -108,25 +113,28 @@ const TradeSection = () => {
   );
 
   return (
-    <div className="w-full">
-      <div className="space-y-4">
-        {selectedChain === "cardano" && (
-          <div id="dexhunter-container" className="w-full">
-            <DexHunterSwap />
-          </div>
-        )}
-        {selectedChain === "ethereum" && (
-          <div id="dexhunter-container" className="w-full">
-            {/* <UniswapSwap /> */}
-          </div>
-        )}
-        {selectedChain === "solana" && (
-          <div id="dexhunter-container" className="w-full">
-            <JupiterSwap />
-          </div>
-        )}
+    <ErrorBoundary>
+      <div className="w-full">
+        <div className="space-y-4">
+          {selectedChain === "cardano" && (
+            <div id="dexhunter-container" className="w-full">
+              <DexHunterSwap />
+            </div>
+          )}
+          {selectedChain === "ethereum" && (
+            <div id="dexhunter-container" className="w-full">
+              {/* <UniswapSwap /> */}
+              Hello WORLD
+            </div>
+          )}
+          {selectedChain === "solana" && (
+            <div className="w-full">
+              <JupiterTerminal />{" "}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

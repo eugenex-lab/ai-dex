@@ -191,12 +191,17 @@
 
 #dexhunter-container .dhs-\@container\/appRoot {
   width: -webkit-fill-available;
+  min-height: 550px;
 }
 
 div#dexhunter-container {
   width: -webkit-fill-available;
   display: flex;
   justify-content: center;
+}
+
+.dhs-bg-background.dhs-flex.dhs-flex-col.dhs-gap-1.\@sm\/appRoot\:dhs-gap-2\.5.dhs-p-2\.5.dhs-pt-0.dhs-rounded-\[26px\] {
+  min-height: 550px;
 }
 
 /* Marque  */

@@ -12,7 +12,7 @@ const ChartSection = ({ currentPair, onPairChange }: ChartSectionProps) => {
       <div className="lg:col-span-2 w-full">
         <CryptoChart onPairChange={onPairChange} currentPair={currentPair} />
       </div>
-      <div>
+      <div className=" min-h-44">
         <PortfolioCard currentPair={currentPair} />
       </div>
     </div>
