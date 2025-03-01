@@ -14,6 +14,7 @@ import WalletTerminal from "./swap/JupiterSwap";
 import JupiterTerminalComponent from "./swap/JupiterSwap";
 import JupiterTerminal from "./swap/JupiterSwap";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import UniswapSwap from "./swap/UniswapSwap";
 
 const TradeSection = () => {
   const [fromAmount, setFromAmount] = useState("");
@@ -123,8 +124,8 @@ const TradeSection = () => {
           )}
           {selectedChain === "ethereum" && (
             <div id="dexhunter-container" className="w-full">
-              {/* <UniswapSwap /> */}
-              Hello WORLD
+              <UniswapSwap />
+              {/* Hello WORLD */}
             </div>
           )}
           {selectedChain === "solana" && (

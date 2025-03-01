@@ -200,9 +200,16 @@ div#dexhunter-container {
   justify-content: center;
 }
 
+/*  TO edit jupyter swap */
+
 .dhs-bg-background.dhs-flex.dhs-flex-col.dhs-gap-1.\@sm\/appRoot\:dhs-gap-2\.5.dhs-p-2\.5.dhs-pt-0.dhs-rounded-\[26px\] {
   min-height: 550px;
 }
+
+/*  TO edit Eth swap */
+
+
+
 
 /* Marque  */
 

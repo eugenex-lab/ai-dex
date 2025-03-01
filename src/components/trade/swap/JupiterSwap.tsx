@@ -8,8 +8,6 @@ declare global {
 
 const JupiterTerminalComponent = () => {
   useEffect(() => {
-  
-
     // Function to initialize Jupiter
     const initJupiter = () => {
       try {
@@ -21,6 +19,13 @@ const JupiterTerminalComponent = () => {
             endpoint:
               "https://devnet.helius-rpc.com/?api-key=43afb310-7af6-4c00-9cd9-519473f51b98",
             // strictTokenList: false,
+            platformFee: {
+              feeBps: 10, // 0.10% fee (1 BPS = 0.01%)
+              feeAccounts: {
+                // Your fee recipient address:
+                SOL: "9dM9AZBr6g9cYh4StdjAkLbijtfBfABRt2FFefpGf6wn",
+              },
+            },
             connectionConfig: {
               commitment: "confirmed",
               disableRetryOnRateLimit: false,
@@ -28,6 +33,12 @@ const JupiterTerminalComponent = () => {
                 "Content-Type": "application/json",
                 "solana-client": "Tradenly/1.0.0",
               },
+            },
+            formProps: {
+              swapMode: "ExactIn",
+              // fixedAmount: true,
+              initialAmount: "100000000",
+              initialSlippageBps: 1,
             },
             disableRetryOnRateLimit: false,
             confirmTransactionInitialTimeout: 60000,
@@ -87,7 +98,7 @@ const JupiterTerminalComponent = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "start",
-        borderRadius: "16px"
+        borderRadius: "16px",
       }}
     >
       <div
