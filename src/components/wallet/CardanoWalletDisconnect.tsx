@@ -12,7 +12,7 @@ export function CardanoWalletDisconnect() {
       onClick={disconnect}
       variant="outline"
       size="sm"
-      className="h-11 w-full flex items-center justify-center gap-2 text-destructive"
+      className="h-11 w-full flex items-center justify-center gap-2 text-destructive hover:bg-red-600"
     >
       <LogOut className="h-4 w-4" />
       Disconnect

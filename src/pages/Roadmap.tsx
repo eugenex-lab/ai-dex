@@ -99,6 +99,7 @@ const Roadmap = () => {
               style={{
                 scaleY: scrollYProgress,
                 originY: 0,
+                left: "9px",
               }}
               initial={{ height: 0 }}
               animate={{ height: "100%" }}
@@ -108,7 +109,6 @@ const Roadmap = () => {
                 delay: 0.3,
               }}
               className="border-r-4 border-black absolute h-full top-0"
-              style={{ left: "9px" }}
             ></motion.div>
             <ul className="list-none m-0 p-0">
               {timelineData.map((phase, index) => (

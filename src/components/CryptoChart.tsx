@@ -68,7 +68,7 @@ export default CryptoChart;
 
 const TradingViewChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
   const chartRef = useRef<HTMLDivElement>(null);
-  const formattedPair = `BINANCE:${cleanSymbol(currentPair)}`;
+  const formattedPair = `${cleanSymbol(currentPair)}`;
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -79,12 +79,10 @@ const TradingViewChart = ({ currentPair = "AFCUSDT" }: CryptoChartProps) => {
     script.async = true;
     script.onload = () => {
       new (window as any).TradingView.widget({
-        container_id: "tradingview_chart",
         container_id: chartRef.current?.id,
         symbol: formattedPair,
         interval: "D",
         theme: "Dark",
-        theme: "dark",
         style: "1",
         locale: "en",
         autosize: true,

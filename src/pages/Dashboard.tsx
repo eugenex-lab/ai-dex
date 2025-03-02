@@ -17,9 +17,10 @@ const Dashboard = () => {
   const [hasAlerts, setHasAlerts] = useState(false);
 
   const handlePairChange = (pair: string) => {
-    const cleanPair = pair.replace("BINANCE:", "");
-    console.log("Dashboard: Setting current pair to:", cleanPair);
-    setCurrentPair(cleanPair);
+    // If the pair already ends with 'USD', use it as is; otherwise, append 'USD'
+    const updatedPair = pair.endsWith("USD") ? pair : `${pair}USD`;
+    setCurrentPair(updatedPair);
+    console.log("Dashboard: Setting current pair:", updatedPair);
   };
 
   // Fetch top tokens
@@ -39,10 +40,10 @@ const Dashboard = () => {
         // cspell: disable-line
         setCurrentPair("ADAUSD"); // cspell: disable-line
       } else if (chain === "ethereum") {
-        setCurrentPair("ETHUSDT"); // cspell: disable-line
+        setCurrentPair("ETHUSD"); // cspell: disable-line
       } else if (chain === "solana") {
         // cspell: disable-line
-        setCurrentPair("SOLUSDT"); // cspell: disable-line
+        setCurrentPair("SOLUSD"); // cspell: disable-line
       }
     };
 
@@ -97,7 +98,7 @@ const Dashboard = () => {
         {tokens && (
           <TokenMarquee
             tokens={tokens}
-            quoteCurrency="ADA"
+            quoteCurrency="USD"
             onTokenSelect={(token) => handlePairChange(token.ticker)}
           />
         )}
