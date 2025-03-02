@@ -4,6 +4,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import wasm from "vite-plugin-wasm";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -14,6 +15,10 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
+    nodePolyfills({
+      include: ["buffer", "process"],
+      globals: { Buffer: true },
+    }),
     react(),
     wasm(),
     mode === "development" && componentTagger(),
@@ -21,6 +26,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      jsbi: path.resolve(__dirname, "./node_modules/jsbi/dist/jsbi-cjs.js"),
+      "~@fontsource/ibm-plex-mono": "@fontsource/ibm-plex-mono",
+      "~@fontsource/inter": "@fontsource/inter",
+      buffer: "buffer",
     },
   },
   build: {

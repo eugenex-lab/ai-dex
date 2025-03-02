@@ -208,9 +208,6 @@ div#dexhunter-container {
 
 /*  TO edit Eth swap */
 
-
-
-
 /* Marque  */
 
 /* Better marquee animations for the partners section */
@@ -265,3 +262,23 @@ div#dexhunter-container {
 .marquee-container:hover .marquee-track {
   animation-play-state: paused;
 }
+
+/* Uniswap css  */
+.WidgetWrapper__StyledWidgetWrapper-sc-11krezp-0.hHSPa-d {
+  height: 550px;
+  /* opacity: 0; */
+  /* animation: fadeIn 1s ease-in-out forwards; */
+}
+
+.WidgetWrapper__StyledWidgetWrapper-sc-11krezp-0.kAQQIV {
+  height: 550px;
+}
+
+/* @keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+} */

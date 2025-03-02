@@ -1,54 +1,42 @@
-import { useEffect, useState } from "react";
-import styles from "./DexHunterMobile.module.css";
+import React from "react";
+import { darkTheme, lightTheme, Theme, SwapWidget } from "@uniswap/widgets";
+import "@uniswap/widgets/fonts.css";
 
-const UniswapSwap = () => {
-  const [containerWidth, setContainerWidth] = useState(380);
-  const [isMobile, setIsMobile] = useState(false);
+const myDarkTheme: Theme = {
+  ...darkTheme, // Extend the darkTheme
+  accent: "#2172E5",
+  primary: "#FFFFFF",
+  secondary: "#FFFFFF",
+  interactive: "#0089EC",
+  outline: "#343D3A",
+};
 
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
+const jsonRpcUrlMap = {
+  // Ethereum
+  // 1: [""],
+  // Polygon
+  1: [
+    `https://mainnet.infura.io/v3/037820aaa89442339bfea9dffe9c5368`,
+    "https://eth.llamarpc.com", // Fallback RPC
+  ],
+  137: ["https://polygon-rpc.com"],
+  // BSC
+  56: ["https://bsc-dataseed.binance.org/"],
+};
 
-      const parentElement =
-        document.getElementById("uniswap-root")?.parentElement;
-      if (parentElement) {
-        const parentWidth = parentElement.clientWidth;
-        const parentPadding = 48;
-        const desktopWidth = Math.min(parentWidth - parentPadding, 480);
-        const mobileWidth = 420;
-        setContainerWidth(mobile ? mobileWidth : desktopWidth);
-      }
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
+const UniswapSwap: React.FC = () => {
   return (
-    <div
-      id="uniswap-root"
-      className={styles.container}
-      style={{
-        width: `100%`,
-        height: "550px",
-        margin: "0 auto",
-        backgroundColor: "#0E0F12",
-        borderRadius: "12px",
-        overflow: "hidden",
-      }}
-    >
-      <iframe
-        src="https://app.uniswap.org/swap?"
-        width="100%"
-        height="100%"
-        style={{
-          border: "none",
-          borderRadius: "12px",
-        }}
-        title="Uniswap Interface"
-      />
+    <div className="Uniswap">
+      <SwapWidget
+        theme={myDarkTheme}
+        tokenList="https://ipfs.io/ipns/tokens.uniswap.org"
+        width={"100%"}
+        convenienceFee={100} // 100 basis points = 1%
+        jsonRpcUrlMap={jsonRpcUrlMap}
+        convenienceFeeRecipient={{
+          1: "0xfa9be27E330Bb53051c2ebf3C56F091Bd582cE23",
+        }} // Replace with your wallet address
+      />{" "}
     </div>
   );
 };
