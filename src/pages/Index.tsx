@@ -11,6 +11,8 @@ import { SupportedChainsSection } from "@/components/home-page/SupportedChainsSe
 import { Marquee } from "@/components/ui/marque";
 import { partnersRow1, partnersRow2 } from "@/constants/general";
 import Footer from "@/components/Footer";
+import { Icon } from "@iconify/react";
+import X from "@/components/icons/X";
 
 const colors = [
   "rgba(255, 255, 255, 0.8)", // warm white
@@ -227,12 +229,12 @@ const Index = () => {
               Connect with traders, share insights, and stay updated with the
               latest features and announcements.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8  max-w-xs mx-auto">
               {[
                 {
-                  name: "Twitter",
+                  name: "X",
                   href: "https://x.com/Tradenly",
-                  icon: Twitter,
+                  icon: X,
                 },
                 {
                   name: "Discord",
@@ -245,7 +247,7 @@ const Index = () => {
                   icon: MediumIcon,
                 },
               ].map((social) => {
-                const Icon = social.icon;
+                const IconSocial = social.icon;
                 return (
                   <a
                     key={social.name}
@@ -255,7 +257,7 @@ const Index = () => {
                     className="flex flex-col items-center"
                   >
                     <div className="p-6 rounded-2xl bg-black hover:bg-primary transition-colors duration-200 mb-3">
-                      <Icon className="w-8 h-8 text-white" />
+                      <IconSocial className="w-8 h-8 text-white" />
                     </div>
                     <span className="text-white font-medium">
                       {social.name}
