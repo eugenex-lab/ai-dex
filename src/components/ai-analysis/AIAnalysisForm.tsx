@@ -21,6 +21,7 @@ import { api, TokenData } from "@/services/api";
 import { TokenGateModal } from "../wallet/token-gate/TokenGateModal";
 import WalletOptions from "../wallet/WalletOptions";
 import { CardanoWalletDisconnect } from "../wallet/CardanoWalletDisconnect";
+import { Icon } from "@iconify/react";
 
 const AIAnalysisForm = () => {
   const [isFormReady, setIsFormReady] = useState(false);
@@ -256,9 +257,22 @@ const AIAnalysisForm = () => {
           className="w-full bg-primary hover:bg-primary/90 text-white font-medium"
           disabled={loading}
         >
-          {loading ? "Analyzing..." : "Run Analysis"}
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <Icon
+                icon="mdi:loading"
+                className="animate-spin mr-2"
+                width="20"
+                height="20"
+              />
+
+              <span className="animate-pulse">Analyzing...</span>
+            </div>
+          ) : (
+            "Run Analysis"
+          )}
         </Button>
-        <CardanoWalletDisconnect />
+        {loading ? <div className="h-11"></div> : <CardanoWalletDisconnect />}
       </div>
     </form>
   );

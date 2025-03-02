@@ -14,4 +14,5 @@ export const partnersRow2 = [
   "TapTools",
   "Trading View",
   "AxoTrade",
+  "Xerberus",
 ];
